@@ -22,6 +22,53 @@ async function getAccessToken() {
   return data.access_token;
 }
 
+
+// Converte data e ora italiane in un Date corretto,
+// gestendo automaticamente ora solare e ora legale.
+function createRomeDate(date, time) {
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Rome",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23"
+  });
+
+  let guess = new Date(
+    Date.UTC(year, month - 1, day, hour, minute, 0)
+  );
+
+  const parts = formatter.formatToParts(guess);
+
+  const values = {};
+
+  for (const part of parts) {
+    if (part.type !== "literal") {
+      values[part.type] = part.value;
+    }
+  }
+
+  const asUTC = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+    Number(values.second)
+  );
+
+  const offset = asUTC - guess.getTime();
+
+  return new Date(guess.getTime() - offset);
+}
+
+
 exports.handler = async function (event) {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
@@ -32,7 +79,9 @@ exports.handler = async function (event) {
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ error: "Metodo non consentito" })
+      body: JSON.stringify({
+        error: "Metodo non consentito"
+      })
     };
   }
 
@@ -60,7 +109,9 @@ exports.handler = async function (event) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: "Data non valida" })
+        body: JSON.stringify({
+          error: "Data non valida"
+        })
       };
     }
 
@@ -68,22 +119,45 @@ exports.handler = async function (event) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: "Orario non valido" })
+        body: JSON.stringify({
+          error: "Orario non valido"
+        })
       };
     }
 
     const accessToken = await getAccessToken();
 
-    const start = new Date(`${data}T${ora}:00+02:00`);
-    const end = new Date(start.getTime() + 20 * 60 * 1000);
+    // Orario interpretato sempre secondo Europe/Rome.
+    // Funziona sia con ora legale sia con ora solare.
+    const start = createRomeDate(data, ora);
 
+    // Durata appuntamento: 20 minuti.
+    const end = new Date(
+      start.getTime() + 20 * 60 * 1000
+    );
+
+
+    // CONTROLLO DISPONIBILITÀ
+    // Prima di creare l'appuntamento controlliamo
+    // nuovamente Google Calendar.
     const checkUrl = new URL(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events"
     );
 
-    checkUrl.searchParams.set("timeMin", start.toISOString());
-    checkUrl.searchParams.set("timeMax", end.toISOString());
-    checkUrl.searchParams.set("singleEvents", "true");
+    checkUrl.searchParams.set(
+      "timeMin",
+      start.toISOString()
+    );
+
+    checkUrl.searchParams.set(
+      "timeMax",
+      end.toISOString()
+    );
+
+    checkUrl.searchParams.set(
+      "singleEvents",
+      "true"
+    );
 
     const checkResponse = await fetch(checkUrl, {
       headers: {
@@ -94,73 +168,108 @@ exports.handler = async function (event) {
     const checkData = await checkResponse.json();
 
     if (!checkResponse.ok) {
-      console.error("Errore controllo disponibilità:", checkData);
-      throw new Error("Impossibile controllare la disponibilità");
+      console.error(
+        "Errore controllo disponibilità:",
+        checkData
+      );
+
+      throw new Error(
+        "Impossibile controllare la disponibilità"
+      );
     }
 
+
+    // Se esiste già un evento in questo intervallo,
+    // impediamo la doppia prenotazione.
     if ((checkData.items || []).length > 0) {
       return {
         statusCode: 409,
         headers,
         body: JSON.stringify({
-          error: "Questo orario non è più disponibile"
+          error:
+            "Questo orario non è più disponibile"
         })
       };
     }
 
+
+    // CREAZIONE EVENTO GOOGLE CALENDAR
     const calendarEvent = {
       summary: `Appuntamento CAF - ${nome}`,
+
       description:
         `Servizio: ${servizio}\n` +
         `Nome: ${nome}\n` +
         `Telefono: ${telefono}\n` +
         (email ? `Email: ${email}\n` : "") +
         `Prenotazione effettuata da cafpuntocittadino.it`,
+
       start: {
         dateTime: start.toISOString(),
         timeZone: "Europe/Rome"
       },
+
       end: {
         dateTime: end.toISOString(),
         timeZone: "Europe/Rome"
       }
     };
 
+
     const createResponse = await fetch(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events",
       {
         method: "POST",
+
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json"
         },
+
         body: JSON.stringify(calendarEvent)
       }
     );
 
-    const createdEvent = await createResponse.json();
+
+    const createdEvent =
+      await createResponse.json();
+
 
     if (!createResponse.ok) {
-      console.error("Errore creazione appuntamento:", createdEvent);
-      throw new Error("Impossibile creare l'appuntamento");
+      console.error(
+        "Errore creazione appuntamento:",
+        createdEvent
+      );
+
+      throw new Error(
+        "Impossibile creare l'appuntamento"
+      );
     }
+
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
-        message: "Appuntamento prenotato correttamente"
+        message:
+          "Appuntamento prenotato correttamente"
       })
     };
+
   } catch (error) {
-    console.error("Errore prenotazione:", error);
+
+    console.error(
+      "Errore prenotazione:",
+      error
+    );
 
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
-        error: "Errore durante la prenotazione"
+        error:
+          "Errore durante la prenotazione"
       })
     };
   }
