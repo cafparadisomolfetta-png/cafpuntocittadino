@@ -23,7 +23,7 @@ async function getAccessToken() {
 }
 
 
-// Restituisce la data corrente italiana YYYY-MM-DD.
+// Data corrente italiana YYYY-MM-DD.
 function getRomeToday() {
   const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Rome",
@@ -45,7 +45,7 @@ function getRomeToday() {
 }
 
 
-// Calcola quanti giorni mancano all'appuntamento.
+// Giorni di calendario mancanti all'appuntamento.
 function daysUntilAppointment(appointmentDate) {
   const today = getRomeToday();
 
@@ -73,6 +73,56 @@ function daysUntilAppointment(appointmentDate) {
 }
 
 
+// Cerca l'appuntamento usando il codice personale.
+async function trovaEventoDaCodice(
+  accessToken,
+  codiceDisdetta
+) {
+  const url = new URL(
+    "https://www.googleapis.com/calendar/v3/calendars/primary/events"
+  );
+
+  // Cerca solamente appuntamenti non già cancellati.
+  url.searchParams.set("singleEvents", "true");
+  url.searchParams.set("showDeleted", "false");
+  url.searchParams.set("maxResults", "10");
+
+  // Google Calendar permette di cercare
+  // nelle extendedProperties private.
+  url.searchParams.append(
+    "privateExtendedProperty",
+    `cancellationCode=${codiceDisdetta}`
+  );
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error(
+      "Errore ricerca appuntamento:",
+      data
+    );
+
+    throw new Error(
+      "Impossibile cercare l'appuntamento"
+    );
+  }
+
+  const eventi = data.items || [];
+
+  if (!eventi.length) {
+    return null;
+  }
+
+  return eventi[0];
+}
+
+
 exports.handler = async function (event) {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
@@ -92,7 +142,7 @@ exports.handler = async function (event) {
   try {
     const body = JSON.parse(event.body || "{}");
 
-    const eventId = String(
+    let eventId = String(
       body.eventId || ""
     ).trim();
 
@@ -102,114 +152,166 @@ exports.handler = async function (event) {
 
     const codiceDisdetta = String(
       body.codiceDisdetta || ""
-    ).trim().toUpperCase();
+    )
+      .trim()
+      .toUpperCase();
 
 
-    if (!eventId) {
+    // Serve almeno il codice personale.
+    if (!codiceDisdetta) {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({
-          error: "Appuntamento non identificato"
+          error:
+            "Inserisci il codice di disdetta"
         })
       };
     }
 
 
-    const accessToken = await getAccessToken();
+    const accessToken =
+      await getAccessToken();
+
+    let calendarEvent = null;
 
 
-    // RECUPERA L'APPUNTAMENTO DA GOOGLE CALENDAR
-    const eventUrl =
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events/" +
-      encodeURIComponent(eventId);
+    // SE ABBIAMO EVENT ID
+    // Caso: disdetta immediatamente dopo
+    // la prenotazione.
+    if (eventId) {
 
+      const eventUrl =
+        "https://www.googleapis.com/calendar/v3/calendars/primary/events/" +
+        encodeURIComponent(eventId);
 
-    const eventResponse = await fetch(eventUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
+      const eventResponse = await fetch(
+        eventUrl,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${accessToken}`
+          }
+        }
+      );
+
+      if (!eventResponse.ok) {
+        return {
+          statusCode: 404,
+          headers,
+          body: JSON.stringify({
+            error:
+              "Appuntamento non trovato"
+          })
+        };
       }
-    });
+
+      calendarEvent =
+        await eventResponse.json();
+
+    } else {
+
+      // SENZA EVENT ID
+      // Caso: cliente che torna sul sito
+      // successivamente con il proprio codice.
+      calendarEvent =
+        await trovaEventoDaCodice(
+          accessToken,
+          codiceDisdetta
+        );
+
+      if (!calendarEvent) {
+        return {
+          statusCode: 404,
+          headers,
+          body: JSON.stringify({
+            error:
+              "Codice di disdetta non valido o appuntamento non trovato"
+          })
+        };
+      }
+
+      eventId = calendarEvent.id;
+    }
 
 
-    if (!eventResponse.ok) {
+    // VERIFICA CODICE
+    const codiceSalvato =
+      calendarEvent.extendedProperties &&
+      calendarEvent.extendedProperties.private
+        ? String(
+            calendarEvent.extendedProperties
+              .private.cancellationCode || ""
+          )
+            .trim()
+            .toUpperCase()
+        : "";
+
+
+    if (
+      !codiceSalvato ||
+      codiceSalvato !== codiceDisdetta
+    ) {
       return {
-        statusCode: 404,
+        statusCode: 403,
         headers,
         body: JSON.stringify({
-          error: "Appuntamento non trovato"
+          error:
+            "Codice di disdetta non valido"
         })
       };
     }
 
 
-    const calendarEvent =
-      await eventResponse.json();
-
-
-    // Recupera la vera data direttamente da Google Calendar.
+    // DATA REALE DELL'APPUNTAMENTO
     let dataAppuntamento = "";
 
     if (
       calendarEvent.extendedProperties &&
       calendarEvent.extendedProperties.private &&
-      calendarEvent.extendedProperties.private.bookingDate
+      calendarEvent.extendedProperties.private
+        .bookingDate
     ) {
       dataAppuntamento =
-        calendarEvent.extendedProperties.private.bookingDate;
+        calendarEvent.extendedProperties.private
+          .bookingDate;
+
     } else if (
       calendarEvent.start &&
       calendarEvent.start.dateTime
     ) {
       dataAppuntamento =
-        calendarEvent.start.dateTime.substring(0, 10);
+        calendarEvent.start.dateTime.substring(
+          0,
+          10
+        );
+
     } else {
       dataAppuntamento = dataRicevuta;
     }
 
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataAppuntamento)) {
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(
+        dataAppuntamento
+      )
+    ) {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({
-          error: "Data dell'appuntamento non valida"
+          error:
+            "Data dell'appuntamento non valida"
         })
       };
     }
 
 
-    // Se l'appuntamento possiede un codice di disdetta,
-    // il codice deve corrispondere.
-    const codiceSalvato =
-      calendarEvent.extendedProperties &&
-      calendarEvent.extendedProperties.private
-        ? String(
-            calendarEvent.extendedProperties.private
-              .cancellationCode || ""
-          ).toUpperCase()
-        : "";
-
-
-    if (codiceSalvato) {
-      if (
-        !codiceDisdetta ||
-        codiceDisdetta !== codiceSalvato
-      ) {
-        return {
-          statusCode: 403,
-          headers,
-          body: JSON.stringify({
-            error: "Codice di disdetta non valido"
-          })
-        };
-      }
-    }
-
-
     // REGOLA DEI 2 GIORNI
     const giorniMancanti =
-      daysUntilAppointment(dataAppuntamento);
+      daysUntilAppointment(
+        dataAppuntamento
+      );
 
 
     if (giorniMancanti < 2) {
@@ -224,13 +326,19 @@ exports.handler = async function (event) {
     }
 
 
-    // CANCELLAZIONE DA GOOGLE CALENDAR
+    // CANCELLAZIONE GOOGLE CALENDAR
+    const deleteUrl =
+      "https://www.googleapis.com/calendar/v3/calendars/primary/events/" +
+      encodeURIComponent(eventId);
+
+
     const deleteResponse = await fetch(
-      eventUrl,
+      deleteUrl,
       {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${accessToken}`
+          Authorization:
+            `Bearer ${accessToken}`
         }
       }
     );
@@ -272,7 +380,6 @@ exports.handler = async function (event) {
           "Appuntamento annullato correttamente"
       })
     };
-
 
   } catch (error) {
 
