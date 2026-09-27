@@ -4,19 +4,156 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CAF Punto Cittadino</title>
+
   <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,sans-serif;background:#f5f7f8;color:#243238}
-    header{background:#087f83;color:white;padding:35px 20px;text-align:center}
-    header h1{margin:0 0 8px;font-size:30px}
-    header p{margin:0;font-size:17px}
-    main{max-width:800px;margin:auto;padding:25px 18px}
-    .card{background:white;border-radius:14px;padding:24px;margin-bottom:20px;box-shadow:0 3px 15px #00000012}
-    h2{color:#087f83;margin-top:0}
-    .btn{display:block;background:#087f83;color:white;text-decoration:none;text-align:center;padding:16px;border-radius:10px;font-weight:bold;margin-top:15px}
-    .btn:hover{background:#066b6e}
-    ul{line-height:1.8;padding-left:22px}
-    footer{text-align:center;padding:25px;color:#667}
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7f8;
+      color: #243238;
+    }
+
+    header {
+      background: #087f83;
+      color: white;
+      padding: 35px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 25px 18px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 15px #00000012;
+    }
+
+    h2 {
+      color: #087f83;
+      margin-top: 0;
+    }
+
+    ul {
+      line-height: 1.8;
+      padding-left: 22px;
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ccd5d8;
+      border-radius: 9px;
+      font-size: 16px;
+      background: white;
+    }
+
+    button,
+    .btn {
+      display: block;
+      width: 100%;
+      border: 0;
+      background: #087f83;
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      padding: 16px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      margin-top: 18px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .orari {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .orario {
+      padding: 12px 6px;
+      border: 2px solid #087f83;
+      border-radius: 9px;
+      background: white;
+      color: #087f83;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .orario.selezionato {
+      background: #087f83;
+      color: white;
+    }
+
+    .messaggio {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 9px;
+      display: none;
+    }
+
+    .successo {
+      display: block;
+      background: #e8f7ef;
+      color: #17653a;
+    }
+
+    .errore {
+      display: block;
+      background: #fdecec;
+      color: #9b2525;
+    }
+
+    .info {
+      display: block;
+      background: #eef7f7;
+      color: #245d60;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #667;
+    }
+
+    @media (max-width: 500px) {
+      .orari {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   </style>
 </head>
 
@@ -53,8 +190,8 @@
   <div class="card">
     <h2>Prenota un appuntamento</h2>
     <p>
-      Il sistema di prenotazione sarà collegato al calendario della sede
-      per mostrare esclusivamente gli orari disponibili.
+      Scegli il servizio e la data. Verranno mostrati gli orari
+      disponibili in base all'agenda della sede.
     </p>
 
     <a class="btn" href="#prenotazione">
@@ -63,10 +200,63 @@
   </div>
 
   <div class="card" id="prenotazione">
+
     <h2>Agenda appuntamenti</h2>
-    <p>
-      Collegamento a Google Calendar in configurazione.
-    </p>
+
+    <label for="servizio">Servizio richiesto *</label>
+
+    <select id="servizio">
+      <option value="">Seleziona il servizio</option>
+      <option>ISEE</option>
+      <option>Modello 730</option>
+      <option>Pratiche INPS</option>
+      <option>Pensioni</option>
+      <option>NASpI</option>
+      <option>Invalidità civile / Legge 104</option>
+      <option>Assegno di Inclusione</option>
+      <option>Consulenza sindacale</option>
+      <option>Assistenza fiscale</option>
+      <option>Altro</option>
+    </select>
+
+    <label for="data">Data appuntamento *</label>
+    <input type="date" id="data">
+
+    <div id="statoOrari" class="messaggio"></div>
+    <div id="orari" class="orari"></div>
+
+    <label for="nome">Nome e cognome *</label>
+    <input
+      type="text"
+      id="nome"
+      autocomplete="name"
+      placeholder="Nome e cognome"
+    >
+
+    <label for="telefono">Telefono *</label>
+    <input
+      type="tel"
+      id="telefono"
+      autocomplete="tel"
+      placeholder="Numero di telefono"
+    >
+
+    <label for="email">Email</label>
+    <input
+      type="email"
+      id="email"
+      autocomplete="email"
+      placeholder="Email facoltativa"
+    >
+
+    <input type="hidden" id="ora">
+
+    <button type="button" id="prenota">
+      Conferma prenotazione
+    </button>
+
+    <div id="risultato" class="messaggio"></div>
+
   </div>
 
 </main>
@@ -75,6 +265,211 @@
   CAF Punto Cittadino<br>
   Molfetta
 </footer>
+
+<script>
+  const dataInput = document.getElementById("data");
+  const orariBox = document.getElementById("orari");
+  const oraInput = document.getElementById("ora");
+  const statoOrari = document.getElementById("statoOrari");
+  const risultato = document.getElementById("risultato");
+  const prenotaButton = document.getElementById("prenota");
+
+  const oggi = new Date();
+  const anno = oggi.getFullYear();
+  const mese = String(oggi.getMonth() + 1).padStart(2, "0");
+  const giorno = String(oggi.getDate()).padStart(2, "0");
+  dataInput.min = `${anno}-${mese}-${giorno}`;
+
+  function messaggio(elemento, testo, tipo) {
+    elemento.textContent = testo;
+    elemento.className = "messaggio " + tipo;
+  }
+
+  function pulisciMessaggio(elemento) {
+    elemento.textContent = "";
+    elemento.className = "messaggio";
+  }
+
+  function estraiOrari(data) {
+    if (Array.isArray(data.availableSlots)) {
+      return data.availableSlots;
+    }
+
+    if (Array.isArray(data.slots)) {
+      return data.slots;
+    }
+
+    if (Array.isArray(data.orari)) {
+      return data.orari;
+    }
+
+    if (Array.isArray(data.available)) {
+      return data.available;
+    }
+
+    return [];
+  }
+
+  async function caricaOrari() {
+    const data = dataInput.value;
+
+    oraInput.value = "";
+    orariBox.innerHTML = "";
+    pulisciMessaggio(risultato);
+
+    if (!data) return;
+
+    messaggio(statoOrari, "Controllo degli orari disponibili...", "info");
+
+    try {
+      const response = await fetch(
+        "/.netlify/functions/calendar-availability?date=" +
+        encodeURIComponent(data)
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Errore nel controllo disponibilità");
+      }
+
+      const orari = estraiOrari(result);
+
+      if (!orari.length) {
+        messaggio(
+          statoOrari,
+          "Nessun orario disponibile per questa data. Prova un'altra data.",
+          "info"
+        );
+        return;
+      }
+
+      pulisciMessaggio(statoOrari);
+
+      orari.forEach(function(slot) {
+        let ora = slot;
+
+        if (typeof slot === "object" && slot !== null) {
+          ora = slot.time || slot.ora || slot.start || "";
+        }
+
+        if (!ora) return;
+
+        if (String(ora).includes("T")) {
+          const d = new Date(ora);
+          ora = d.toLocaleTimeString("it-IT", {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: "Europe/Rome"
+          });
+        }
+
+        ora = String(ora).substring(0, 5);
+
+        const pulsante = document.createElement("button");
+        pulsante.type = "button";
+        pulsante.className = "orario";
+        pulsante.textContent = ora;
+
+        pulsante.addEventListener("click", function() {
+          document.querySelectorAll(".orario").forEach(function(el) {
+            el.classList.remove("selezionato");
+          });
+
+          pulsante.classList.add("selezionato");
+          oraInput.value = ora;
+        });
+
+        orariBox.appendChild(pulsante);
+      });
+
+    } catch (error) {
+      console.error(error);
+
+      messaggio(
+        statoOrari,
+        "Non è stato possibile caricare gli orari. Riprova.",
+        "errore"
+      );
+    }
+  }
+
+  dataInput.addEventListener("change", caricaOrari);
+
+  prenotaButton.addEventListener("click", async function() {
+    const servizio = document.getElementById("servizio").value;
+    const data = dataInput.value;
+    const ora = oraInput.value;
+    const nome = document.getElementById("nome").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const email = document.getElementById("email").value.trim();
+
+    pulisciMessaggio(risultato);
+
+    if (!servizio || !data || !ora || !nome || !telefono) {
+      messaggio(
+        risultato,
+        "Compila i campi obbligatori e seleziona un orario.",
+        "errore"
+      );
+      return;
+    }
+
+    prenotaButton.disabled = true;
+    prenotaButton.textContent = "Prenotazione in corso...";
+
+    try {
+      const response = await fetch(
+        "/.netlify/functions/calendar-book",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            servizio,
+            data,
+            ora,
+            nome,
+            telefono,
+            email
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Prenotazione non riuscita");
+      }
+
+      messaggio(
+        risultato,
+        "Appuntamento prenotato correttamente.",
+        "successo"
+      );
+
+      document.getElementById("servizio").value = "";
+      document.getElementById("nome").value = "";
+      document.getElementById("telefono").value = "";
+      document.getElementById("email").value = "";
+      oraInput.value = "";
+      orariBox.innerHTML = "";
+
+      await caricaOrari();
+
+    } catch (error) {
+      messaggio(
+        risultato,
+        error.message || "Errore durante la prenotazione.",
+        "errore"
+      );
+    } finally {
+      prenotaButton.disabled = false;
+      prenotaButton.textContent = "Conferma prenotazione";
+    }
+  });
+</script>
 
 </body>
 </html>
