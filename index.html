@@ -251,7 +251,6 @@
 
   </div>
 
-  <!-- SCHERMATA CONFERMA E DISDETTA -->
   <div class="card" id="confermaAppuntamento">
 
     <h2>✅ Appuntamento confermato</h2>
@@ -262,8 +261,15 @@
       <strong>Nome:</strong> <span id="confermaNome"></span><br>
       <strong>Servizio:</strong> <span id="confermaServizio"></span><br>
       <strong>Data:</strong> <span id="confermaData"></span><br>
-      <strong>Ora:</strong> <span id="confermaOra"></span>
+      <strong>Ora:</strong> <span id="confermaOra"></span><br>
+      <strong>Codice disdetta:</strong>
+      <span id="confermaCodice"></span>
     </div>
+
+    <p>
+      Conserva il <strong>codice di disdetta</strong>.
+      Ti servirà per gestire successivamente la prenotazione.
+    </p>
 
     <p>
       La disdetta online è consentita solo con almeno
@@ -483,6 +489,7 @@
 
       appuntamentoCorrente = {
         eventId: result.eventId,
+        codiceDisdetta: result.codiceDisdetta,
         data: result.data || data,
         ora: result.ora || ora,
         servizio: result.servizio || servizio,
@@ -500,6 +507,9 @@
 
       document.getElementById("confermaOra").textContent =
         appuntamentoCorrente.ora;
+
+      document.getElementById("confermaCodice").textContent =
+        appuntamentoCorrente.codiceDisdetta || "";
 
       pulisciMessaggio(risultatoDisdetta);
 
@@ -561,7 +571,8 @@
           },
           body: JSON.stringify({
             eventId: appuntamentoCorrente.eventId,
-            data: appuntamentoCorrente.data
+            data: appuntamentoCorrente.data,
+            codiceDisdetta: appuntamentoCorrente.codiceDisdetta
           })
         }
       );
