@@ -22,15 +22,8 @@
       text-align: center;
     }
 
-    header h1 {
-      margin: 0 0 8px;
-      font-size: 30px;
-    }
-
-    header p {
-      margin: 0;
-      font-size: 17px;
-    }
+    header h1 { margin: 0 0 8px; font-size: 30px; }
+    header p { margin: 0; font-size: 17px; }
 
     main {
       max-width: 800px;
@@ -63,8 +56,7 @@
       font-weight: bold;
     }
 
-    input,
-    select {
+    input, select {
       width: 100%;
       padding: 14px;
       border: 1px solid #ccd5d8;
@@ -73,8 +65,7 @@
       background: white;
     }
 
-    button,
-    .btn {
+    button, .btn {
       display: block;
       width: 100%;
       border: 0;
@@ -109,7 +100,6 @@
       background: white;
       color: #087f83;
       font-weight: bold;
-      text-align: center;
       cursor: pointer;
     }
 
@@ -143,6 +133,26 @@
       color: #245d60;
     }
 
+    #confermaAppuntamento {
+      display: none;
+    }
+
+    .riepilogo {
+      background: #eef7f7;
+      padding: 18px;
+      border-radius: 10px;
+      line-height: 1.9;
+      margin-top: 15px;
+    }
+
+    #annullaAppuntamento {
+      background: #b83232;
+    }
+
+    #nuovoAppuntamento {
+      background: #66757a;
+    }
+
     footer {
       text-align: center;
       padding: 25px;
@@ -168,9 +178,7 @@
 
   <div class="card">
     <h2>Benvenuto</h2>
-    <p>
-      Prenota comodamente il tuo appuntamento presso la nostra sede.
-    </p>
+    <p>Prenota comodamente il tuo appuntamento presso la nostra sede.</p>
   </div>
 
   <div class="card">
@@ -204,7 +212,6 @@
     <h2>Agenda appuntamenti</h2>
 
     <label for="servizio">Servizio richiesto *</label>
-
     <select id="servizio">
       <option value="">Seleziona il servizio</option>
       <option>ISEE</option>
@@ -226,28 +233,13 @@
     <div id="orari" class="orari"></div>
 
     <label for="nome">Nome e cognome *</label>
-    <input
-      type="text"
-      id="nome"
-      autocomplete="name"
-      placeholder="Nome e cognome"
-    >
+    <input type="text" id="nome" autocomplete="name" placeholder="Nome e cognome">
 
     <label for="telefono">Telefono *</label>
-    <input
-      type="tel"
-      id="telefono"
-      autocomplete="tel"
-      placeholder="Numero di telefono"
-    >
+    <input type="tel" id="telefono" autocomplete="tel" placeholder="Numero di telefono">
 
     <label for="email">Email</label>
-    <input
-      type="email"
-      id="email"
-      autocomplete="email"
-      placeholder="Email facoltativa"
-    >
+    <input type="email" id="email" autocomplete="email" placeholder="Email facoltativa">
 
     <input type="hidden" id="ora">
 
@@ -256,6 +248,37 @@
     </button>
 
     <div id="risultato" class="messaggio"></div>
+
+  </div>
+
+  <!-- SCHERMATA CONFERMA E DISDETTA -->
+  <div class="card" id="confermaAppuntamento">
+
+    <h2>✅ Appuntamento confermato</h2>
+
+    <p>La prenotazione è stata registrata correttamente.</p>
+
+    <div class="riepilogo">
+      <strong>Nome:</strong> <span id="confermaNome"></span><br>
+      <strong>Servizio:</strong> <span id="confermaServizio"></span><br>
+      <strong>Data:</strong> <span id="confermaData"></span><br>
+      <strong>Ora:</strong> <span id="confermaOra"></span>
+    </div>
+
+    <p>
+      La disdetta online è consentita solo con almeno
+      <strong>2 giorni di anticipo</strong>.
+    </p>
+
+    <button type="button" id="annullaAppuntamento">
+      Disdici appuntamento
+    </button>
+
+    <button type="button" id="nuovoAppuntamento">
+      Prenota un altro appuntamento
+    </button>
+
+    <div id="risultatoDisdetta" class="messaggio"></div>
 
   </div>
 
@@ -274,10 +297,19 @@
   const risultato = document.getElementById("risultato");
   const prenotaButton = document.getElementById("prenota");
 
+  const prenotazioneBox = document.getElementById("prenotazione");
+  const confermaBox = document.getElementById("confermaAppuntamento");
+  const annullaButton = document.getElementById("annullaAppuntamento");
+  const nuovoButton = document.getElementById("nuovoAppuntamento");
+  const risultatoDisdetta = document.getElementById("risultatoDisdetta");
+
+  let appuntamentoCorrente = null;
+
   const oggi = new Date();
   const anno = oggi.getFullYear();
   const mese = String(oggi.getMonth() + 1).padStart(2, "0");
   const giorno = String(oggi.getDate()).padStart(2, "0");
+
   dataInput.min = `${anno}-${mese}-${giorno}`;
 
   function messaggio(elemento, testo, tipo) {
@@ -290,22 +322,19 @@
     elemento.className = "messaggio";
   }
 
+  function formattaData(data) {
+    const parti = data.split("-");
+
+    if (parti.length !== 3) return data;
+
+    return `${parti[2]}/${parti[1]}/${parti[0]}`;
+  }
+
   function estraiOrari(data) {
-    if (Array.isArray(data.availableSlots)) {
-      return data.availableSlots;
-    }
-
-    if (Array.isArray(data.slots)) {
-      return data.slots;
-    }
-
-    if (Array.isArray(data.orari)) {
-      return data.orari;
-    }
-
-    if (Array.isArray(data.available)) {
-      return data.available;
-    }
+    if (Array.isArray(data.availableSlots)) return data.availableSlots;
+    if (Array.isArray(data.slots)) return data.slots;
+    if (Array.isArray(data.orari)) return data.orari;
+    if (Array.isArray(data.available)) return data.available;
 
     return [];
   }
@@ -319,7 +348,11 @@
 
     if (!data) return;
 
-    messaggio(statoOrari, "Controllo degli orari disponibili...", "info");
+    messaggio(
+      statoOrari,
+      "Controllo degli orari disponibili...",
+      "info"
+    );
 
     try {
       const response = await fetch(
@@ -330,7 +363,9 @@
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Errore nel controllo disponibilità");
+        throw new Error(
+          result.error || "Errore nel controllo disponibilità"
+        );
       }
 
       const orari = estraiOrari(result);
@@ -357,6 +392,7 @@
 
         if (String(ora).includes("T")) {
           const d = new Date(ora);
+
           ora = d.toLocaleTimeString("it-IT", {
             hour: "2-digit",
             minute: "2-digit",
@@ -440,23 +476,43 @@
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Prenotazione non riuscita");
+        throw new Error(
+          result.error || "Prenotazione non riuscita"
+        );
       }
 
-      messaggio(
-        risultato,
-        "Appuntamento prenotato correttamente.",
-        "successo"
-      );
+      appuntamentoCorrente = {
+        eventId: result.eventId,
+        data: result.data || data,
+        ora: result.ora || ora,
+        servizio: result.servizio || servizio,
+        nome: result.nome || nome
+      };
 
-      document.getElementById("servizio").value = "";
-      document.getElementById("nome").value = "";
-      document.getElementById("telefono").value = "";
-      document.getElementById("email").value = "";
-      oraInput.value = "";
-      orariBox.innerHTML = "";
+      document.getElementById("confermaNome").textContent =
+        appuntamentoCorrente.nome;
 
-      await caricaOrari();
+      document.getElementById("confermaServizio").textContent =
+        appuntamentoCorrente.servizio;
+
+      document.getElementById("confermaData").textContent =
+        formattaData(appuntamentoCorrente.data);
+
+      document.getElementById("confermaOra").textContent =
+        appuntamentoCorrente.ora;
+
+      pulisciMessaggio(risultatoDisdetta);
+
+      annullaButton.style.display = "block";
+      annullaButton.disabled = false;
+      annullaButton.textContent = "Disdici appuntamento";
+
+      prenotazioneBox.style.display = "none";
+      confermaBox.style.display = "block";
+
+      confermaBox.scrollIntoView({
+        behavior: "smooth"
+      });
 
     } catch (error) {
       messaggio(
@@ -464,10 +520,106 @@
         error.message || "Errore durante la prenotazione.",
         "errore"
       );
+
     } finally {
       prenotaButton.disabled = false;
       prenotaButton.textContent = "Conferma prenotazione";
     }
+  });
+
+  annullaButton.addEventListener("click", async function() {
+    if (
+      !appuntamentoCorrente ||
+      !appuntamentoCorrente.eventId
+    ) {
+      messaggio(
+        risultatoDisdetta,
+        "Non è possibile identificare l'appuntamento.",
+        "errore"
+      );
+      return;
+    }
+
+    const conferma = window.confirm(
+      "Vuoi davvero disdire questo appuntamento?"
+    );
+
+    if (!conferma) return;
+
+    annullaButton.disabled = true;
+    annullaButton.textContent = "Disdetta in corso...";
+
+    pulisciMessaggio(risultatoDisdetta);
+
+    try {
+      const response = await fetch(
+        "/.netlify/functions/calendar-cancel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            eventId: appuntamentoCorrente.eventId,
+            data: appuntamentoCorrente.data
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || "Disdetta non riuscita"
+        );
+      }
+
+      messaggio(
+        risultatoDisdetta,
+        "Appuntamento disdetto correttamente. L'orario è nuovamente disponibile.",
+        "successo"
+      );
+
+      annullaButton.style.display = "none";
+      appuntamentoCorrente = null;
+
+    } catch (error) {
+      messaggio(
+        risultatoDisdetta,
+        error.message || "Errore durante la disdetta.",
+        "errore"
+      );
+
+      annullaButton.disabled = false;
+      annullaButton.textContent = "Disdici appuntamento";
+    }
+  });
+
+  nuovoButton.addEventListener("click", function() {
+    appuntamentoCorrente = null;
+
+    confermaBox.style.display = "none";
+    prenotazioneBox.style.display = "block";
+
+    annullaButton.style.display = "block";
+    annullaButton.disabled = false;
+    annullaButton.textContent = "Disdici appuntamento";
+
+    document.getElementById("servizio").value = "";
+    dataInput.value = "";
+    document.getElementById("nome").value = "";
+    document.getElementById("telefono").value = "";
+    document.getElementById("email").value = "";
+    oraInput.value = "";
+    orariBox.innerHTML = "";
+
+    pulisciMessaggio(statoOrari);
+    pulisciMessaggio(risultato);
+    pulisciMessaggio(risultatoDisdetta);
+
+    prenotazioneBox.scrollIntoView({
+      behavior: "smooth"
+    });
   });
 </script>
 
