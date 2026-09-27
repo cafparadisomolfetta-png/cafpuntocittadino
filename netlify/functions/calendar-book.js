@@ -127,9 +127,11 @@ exports.handler = async function (event) {
 
     const accessToken = await getAccessToken();
 
+
     // Orario interpretato sempre secondo Europe/Rome.
     // Funziona sia con ora legale sia con ora solare.
     const start = createRomeDate(data, ora);
+
 
     // Durata appuntamento: 20 minuti.
     const end = new Date(
@@ -138,8 +140,6 @@ exports.handler = async function (event) {
 
 
     // CONTROLLO DISPONIBILITÀ
-    // Prima di creare l'appuntamento controlliamo
-    // nuovamente Google Calendar.
     const checkUrl = new URL(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events"
     );
@@ -159,13 +159,16 @@ exports.handler = async function (event) {
       "true"
     );
 
+
     const checkResponse = await fetch(checkUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
     });
 
+
     const checkData = await checkResponse.json();
+
 
     if (!checkResponse.ok) {
       console.error(
@@ -179,15 +182,13 @@ exports.handler = async function (event) {
     }
 
 
-    // Se esiste già un evento in questo intervallo,
-    // impediamo la doppia prenotazione.
+    // Impedisce doppie prenotazioni.
     if ((checkData.items || []).length > 0) {
       return {
         statusCode: 409,
         headers,
         body: JSON.stringify({
-          error:
-            "Questo orario non è più disponibile"
+          error: "Questo orario non è più disponibile"
         })
       };
     }
@@ -231,8 +232,7 @@ exports.handler = async function (event) {
     );
 
 
-    const createdEvent =
-      await createResponse.json();
+    const createdEvent = await createResponse.json();
 
 
     if (!createResponse.ok) {
@@ -247,13 +247,20 @@ exports.handler = async function (event) {
     }
 
 
+    // RISPOSTA AL SITO
+    // Restituiamo anche l'ID Google dell'appuntamento.
+    // Servirà per la funzione di disdetta.
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
-        message:
-          "Appuntamento prenotato correttamente"
+        message: "Appuntamento prenotato correttamente",
+        eventId: createdEvent.id,
+        data: data,
+        ora: ora,
+        servizio: servizio,
+        nome: nome
       })
     };
 
@@ -268,8 +275,7 @@ exports.handler = async function (event) {
       statusCode: 500,
       headers,
       body: JSON.stringify({
-        error:
-          "Errore durante la prenotazione"
+        error: "Errore durante la prenotazione"
       })
     };
   }
