@@ -23,7 +23,7 @@ async function getAccessToken() {
 }
 
 
-// Restituisce la data corrente in Italia nel formato YYYY-MM-DD.
+// Restituisce la data corrente italiana YYYY-MM-DD.
 function getRomeToday() {
   const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Rome",
@@ -45,8 +45,7 @@ function getRomeToday() {
 }
 
 
-// Calcola quanti giorni di calendario mancano
-// tra oggi e la data dell'appuntamento.
+// Calcola quanti giorni mancano all'appuntamento.
 function daysUntilAppointment(appointmentDate) {
   const today = getRomeToday();
 
@@ -80,7 +79,6 @@ exports.handler = async function (event) {
     "Cache-Control": "no-store"
   };
 
-
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -91,7 +89,6 @@ exports.handler = async function (event) {
     };
   }
 
-
   try {
     const body = JSON.parse(event.body || "{}");
 
@@ -99,43 +96,120 @@ exports.handler = async function (event) {
       body.eventId || ""
     ).trim();
 
-    const data = String(
+    const dataRicevuta = String(
       body.data || ""
     ).trim();
 
+    const codiceDisdetta = String(
+      body.codiceDisdetta || ""
+    ).trim().toUpperCase();
 
-    if (!eventId || !data) {
+
+    if (!eventId) {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({
-          error:
-            "Dati dell'appuntamento mancanti"
+          error: "Appuntamento non identificato"
         })
       };
     }
 
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+    const accessToken = await getAccessToken();
+
+
+    // RECUPERA L'APPUNTAMENTO DA GOOGLE CALENDAR
+    const eventUrl =
+      "https://www.googleapis.com/calendar/v3/calendars/primary/events/" +
+      encodeURIComponent(eventId);
+
+
+    const eventResponse = await fetch(eventUrl, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+
+    if (!eventResponse.ok) {
       return {
-        statusCode: 400,
+        statusCode: 404,
         headers,
         body: JSON.stringify({
-          error: "Data non valida"
+          error: "Appuntamento non trovato"
         })
       };
     }
 
 
-    // REGOLA DISDETTA
-    //
-    // Deve mancare almeno 2 giorni.
-    //
-    // Esempio:
-    // appuntamento venerdì
-    // cancellabile fino a mercoledì.
+    const calendarEvent =
+      await eventResponse.json();
+
+
+    // Recupera la vera data direttamente da Google Calendar.
+    let dataAppuntamento = "";
+
+    if (
+      calendarEvent.extendedProperties &&
+      calendarEvent.extendedProperties.private &&
+      calendarEvent.extendedProperties.private.bookingDate
+    ) {
+      dataAppuntamento =
+        calendarEvent.extendedProperties.private.bookingDate;
+    } else if (
+      calendarEvent.start &&
+      calendarEvent.start.dateTime
+    ) {
+      dataAppuntamento =
+        calendarEvent.start.dateTime.substring(0, 10);
+    } else {
+      dataAppuntamento = dataRicevuta;
+    }
+
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataAppuntamento)) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          error: "Data dell'appuntamento non valida"
+        })
+      };
+    }
+
+
+    // Se l'appuntamento possiede un codice di disdetta,
+    // il codice deve corrispondere.
+    const codiceSalvato =
+      calendarEvent.extendedProperties &&
+      calendarEvent.extendedProperties.private
+        ? String(
+            calendarEvent.extendedProperties.private
+              .cancellationCode || ""
+          ).toUpperCase()
+        : "";
+
+
+    if (codiceSalvato) {
+      if (
+        !codiceDisdetta ||
+        codiceDisdetta !== codiceSalvato
+      ) {
+        return {
+          statusCode: 403,
+          headers,
+          body: JSON.stringify({
+            error: "Codice di disdetta non valido"
+          })
+        };
+      }
+    }
+
+
+    // REGOLA DEI 2 GIORNI
     const giorniMancanti =
-      daysUntilAppointment(data);
+      daysUntilAppointment(dataAppuntamento);
 
 
     if (giorniMancanti < 2) {
@@ -150,30 +224,18 @@ exports.handler = async function (event) {
     }
 
 
-    const accessToken =
-      await getAccessToken();
-
-
     // CANCELLAZIONE DA GOOGLE CALENDAR
-    const deleteUrl =
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events/" +
-      encodeURIComponent(eventId);
-
-
     const deleteResponse = await fetch(
-      deleteUrl,
+      eventUrl,
       {
         method: "DELETE",
         headers: {
-          Authorization:
-            `Bearer ${accessToken}`
+          Authorization: `Bearer ${accessToken}`
         }
       }
     );
 
 
-    // Google restituisce 204 quando
-    // la cancellazione è riuscita.
     if (
       !deleteResponse.ok &&
       deleteResponse.status !== 204
@@ -218,7 +280,6 @@ exports.handler = async function (event) {
       "Errore disdetta appuntamento:",
       error
     );
-
 
     return {
       statusCode: 500,
