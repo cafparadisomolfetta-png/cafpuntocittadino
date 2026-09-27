@@ -1,3 +1,5 @@
+const crypto = require("crypto");
+
 async function getAccessToken() {
   const response = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -23,6 +25,15 @@ async function getAccessToken() {
 }
 
 
+// Genera il codice personale di disdetta.
+function generaCodiceDisdetta() {
+  return crypto
+    .randomBytes(6)
+    .toString("hex")
+    .toUpperCase();
+}
+
+
 // Converte data e ora italiane in un Date corretto,
 // gestendo automaticamente ora solare e ora legale.
 function createRomeDate(date, time) {
@@ -45,7 +56,6 @@ function createRomeDate(date, time) {
   );
 
   const parts = formatter.formatToParts(guess);
-
   const values = {};
 
   for (const part of parts) {
@@ -127,13 +137,8 @@ exports.handler = async function (event) {
 
     const accessToken = await getAccessToken();
 
-
-    // Orario interpretato sempre secondo Europe/Rome.
-    // Funziona sia con ora legale sia con ora solare.
     const start = createRomeDate(data, ora);
 
-
-    // Durata appuntamento: 20 minuti.
     const end = new Date(
       start.getTime() + 20 * 60 * 1000
     );
@@ -159,16 +164,13 @@ exports.handler = async function (event) {
       "true"
     );
 
-
     const checkResponse = await fetch(checkUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
     });
 
-
     const checkData = await checkResponse.json();
-
 
     if (!checkResponse.ok) {
       console.error(
@@ -181,8 +183,6 @@ exports.handler = async function (event) {
       );
     }
 
-
-    // Impedisce doppie prenotazioni.
     if ((checkData.items || []).length > 0) {
       return {
         statusCode: 409,
@@ -194,6 +194,10 @@ exports.handler = async function (event) {
     }
 
 
+    // GENERAZIONE CODICE PERSONALE
+    const codiceDisdetta = generaCodiceDisdetta();
+
+
     // CREAZIONE EVENTO GOOGLE CALENDAR
     const calendarEvent = {
       summary: `Appuntamento CAF - ${nome}`,
@@ -203,6 +207,7 @@ exports.handler = async function (event) {
         `Nome: ${nome}\n` +
         `Telefono: ${telefono}\n` +
         (email ? `Email: ${email}\n` : "") +
+        `Codice disdetta: ${codiceDisdetta}\n` +
         `Prenotazione effettuata da cafpuntocittadino.it`,
 
       start: {
@@ -213,6 +218,14 @@ exports.handler = async function (event) {
       end: {
         dateTime: end.toISOString(),
         timeZone: "Europe/Rome"
+      },
+
+      extendedProperties: {
+        private: {
+          cancellationCode: codiceDisdetta,
+          bookingDate: data,
+          bookingTime: ora
+        }
       }
     };
 
@@ -221,19 +234,15 @@ exports.handler = async function (event) {
       "https://www.googleapis.com/calendar/v3/calendars/primary/events",
       {
         method: "POST",
-
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json"
         },
-
         body: JSON.stringify(calendarEvent)
       }
     );
 
-
     const createdEvent = await createResponse.json();
-
 
     if (!createResponse.ok) {
       console.error(
@@ -248,8 +257,6 @@ exports.handler = async function (event) {
 
 
     // RISPOSTA AL SITO
-    // Restituiamo anche l'ID Google dell'appuntamento.
-    // Servirà per la funzione di disdetta.
     return {
       statusCode: 200,
       headers,
@@ -257,6 +264,7 @@ exports.handler = async function (event) {
         success: true,
         message: "Appuntamento prenotato correttamente",
         eventId: createdEvent.id,
+        codiceDisdetta: codiceDisdetta,
         data: data,
         ora: ora,
         servizio: servizio,
