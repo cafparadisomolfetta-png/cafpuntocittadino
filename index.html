@@ -223,6 +223,7 @@
       <option>Assegno di Inclusione</option>
       <option>Consulenza sindacale</option>
       <option>Assistenza fiscale</option>
+      <option value="Tesseramento personale – quota associativa €50">Tesseramento personale – quota associativa €50</option>
       <option>Altro</option>
     </select>
 
@@ -249,6 +250,22 @@
 
     <div id="risultato" class="messaggio"></div>
 
+  </div>
+
+  <div class="card" id="pagamentoTessera" style="display:none">
+    <h2>Pagamento tesseramento</h2>
+    <p><strong>Quota associativa personale: €50</strong></p>
+    <p>La tessera è personale e non familiare.</p>
+    <div class="riepilogo">
+      <strong>Intestatario:</strong> ASSOCIAZIONE COMUNALE MOLFETTA<br>
+      <strong>Banca:</strong> Banco BPM<br>
+      <strong>Importo:</strong> €50<br>
+      <strong>IBAN:</strong> <span id="ibanTessera">IT58Y0503441360000000003374</span><br>
+      <strong>Causale:</strong> <span id="causaleTessera"></span>
+    </div>
+    <button type="button" id="copiaIban">Copia IBAN</button>
+    <a class="btn" id="inviaRicevuta" href="#" target="_blank" rel="noopener">Apri WhatsApp e invia la ricevuta</a>
+    <p style="margin-top:15px">Dopo il bonifico, allega manualmente la ricevuta al messaggio WhatsApp. La verifica del pagamento viene effettuata dalla sede.</p>
   </div>
 
   <div class="card" id="confermaAppuntamento">
@@ -302,6 +319,10 @@
   const statoOrari = document.getElementById("statoOrari");
   const risultato = document.getElementById("risultato");
   const prenotaButton = document.getElementById("prenota");
+  const pagamentoTesseraBox = document.getElementById("pagamentoTessera");
+  const causaleTessera = document.getElementById("causaleTessera");
+  const inviaRicevuta = document.getElementById("inviaRicevuta");
+  const copiaIban = document.getElementById("copiaIban");
 
   const prenotazioneBox = document.getElementById("prenotazione");
   const confermaBox = document.getElementById("confermaAppuntamento");
@@ -457,6 +478,16 @@
       return;
     }
 
+    if (servizio === "Tesseramento personale – quota associativa €50") {
+      const causale = "Quota associativa - " + nome;
+      causaleTessera.textContent = causale;
+      const testo = "Buongiorno, ho effettuato il bonifico di €50 per il tesseramento personale.\nIntestatario tessera: " + nome + "\nAppuntamento richiesto: " + formattaData(data) + " ore " + ora + "\nCausale: " + causale + "\nAllego la ricevuta del bonifico.";
+      inviaRicevuta.href = "https://wa.me/?text=" + encodeURIComponent(testo);
+      pagamentoTesseraBox.style.display = "block";
+      pagamentoTesseraBox.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
     prenotaButton.disabled = true;
     prenotaButton.textContent = "Prenotazione in corso...";
 
@@ -534,6 +565,17 @@
     } finally {
       prenotaButton.disabled = false;
       prenotaButton.textContent = "Conferma prenotazione";
+    }
+  });
+
+  copiaIban.addEventListener("click", async function() {
+    const iban = document.getElementById("ibanTessera").textContent.trim();
+    try {
+      await navigator.clipboard.writeText(iban);
+      copiaIban.textContent = "IBAN copiato";
+      setTimeout(function(){ copiaIban.textContent = "Copia IBAN"; }, 1800);
+    } catch (e) {
+      window.prompt("Copia l'IBAN:", iban);
     }
   });
 
