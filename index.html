@@ -3566,6 +3566,7 @@ button,a{touch-action:manipulation}
 </div>
 <label for="bkServizio">Servizio richiesto *</label><select id="bkServizio"><option value="">Seleziona il servizio</option><option>ISEE</option><option>Modello 730</option><option>Pratiche INPS</option><option>Pensioni</option><option>NASpI</option><option>Invalidità civile / Legge 104</option><option>Assegno di Inclusione</option><option>Consulenza sindacale</option><option>Assistenza fiscale</option><option>Altro</option><option value="Consulenza / servizio riservato agli associati">Consulenza / servizio riservato agli associati</option><option value="Tesseramento associativo €35">Tesseramento associativo €35</option><option value="Consulenza 20 minuti – Tesserato">Consulenza 20 minuti – Tesserato (previa verifica)</option><option value="Area Aziende – appuntamento">Area Aziende – appuntamento</option></select>
 <div id="serviceAmountNotice" style="display:none;margin:10px 0;padding:11px 13px;border-radius:10px;background:#eef6fb;color:#234"></div>
+<label for="bkModalita">Modalità appuntamento *</label><select id="bkModalita"><option value="In sede">In sede</option><option value="Telefonico">Telefonico – ti chiamiamo noi al numero indicato</option></select>
 <label for="bkData">Data appuntamento *</label><input type="date" id="bkData"><div id="bkSlotStatus" class="booking-message"></div><div id="bkSlots" class="booking-slots"></div>
 <label for="bkNome">Nome e cognome *</label><input type="text" id="bkNome" autocomplete="name" placeholder="Nome e cognome">
 <label for="bkTelefono">Telefono *</label><input type="tel" id="bkTelefono" autocomplete="tel" placeholder="Numero di telefono">
@@ -3573,7 +3574,7 @@ button,a{touch-action:manipulation}
 <button type="button" class="booking-action" id="bkPrenota">Conferma prenotazione</button><div id="bkResult" class="booking-message"></div>
 <div class="booking-manage"><h3>Hai già un appuntamento?</h3><p>Inserisci il codice ricevuto al momento della prenotazione. La disdetta online è consentita solo con almeno <strong>2 giorni di anticipo</strong>.</p><label for="bkCodiceGestione">Codice di disdetta</label><input type="text" id="bkCodiceGestione" placeholder="Inserisci il codice" autocomplete="off" autocapitalize="characters"><button type="button" class="booking-action cancel" id="bkDisdiciCodice">Disdici il mio appuntamento</button><div id="bkManageResult" class="booking-message"></div></div>
 </div>
-<div class="booking-card" id="bookingConfirmation"><h2>✅ Appuntamento confermato</h2><p>La prenotazione è stata registrata nel calendario della sede.</p><div class="booking-summary"><strong>Nome:</strong> <span id="bkConfNome"></span><br><strong>Servizio:</strong> <span id="bkConfServizio"></span><br><strong>Data:</strong> <span id="bkConfData"></span><br><strong>Ora:</strong> <span id="bkConfOra"></span><br><strong>Codice disdetta:</strong> <span id="bkConfCodice"></span></div><p>Conserva il <strong>codice di disdetta</strong>. La disdetta online è consentita solo con almeno <strong>2 giorni di anticipo</strong>.</p><button type="button" class="booking-action cancel" id="bkAnnulla">Disdici appuntamento</button><button type="button" class="booking-action secondary" id="bkNuovo">Prenota un altro appuntamento</button><div id="bkCancelResult" class="booking-message"></div></div>
+<div class="booking-card" id="bookingConfirmation"><h2>✅ Appuntamento confermato</h2><p>La prenotazione è stata registrata nel calendario della sede.</p><div class="booking-summary"><strong>Nome:</strong> <span id="bkConfNome"></span><br><strong>Servizio:</strong> <span id="bkConfServizio"></span><br><strong>Modalità:</strong> <span id="bkConfModalita"></span><br><strong>Data:</strong> <span id="bkConfData"></span><br><strong>Ora:</strong> <span id="bkConfOra"></span><br><strong>Codice disdetta:</strong> <span id="bkConfCodice" style="font-weight:800;letter-spacing:1px"></span></div><p>Conserva il <strong>codice di disdetta</strong>. La disdetta online è consentita solo con almeno <strong>2 giorni di anticipo</strong>.</p><button type="button" class="booking-action cancel" id="bkAnnulla">Disdici appuntamento</button><button type="button" class="booking-action secondary" id="bkNuovo">Prenota un altro appuntamento</button><div id="bkCancelResult" class="booking-message"></div></div>
 </div></section>
 
 <!-- ============ CONTATTI ============ -->
@@ -4134,6 +4135,7 @@ D.addEventListener("change",async()=>{const d=D.value;O.value="";S.innerHTML="";
 B.onclick=async()=>{
  const servizio=(E("bkServizio")?.value||"").trim();
  const data=(D?.value||"").trim();
+ const modalita=(E("bkModalita")?.value||"").trim();
  const slotSelezionato=S?.querySelector(".booking-slot.is-selected");
  const ora=(slotSelezionato?.textContent||"").trim();
  const nome=(E("bkNome")?.value||"").trim();
@@ -4153,6 +4155,7 @@ B.onclick=async()=>{
  const mancanti=[];
  if(!servizio)mancanti.push("servizio");
  if(!data)mancanti.push("data");
+ if(!modalita)mancanti.push("modalità appuntamento");
  if(!ora)mancanti.push("orario");
  if(!nome)mancanti.push("nome e cognome");
  if(!telefono)mancanti.push("telefono");
@@ -4162,9 +4165,9 @@ B.onclick=async()=>{
  try{
    const payload={
      // Nomi usati dalla funzione calendar-book attuale
-     servizio:servizio,data:data,ora:ora,nome:nome,telefono:telefono,email:email,
+     servizio:servizio,data:data,ora:ora,nome:nome,telefono:telefono,email:email,modalita:modalita,
      // Alias compatibili con eventuali versioni precedenti
-     service:servizio,date:data,time:ora,name:nome,phone:telefono
+     service:servizio,date:data,time:ora,name:nome,phone:telefono,mode:modalita,appointmentType:modalita
    };
    const r=await fetch("/.netlify/functions/calendar-book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
    const raw=await r.text();
@@ -4176,10 +4179,12 @@ B.onclick=async()=>{
      data:x.data||x.date||data,
      ora:x.ora||x.time||ora,
      servizio:x.servizio||x.service||servizio,
-     nome:x.nome||x.name||nome
+     nome:x.nome||x.name||nome,
+     modalita:x.modalita||x.mode||modalita
    };
    if(E("bkConfNome"))E("bkConfNome").textContent=cur.nome;
    if(E("bkConfServizio"))E("bkConfServizio").textContent=cur.servizio;
+   if(E("bkConfModalita"))E("bkConfModalita").textContent=cur.modalita;
    if(E("bkConfData"))E("bkConfData").textContent=dit(cur.data);
    if(E("bkConfOra"))E("bkConfOra").textContent=cur.ora;
    if(E("bkConfCodice"))E("bkConfCodice").textContent=cur.codiceDisdetta||"";
@@ -4194,7 +4199,7 @@ B.onclick=async()=>{
 CB.onclick=async()=>{if(!cur||!cur.eventId||!cur.codiceDisdetta){msg(CR,"Non è possibile identificare l'appuntamento.","err");return}if(!confirm("Vuoi davvero disdire questo appuntamento?"))return;CB.disabled=true;try{const r=await fetch("/.netlify/functions/calendar-cancel",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({eventId:cur.eventId,data:cur.data,codiceDisdetta:cur.codiceDisdetta})}),x=await r.json();if(!r.ok)throw new Error(x.error||"Disdetta non riuscita");msg(CR,"Appuntamento disdetto correttamente. L'orario è nuovamente disponibile.","ok");CB.style.display="none";cur=null}catch(e){msg(CR,e.message||"Errore durante la disdetta.","err");CB.disabled=false}};
 CI.oninput=function(){this.value=this.value.toUpperCase()};
 CBC.onclick=async()=>{const c=CI.value.trim().toUpperCase();clr(MR);if(!c){msg(MR,"Inserisci il codice di disdetta.","err");return}if(!confirm("Vuoi davvero disdire l'appuntamento associato a questo codice?"))return;CBC.disabled=true;CBC.textContent="Disdetta in corso...";try{const r=await fetch("/.netlify/functions/calendar-cancel",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({codiceDisdetta:c})}),x=await r.json();if(!r.ok)throw new Error(x.error||"Disdetta non riuscita");msg(MR,"Appuntamento disdetto correttamente. L'orario è nuovamente disponibile.","ok");CI.value=""}catch(e){msg(MR,e.message||"Errore durante la disdetta.","err")}finally{CBC.disabled=false;CBC.textContent="Disdici il mio appuntamento"}};
-NB.onclick=()=>{cur=null;C.style.display="none";F.style.display="block";CB.style.display="block";CB.disabled=false;E("bkServizio").value="";D.value="";E("bkNome").value="";E("bkTelefono").value="";E("bkEmail").value="";O.value="";S.innerHTML="";clr(SS);clr(R);clr(CR);F.scrollIntoView({behavior:"smooth"})};
+NB.onclick=()=>{cur=null;C.style.display="none";F.style.display="block";CB.style.display="block";CB.disabled=false;E("bkServizio").value="";if(E("bkModalita"))E("bkModalita").value="In sede";D.value="";E("bkNome").value="";E("bkTelefono").value="";E("bkEmail").value="";O.value="";S.innerHTML="";clr(SS);clr(R);clr(CR);F.scrollIntoView({behavior:"smooth"})};
 })();
 </script>
 
