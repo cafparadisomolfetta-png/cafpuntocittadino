@@ -1,282 +1,275 @@
+const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
+const TZ = 'Europe/Rome';
+
+const json = (statusCode, body) => ({
+  statusCode,
+  headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store'
+  },
+  body: JSON.stringify(body)
+});
+
 async function getAccessToken() {
-  const response = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
+  const body = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID || '',
+    client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN || '',
+    grant_type: 'refresh_token'
+  });
+
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
-    body: new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-      grant_type: "refresh_token"
-    }).toString()
+    body
   });
 
-  const data = await response.json();
+  const x = await r.json();
 
-  if (!response.ok) {
-    console.error("Errore token Google:", data);
-    throw new Error("Impossibile ottenere il token Google");
+  if (!r.ok || !x.access_token) {
+    throw new Error(
+      x.error_description ||
+      x.error ||
+      'Impossibile collegarsi a Google Calendar'
+    );
   }
 
-  return data.access_token;
+  return x.access_token;
 }
 
+function makeCancelCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes = new Uint8Array(8);
 
-// Converte data e ora italiane in un Date corretto,
-// gestendo automaticamente ora solare e ora legale.
-function createRomeDate(date, time) {
-  const [year, month, day] = date.split("-").map(Number);
-  const [hour, minute] = time.split(":").map(Number);
+  crypto.getRandomValues(bytes);
 
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Europe/Rome",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23"
-  });
+  let out = '';
 
-  let guess = new Date(
-    Date.UTC(year, month - 1, day, hour, minute, 0)
-  );
-
-  const parts = formatter.formatToParts(guess);
-
-  const values = {};
-
-  for (const part of parts) {
-    if (part.type !== "literal") {
-      values[part.type] = part.value;
-    }
+  for (const b of bytes) {
+    out += alphabet[b % alphabet.length];
   }
 
-  const asUTC = Date.UTC(
-    Number(values.year),
-    Number(values.month) - 1,
-    Number(values.day),
-    Number(values.hour),
-    Number(values.minute),
-    Number(values.second)
-  );
-
-  const offset = asUTC - guess.getTime();
-
-  return new Date(guess.getTime() - offset);
+  return out;
 }
 
+function localTimeHHMM(dateTime) {
+  if (!dateTime) return '';
 
-exports.handler = async function (event) {
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store"
-  };
+  try {
+    return new Intl.DateTimeFormat('it-IT', {
+      timeZone: TZ,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(new Date(dateTime));
+  } catch {
+    return '';
+  }
+}
 
-  if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({
-        error: "Metodo non consentito"
-      })
-    };
+exports.handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return json(200, { ok: true });
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return json(405, { error: 'Metodo non consentito' });
   }
 
   try {
-    const body = JSON.parse(event.body || "{}");
+    const p = JSON.parse(event.body || '{}');
 
-    const nome = String(body.nome || "").trim();
-    const telefono = String(body.telefono || "").trim();
-    const email = String(body.email || "").trim();
-    const servizio = String(body.servizio || "").trim();
-    const data = String(body.data || "").trim();
-    const ora = String(body.ora || "").trim();
+    const servizio = String(
+      p.servizio || p.service || ''
+    ).trim();
 
-    if (!nome || !telefono || !servizio || !data || !ora) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error: "Compila tutti i campi obbligatori"
-        })
-      };
+    const data = String(
+      p.data || p.date || ''
+    ).trim();
+
+    const ora = String(
+      p.ora || p.time || ''
+    ).trim().slice(0, 5);
+
+    const nome = String(
+      p.nome || p.name || ''
+    ).trim();
+
+    const telefono = String(
+      p.telefono || p.phone || ''
+    ).trim();
+
+    const email = String(
+      p.email || ''
+    ).trim();
+
+    const modalita = String(
+      p.modalita ||
+      p.mode ||
+      p.appointmentType ||
+      'In sede'
+    ).trim();
+
+    const missing = [];
+
+    if (!servizio) missing.push('servizio');
+    if (!data) missing.push('data');
+    if (!ora) missing.push('ora');
+    if (!nome) missing.push('nome');
+    if (!telefono) missing.push('telefono');
+
+    if (missing.length) {
+      return json(400, {
+        error: 'Dati mancanti: ' + missing.join(', ')
+      });
     }
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error: "Data non valida"
-        })
-      };
-    }
-
-    if (!/^\d{2}:\d{2}$/.test(ora)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error: "Orario non valido"
-        })
-      };
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(data) ||
+      !/^\d{2}:\d{2}$/.test(ora)
+    ) {
+      return json(400, {
+        error: 'Data o orario non validi'
+      });
     }
 
     const accessToken = await getAccessToken();
 
+    const dayStart = `${data}T00:00:00Z`;
 
-    // Orario interpretato sempre secondo Europe/Rome.
-    // Funziona sia con ora legale sia con ora solare.
-    const start = createRomeDate(data, ora);
+    const next = new Date(`${data}T00:00:00Z`);
+    next.setUTCDate(next.getUTCDate() + 1);
 
+    const dayEnd = next.toISOString();
 
-    // Durata appuntamento: 20 minuti.
-    const end = new Date(
-      start.getTime() + 20 * 60 * 1000
+    const listUrl = new URL(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`
     );
 
+    listUrl.searchParams.set('timeMin', dayStart);
+    listUrl.searchParams.set('timeMax', dayEnd);
+    listUrl.searchParams.set('singleEvents', 'true');
+    listUrl.searchParams.set('showDeleted', 'false');
+    listUrl.searchParams.set('maxResults', '250');
 
-    // CONTROLLO DISPONIBILITÀ
-    const checkUrl = new URL(
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events"
-    );
-
-    checkUrl.searchParams.set(
-      "timeMin",
-      start.toISOString()
-    );
-
-    checkUrl.searchParams.set(
-      "timeMax",
-      end.toISOString()
-    );
-
-    checkUrl.searchParams.set(
-      "singleEvents",
-      "true"
-    );
-
-
-    const checkResponse = await fetch(checkUrl, {
+    const lr = await fetch(listUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
     });
 
+    const lx = await lr.json();
 
-    const checkData = await checkResponse.json();
-
-
-    if (!checkResponse.ok) {
-      console.error(
-        "Errore controllo disponibilità:",
-        checkData
-      );
-
+    if (!lr.ok) {
       throw new Error(
-        "Impossibile controllare la disponibilità"
+        lx.error?.message ||
+        'Errore nel controllo disponibilità'
       );
     }
 
+    const occupied = (lx.items || []).some(
+      ev => localTimeHHMM(ev.start?.dateTime) === ora
+    );
 
-    // Impedisce doppie prenotazioni.
-    if ((checkData.items || []).length > 0) {
-      return {
-        statusCode: 409,
-        headers,
-        body: JSON.stringify({
-          error: "Questo orario non è più disponibile"
-        })
-      };
+    if (occupied) {
+      return json(409, {
+        error:
+          'Questo orario non è più disponibile. Scegline un altro.'
+      });
     }
 
+    const codiceDisdetta = makeCancelCode();
 
-    // CREAZIONE EVENTO GOOGLE CALENDAR
-    const calendarEvent = {
-      summary: `Appuntamento CAF - ${nome}`,
+    const icon = /telefon/i.test(modalita)
+      ? '📞'
+      : '🏢';
 
-      description:
-        `Servizio: ${servizio}\n` +
-        `Nome: ${nome}\n` +
-        `Telefono: ${telefono}\n` +
-        (email ? `Email: ${email}\n` : "") +
-        `Prenotazione effettuata da cafpuntocittadino.it`,
+    const description = [
+      `Servizio: ${servizio}`,
+      `Modalità: ${modalita}`,
+      `Nome: ${nome}`,
+      `Telefono: ${telefono}`,
+      email ? `Email: ${email}` : null,
+      `Codice disdetta: ${codiceDisdetta}`
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const [h, m] = ora.split(':').map(Number);
+
+    const mins = h * 60 + m + 20;
+
+    const endOra =
+      `${String(Math.floor(mins / 60) % 24).padStart(2, '0')}:` +
+      `${String(mins % 60).padStart(2, '0')}`;
+
+    const eventBody = {
+      summary: `${icon} ${servizio} - ${nome}`,
+
+      description,
 
       start: {
-        dateTime: start.toISOString(),
-        timeZone: "Europe/Rome"
+        dateTime: `${data}T${ora}:00`,
+        timeZone: TZ
       },
 
       end: {
-        dateTime: end.toISOString(),
-        timeZone: "Europe/Rome"
+        dateTime: `${data}T${endOra}:00`,
+        timeZone: TZ
+      },
+
+      extendedProperties: {
+        private: {
+          cancelCode: codiceDisdetta,
+          appointmentMode: modalita,
+          phone: telefono
+        }
       }
     };
 
-
-    const createResponse = await fetch(
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+    const ir = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`,
       {
-        method: "POST",
-
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json'
         },
-
-        body: JSON.stringify(calendarEvent)
+        body: JSON.stringify(eventBody)
       }
     );
 
+    const ix = await ir.json();
 
-    const createdEvent = await createResponse.json();
-
-
-    if (!createResponse.ok) {
-      console.error(
-        "Errore creazione appuntamento:",
-        createdEvent
-      );
-
+    if (!ir.ok) {
       throw new Error(
-        "Impossibile creare l'appuntamento"
+        ix.error?.message ||
+        'Errore nella creazione dell’appuntamento'
       );
     }
 
+    return json(200, {
+      ok: true,
+      eventId: ix.id,
 
-    // RISPOSTA AL SITO
-    // Restituiamo anche l'ID Google dell'appuntamento.
-    // Servirà per la funzione di disdetta.
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        message: "Appuntamento prenotato correttamente",
-        eventId: createdEvent.id,
-        data: data,
-        ora: ora,
-        servizio: servizio,
-        nome: nome
-      })
-    };
+      codiceDisdetta,
+      codice_disdetta: codiceDisdetta,
+      cancelCode: codiceDisdetta,
 
-  } catch (error) {
+      data,
+      ora,
 
-    console.error(
-      "Errore prenotazione:",
-      error
-    );
+      modalita,
+      mode: modalita
+    });
 
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        error: "Errore durante la prenotazione"
-      })
-    };
+  } catch (e) {
+    return json(500, {
+      error:
+        e?.message ||
+        'Errore durante la prenotazione'
+    });
   }
 };
