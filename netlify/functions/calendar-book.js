@@ -42,6 +42,46 @@ async function getAccessToken() {
   return x.access_token;
 }
 
+function serviceCategory(servizio) {
+  const s = String(servizio || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (
+    s.includes("invalidita") ||
+    s.includes("104") ||
+    s.includes("naspi") ||
+    s.includes("pension") ||
+    s.includes("inps") ||
+    s.includes("inclusione")
+  ) {
+    return "Patronato / Previdenziale";
+  }
+
+  if (
+    s.includes("isee") ||
+    s.includes("730") ||
+    s.includes("fiscale")
+  ) {
+    return "CAF / Fiscale";
+  }
+
+  if (s.includes("sindacal")) {
+    return "Lavoro / Sindacale";
+  }
+
+  if (s.includes("area aziende")) {
+    return "Area Aziende";
+  }
+
+  if (s.includes("tesseramento")) {
+    return "Tesseramento associativo";
+  }
+
+  return "Consulenza / Altro";
+}
+
 function makeCancelCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const bytes = crypto.randomBytes(8);
@@ -144,6 +184,8 @@ exports.handler = async (event) => {
     const servizio = String(
       p.servizio || p.service || ""
     ).trim();
+
+    const categoriaServizio = serviceCategory(servizio);
 
     const data = String(
       p.data || p.date || ""
@@ -261,7 +303,7 @@ exports.handler = async (event) => {
         : "🏢";
 
     const description = [
-      `Servizio: ${servizio}`,
+      `Area: ${categoriaServizio}`,
       `Modalità: ${modalita}`,
       `Nome: ${nome}`,
       `Telefono: ${telefono}`,
@@ -286,7 +328,7 @@ exports.handler = async (event) => {
 
     const eventBody = {
       summary:
-        `${icon} ${servizio} - ${nome}`,
+        `${icon} ${categoriaServizio} - ${nome}`,
 
       description,
 
@@ -308,7 +350,7 @@ exports.handler = async (event) => {
           appointmentMode: modalita,
           phone: telefono,
           email: email,
-          service: servizio,
+          service: categoriaServizio,
           reminder24hSent: "false"
         }
       }
@@ -345,7 +387,7 @@ exports.handler = async (event) => {
         escapeHtml(nome);
 
       const servizioHtml =
-        escapeHtml(servizio);
+        escapeHtml(categoriaServizio);
 
       const modalitaHtml =
         escapeHtml(modalita);
@@ -384,7 +426,7 @@ exports.handler = async (event) => {
           </p>
 
           <p>
-            <strong>Servizio:</strong>
+            <strong>Area:</strong>
             ${servizioHtml}<br>
 
             <strong>Data:</strong>
