@@ -3570,7 +3570,7 @@ button,a{touch-action:manipulation}
 <label for="bkData">Data appuntamento *</label><input type="date" id="bkData"><div id="bkSlotStatus" class="booking-message"></div><div id="bkSlots" class="booking-slots"></div>
 <label for="bkNome">Nome e cognome *</label><input type="text" id="bkNome" autocomplete="name" placeholder="Nome e cognome">
 <label for="bkTelefono">Telefono *</label><input type="tel" id="bkTelefono" autocomplete="tel" placeholder="Numero di telefono">
-<label for="bkEmail">Email</label><input type="email" id="bkEmail" autocomplete="email" placeholder="Email facoltativa"><input type="hidden" id="bkOra">
+<label for="bkEmail">Email *</label><input type="email" id="bkEmail" autocomplete="email" placeholder="Inserisci la tua email" required><small style="display:block;margin-top:6px;color:#657585">Necessaria per ricevere la conferma e il promemoria dell’appuntamento.</small><input type="hidden" id="bkOra">
 <button type="button" class="booking-action" id="bkPrenota">Conferma prenotazione</button><div id="bkResult" class="booking-message"></div>
 <div class="booking-manage"><h3>Hai già un appuntamento?</h3><p>Inserisci il codice ricevuto al momento della prenotazione. La disdetta online è consentita solo con almeno <strong>2 giorni di anticipo</strong>.</p><label for="bkCodiceGestione">Codice di disdetta</label><input type="text" id="bkCodiceGestione" placeholder="Inserisci il codice" autocomplete="off" autocapitalize="characters"><button type="button" class="booking-action cancel" id="bkDisdiciCodice">Disdici il mio appuntamento</button><div id="bkManageResult" class="booking-message"></div></div>
 </div>
@@ -4159,7 +4159,9 @@ B.onclick=async()=>{
  if(!ora)mancanti.push("orario");
  if(!nome)mancanti.push("nome e cognome");
  if(!telefono)mancanti.push("telefono");
+ if(!email)mancanti.push("email");
  if(mancanti.length){msg(R,"Manca: "+mancanti.join(", ")+".","err");return}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg(R,"Inserisci un indirizzo email valido.","err");return}
  if(O){O.value=ora;O.setAttribute("value",ora)}
  B.disabled=true;B.textContent="Prenotazione in corso...";
  try{
