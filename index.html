@@ -4132,11 +4132,13 @@ const n=new Date();D.min=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2
 function msg(e,t,c){e.textContent=t;e.className="booking-message "+c}function clr(e){e.textContent="";e.className="booking-message"}function dit(d){const p=d.split("-");return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d}function slots(x){return x.availableSlots||x.slots||x.orari||x.available||[]}
 D.addEventListener("change",async()=>{const d=D.value;O.value="";S.innerHTML="";clr(R);if(!d)return;msg(SS,"Controllo degli orari disponibili...","info");try{const r=await fetch("/.netlify/functions/calendar-availability?date="+encodeURIComponent(d)),x=await r.json();if(!r.ok)throw new Error(x.error||"Errore");const a=slots(x);if(!a.length){msg(SS,"Nessun orario disponibile per questa data. Prova un'altra data.","info");return}clr(SS);a.forEach(v=>{let t=typeof v==="object"&&v!==null?(v.time||v.ora||v.start||""):v;if(!t)return;if(String(t).includes("T"))t=new Date(t).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Rome"});t=String(t).substring(0,5);const b=document.createElement("button");b.type="button";b.className="booking-slot";b.textContent=t;b.onclick=()=>{document.querySelectorAll(".booking-slot").forEach(q=>q.classList.remove("is-selected"));b.classList.add("is-selected");O.value=t;O.setAttribute("value",t);O.dispatchEvent(new Event("change",{bubbles:true}))};S.appendChild(b)})}catch(e){msg(SS,"Non è stato possibile caricare gli orari. Riprova.","err")}});
 B.onclick=async()=>{
- const servizio=E("bkServizio").value;
- const data=D.value;
- const slotSelezionato=document.querySelector(".booking-slot.is-selected");
- const ora=((O&&O.value)||slotSelezionato?.textContent||"").trim();
- const nome=E("bkNome").value.trim(), telefono=E("bkTelefono").value.trim(), email=E("bkEmail").value.trim();
+ const servizio=(E("bkServizio")?.value||"").trim();
+ const data=(D?.value||"").trim();
+ const slotSelezionato=S?.querySelector(".booking-slot.is-selected");
+ const ora=(slotSelezionato?.textContent||"").trim();
+ const nome=(E("bkNome")?.value||"").trim();
+ const telefono=(E("bkTelefono")?.value||"").trim();
+ const email=(E("bkEmail")?.value||"").trim();
  clr(R);
 
  if(/tesseramento/i.test(servizio)){
@@ -4148,12 +4150,21 @@ B.onclick=async()=>{
    apriTesseramento();
    return;
  }
- if(!servizio||!data||!ora||!nome||!telefono){msg(R,"Compila i campi obbligatori e seleziona un orario.","err");return}
+ const mancanti=[];
+ if(!servizio)mancanti.push("servizio");
+ if(!data)mancanti.push("data");
+ if(!ora)mancanti.push("orario");
+ if(!nome)mancanti.push("nome e cognome");
+ if(!telefono)mancanti.push("telefono");
+ if(mancanti.length){msg(R,"Manca: "+mancanti.join(", ")+".","err");return}
+ if(O){O.value=ora;O.setAttribute("value",ora)}
  B.disabled=true;B.textContent="Prenotazione in corso...";
  try{
    const r=await fetch("/.netlify/functions/calendar-book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service:servizio,date:data,time:ora,name:nome,phone:telefono,email})});
-   const x=await r.json();if(!r.ok)throw new Error(x.error||"Errore");
-   msg(R,"Prenotazione confermata correttamente.","ok");
+   const raw=await r.text();
+   let x={}; try{x=raw?JSON.parse(raw):{}}catch{}
+   if(!r.ok)throw new Error(x.error||x.message||("Errore prenotazione (HTTP "+r.status+")"));
+   msg(R,x.message||"Prenotazione confermata correttamente.","ok");
  }catch(e){msg(R,e.message||"Non è stato possibile confermare la prenotazione.","err")}
  finally{B.disabled=false;B.textContent="Conferma prenotazione"}
 };
