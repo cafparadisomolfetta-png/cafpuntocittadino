@@ -1,400 +1,388 @@
+ const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || "primary";
+const TZ = "Europe/Rome";
+const EMAIL_SEDE = "cafparadiso.molfetta@gmail.com";
+
+const json = (statusCode, body) => ({
+  statusCode,
+  headers: {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store"
+  },
+  body: JSON.stringify(body)
+});
+
 async function getAccessToken() {
-  const response = await fetch("https://oauth2.googleapis.com/token", {
+  const body = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID || "",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN || "",
+    grant_type: "refresh_token"
+  });
+
+  const r = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     },
-    body: new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-      grant_type: "refresh_token"
-    }).toString()
+    body
   });
 
-  const data = await response.json();
+  const x = await r.json();
 
-  if (!response.ok) {
-    console.error("Errore token Google:", data);
-    throw new Error("Impossibile ottenere il token Google");
-  }
-
-  return data.access_token;
-}
-
-
-// Data corrente italiana YYYY-MM-DD.
-function getRomeToday() {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Rome",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  });
-
-  const parts = formatter.formatToParts(new Date());
-  const values = {};
-
-  for (const part of parts) {
-    if (part.type !== "literal") {
-      values[part.type] = part.value;
-    }
-  }
-
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
-
-// Giorni di calendario mancanti all'appuntamento.
-function daysUntilAppointment(appointmentDate) {
-  const today = getRomeToday();
-
-  const [todayYear, todayMonth, todayDay] =
-    today.split("-").map(Number);
-
-  const [year, month, day] =
-    appointmentDate.split("-").map(Number);
-
-  const todayUTC = Date.UTC(
-    todayYear,
-    todayMonth - 1,
-    todayDay
-  );
-
-  const appointmentUTC = Date.UTC(
-    year,
-    month - 1,
-    day
-  );
-
-  return Math.round(
-    (appointmentUTC - todayUTC) / 86400000
-  );
-}
-
-
-// Cerca l'appuntamento usando il codice personale.
-async function trovaEventoDaCodice(
-  accessToken,
-  codiceDisdetta
-) {
-  const url = new URL(
-    "https://www.googleapis.com/calendar/v3/calendars/primary/events"
-  );
-
-  // Cerca solamente appuntamenti non già cancellati.
-  url.searchParams.set("singleEvents", "true");
-  url.searchParams.set("showDeleted", "false");
-  url.searchParams.set("maxResults", "10");
-
-  // Google Calendar permette di cercare
-  // nelle extendedProperties private.
-  url.searchParams.append(
-    "privateExtendedProperty",
-    `cancellationCode=${codiceDisdetta}`
-  );
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    console.error(
-      "Errore ricerca appuntamento:",
-      data
-    );
-
+  if (!r.ok || !x.access_token) {
     throw new Error(
-      "Impossibile cercare l'appuntamento"
+      x.error_description ||
+      x.error ||
+      "Impossibile collegarsi ai servizi Google"
     );
   }
 
-  const eventi = data.items || [];
-
-  if (!eventi.length) {
-    return null;
-  }
-
-  return eventi[0];
+  return x.access_token;
 }
 
+function hoursUntil(dateTime) {
+  return (
+    new Date(dateTime).getTime() - Date.now()
+  ) / (1000 * 60 * 60);
+}
 
-exports.handler = async function (event) {
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store"
-  };
+function base64UrlEncode(value) {
+  return Buffer.from(value, "utf8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatDate(dateTime) {
+  return new Intl.DateTimeFormat("it-IT", {
+    timeZone: TZ,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  }).format(new Date(dateTime));
+}
+
+function formatTime(dateTime) {
+  return new Intl.DateTimeFormat("it-IT", {
+    timeZone: TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(new Date(dateTime));
+}
+
+async function sendEmail(
+  accessToken,
+  { to, cc, subject, html }
+) {
+  const message = [
+    `From: CAF Punto Cittadino <${EMAIL_SEDE}>`,
+    `To: ${to}`,
+    cc ? `Cc: ${cc}` : null,
+    `Subject: ${subject}`,
+    "MIME-Version: 1.0",
+    'Content-Type: text/html; charset="UTF-8"',
+    "",
+    html
+  ]
+    .filter(v => v !== null)
+    .join("\r\n");
+
+  const r = await fetch(
+    "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        raw: base64UrlEncode(message)
+      })
+    }
+  );
+
+  const x = await r.json().catch(() => ({}));
+
+  if (!r.ok) {
+    throw new Error(
+      x.error?.message ||
+      "Errore durante l'invio dell'email"
+    );
+  }
+}
+
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return json(200, { ok: true });
+  }
 
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({
-        error: "Metodo non consentito"
-      })
-    };
+    return json(405, {
+      error: "Metodo non consentito"
+    });
   }
 
   try {
-    const body = JSON.parse(event.body || "{}");
+    const p = JSON.parse(event.body || "{}");
 
-    let eventId = String(
-      body.eventId || ""
-    ).trim();
-
-    const dataRicevuta = String(
-      body.data || ""
-    ).trim();
-
-    const codiceDisdetta = String(
-      body.codiceDisdetta || ""
+    const codice = String(
+      p.codiceDisdetta ||
+      p.codice_disdetta ||
+      p.cancelCode ||
+      p.codice ||
+      ""
     )
       .trim()
       .toUpperCase();
 
-
-    // Serve almeno il codice personale.
-    if (!codiceDisdetta) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error:
-            "Inserisci il codice di disdetta"
-        })
-      };
+    if (!codice) {
+      return json(400, {
+        error: "Inserisci il codice di disdetta"
+      });
     }
 
+    const accessToken = await getAccessToken();
 
-    const accessToken =
-      await getAccessToken();
+    const now = new Date();
 
-    let calendarEvent = null;
+    const future = new Date();
+    future.setMonth(future.getMonth() + 12);
 
-
-    // SE ABBIAMO EVENT ID
-    // Caso: disdetta immediatamente dopo
-    // la prenotazione.
-    if (eventId) {
-
-      const eventUrl =
-        "https://www.googleapis.com/calendar/v3/calendars/primary/events/" +
-        encodeURIComponent(eventId);
-
-      const eventResponse = await fetch(
-        eventUrl,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${accessToken}`
-          }
-        }
-      );
-
-      if (!eventResponse.ok) {
-        return {
-          statusCode: 404,
-          headers,
-          body: JSON.stringify({
-            error:
-              "Appuntamento non trovato"
-          })
-        };
-      }
-
-      calendarEvent =
-        await eventResponse.json();
-
-    } else {
-
-      // SENZA EVENT ID
-      // Caso: cliente che torna sul sito
-      // successivamente con il proprio codice.
-      calendarEvent =
-        await trovaEventoDaCodice(
-          accessToken,
-          codiceDisdetta
-        );
-
-      if (!calendarEvent) {
-        return {
-          statusCode: 404,
-          headers,
-          body: JSON.stringify({
-            error:
-              "Codice di disdetta non valido o appuntamento non trovato"
-          })
-        };
-      }
-
-      eventId = calendarEvent.id;
-    }
-
-
-    // VERIFICA CODICE
-    const codiceSalvato =
-      calendarEvent.extendedProperties &&
-      calendarEvent.extendedProperties.private
-        ? String(
-            calendarEvent.extendedProperties
-              .private.cancellationCode || ""
-          )
-            .trim()
-            .toUpperCase()
-        : "";
-
-
-    if (
-      !codiceSalvato ||
-      codiceSalvato !== codiceDisdetta
-    ) {
-      return {
-        statusCode: 403,
-        headers,
-        body: JSON.stringify({
-          error:
-            "Codice di disdetta non valido"
-        })
-      };
-    }
-
-
-    // DATA REALE DELL'APPUNTAMENTO
-    let dataAppuntamento = "";
-
-    if (
-      calendarEvent.extendedProperties &&
-      calendarEvent.extendedProperties.private &&
-      calendarEvent.extendedProperties.private
-        .bookingDate
-    ) {
-      dataAppuntamento =
-        calendarEvent.extendedProperties.private
-          .bookingDate;
-
-    } else if (
-      calendarEvent.start &&
-      calendarEvent.start.dateTime
-    ) {
-      dataAppuntamento =
-        calendarEvent.start.dateTime.substring(
-          0,
-          10
-        );
-
-    } else {
-      dataAppuntamento = dataRicevuta;
-    }
-
-
-    if (
-      !/^\d{4}-\d{2}-\d{2}$/.test(
-        dataAppuntamento
-      )
-    ) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error:
-            "Data dell'appuntamento non valida"
-        })
-      };
-    }
-
-
-    // REGOLA DEI 2 GIORNI
-    const giorniMancanti =
-      daysUntilAppointment(
-        dataAppuntamento
-      );
-
-
-    if (giorniMancanti < 2) {
-      return {
-        statusCode: 403,
-        headers,
-        body: JSON.stringify({
-          error:
-            "La disdetta online è consentita solo almeno 2 giorni prima dell'appuntamento. Contatta direttamente la sede."
-        })
-      };
-    }
-
-
-    // CANCELLAZIONE GOOGLE CALENDAR
-    const deleteUrl =
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events/" +
-      encodeURIComponent(eventId);
-
-
-    const deleteResponse = await fetch(
-      deleteUrl,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization:
-            `Bearer ${accessToken}`
-        }
-      }
+    const url = new URL(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+        CALENDAR_ID
+      )}/events`
     );
 
+    url.searchParams.set(
+      "timeMin",
+      now.toISOString()
+    );
 
-    if (
-      !deleteResponse.ok &&
-      deleteResponse.status !== 204
-    ) {
-      let errorData = {};
+    url.searchParams.set(
+      "timeMax",
+      future.toISOString()
+    );
+
+    url.searchParams.set(
+      "singleEvents",
+      "true"
+    );
+
+    url.searchParams.set(
+      "showDeleted",
+      "false"
+    );
+
+    url.searchParams.set(
+      "maxResults",
+      "2500"
+    );
+
+    url.searchParams.set(
+      "privateExtendedProperty",
+      `cancelCode=${codice}`
+    );
+
+    const r = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    const x = await r.json();
+
+    if (!r.ok) {
+      throw new Error(
+        x.error?.message ||
+        "Errore durante la ricerca dell'appuntamento"
+      );
+    }
+
+    const appuntamento =
+      (x.items || [])[0];
+
+    if (!appuntamento) {
+      return json(404, {
+        error:
+          "Codice di disdetta non valido oppure appuntamento non trovato"
+      });
+    }
+
+    const start =
+      appuntamento.start?.dateTime ||
+      appuntamento.start?.date;
+
+    if (!start) {
+      return json(400, {
+        error:
+          "Impossibile determinare la data dell'appuntamento"
+      });
+    }
+
+    if (hoursUntil(start) < 48) {
+      return json(400, {
+        error:
+          "La disdetta online è consentita solo con almeno 2 giorni di anticipo. Contatta la sede telefonicamente."
+      });
+    }
+
+    const props =
+      appuntamento.extendedProperties?.private || {};
+
+    const email =
+      String(props.email || "").trim();
+
+    const servizio =
+      String(
+        props.service ||
+        appuntamento.summary ||
+        "Appuntamento"
+      ).trim();
+
+    const modalita =
+      String(
+        props.appointmentMode ||
+        "In sede"
+      ).trim();
+
+    const dataIt = formatDate(start);
+    const ora = formatTime(start);
+
+    const deleteUrl =
+      `https://www.googleapis.com/calendar/v3/calendars/` +
+      `${encodeURIComponent(CALENDAR_ID)}/events/` +
+      `${encodeURIComponent(appuntamento.id)}`;
+
+    const dr = await fetch(deleteUrl, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (!dr.ok) {
+      let message =
+        "Errore durante la cancellazione dell'appuntamento";
 
       try {
-        errorData =
-          await deleteResponse.json();
-      } catch (_) {}
+        const dx = await dr.json();
 
-      console.error(
-        "Errore cancellazione Google Calendar:",
-        errorData
-      );
+        message =
+          dx.error?.message ||
+          message;
+      } catch {}
 
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({
-          error:
-            "Non è stato possibile annullare l'appuntamento"
-        })
-      };
+      throw new Error(message);
     }
 
+    let emailInviata = false;
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        message:
-          "Appuntamento annullato correttamente"
-      })
-    };
+    if (email) {
+      try {
+        const html = `
+          <div style="
+            font-family:Arial,sans-serif;
+            line-height:1.6;
+            color:#17233c
+          ">
 
-  } catch (error) {
+            <h2>
+              ✅ Appuntamento disdetto
+            </h2>
 
+            <p>
+              Ti confermiamo che il tuo appuntamento
+              presso <strong>CAF Punto Cittadino</strong>
+              è stato annullato correttamente.
+            </p>
+
+            <p>
+              <strong>Servizio:</strong>
+              ${escapeHtml(servizio)}<br>
+
+              <strong>Data:</strong>
+              ${dataIt}<br>
+
+              <strong>Ora:</strong>
+              ${ora}<br>
+
+              <strong>Modalità:</strong>
+              ${escapeHtml(modalita)}
+            </p>
+
+            <p>
+              Lo spazio è stato nuovamente
+              reso disponibile in agenda.
+            </p>
+
+            <p>
+              Se hai bisogno di un nuovo appuntamento,
+              puoi effettuare una nuova prenotazione
+              dal nostro sito.
+            </p>
+
+            <hr>
+
+            <p>
+              <strong>CAF Punto Cittadino</strong><br>
+              Via Paradiso 34 – Molfetta<br>
+              Tel. 080 6455509
+            </p>
+
+          </div>
+        `;
+
+        await sendEmail(
+          accessToken,
+          {
+            to: email,
+            cc: EMAIL_SEDE,
+            subject:
+              `Conferma disdetta appuntamento CAF Punto Cittadino - ${dataIt} ore ${ora}`,
+            html
+          }
+        );
+
+        emailInviata = true;
+
+      } catch (mailError) {
+        console.error(
+          "CANCEL_EMAIL_ERROR:",
+          mailError?.message ||
+          mailError
+        );
+      }
+    }
+
+    return json(200, {
+      ok: true,
+      message:
+        "Appuntamento disdetto correttamente",
+      emailInviata
+    });
+
+  } catch (e) {
     console.error(
-      "Errore disdetta appuntamento:",
-      error
+      "CALENDAR_CANCEL_ERROR:",
+      e?.message || e
     );
 
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        error:
-          "Errore durante la disdetta dell'appuntamento"
-      })
-    };
+    return json(500, {
+      error:
+        e?.message ||
+        "Errore durante la disdetta"
+    });
   }
 };

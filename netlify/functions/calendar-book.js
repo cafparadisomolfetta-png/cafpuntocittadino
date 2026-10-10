@@ -1,290 +1,483 @@
 const crypto = require("crypto");
 
+const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || "primary";
+const TZ = "Europe/Rome";
+const EMAIL_SEDE = "cafparadiso.molfetta@gmail.com";
+
+const json = (statusCode, body) => ({
+  statusCode,
+  headers: {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store"
+  },
+  body: JSON.stringify(body)
+});
+
 async function getAccessToken() {
-  const response = await fetch("https://oauth2.googleapis.com/token", {
+  const body = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID || "",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN || "",
+    grant_type: "refresh_token"
+  });
+
+  const r = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     },
-    body: new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-      grant_type: "refresh_token"
-    }).toString()
+    body
   });
 
-  const data = await response.json();
+  const x = await r.json();
 
-  if (!response.ok) {
-    console.error("Errore token Google:", data);
-    throw new Error("Impossibile ottenere il token Google");
+  if (!r.ok || !x.access_token) {
+    throw new Error(
+      x.error_description ||
+      x.error ||
+      "Impossibile collegarsi ai servizi Google"
+    );
   }
 
-  return data.access_token;
+  return x.access_token;
 }
 
+function makeCancelCode() {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = crypto.randomBytes(8);
 
-// Genera il codice personale di disdetta.
-function generaCodiceDisdetta() {
-  return crypto
-    .randomBytes(6)
-    .toString("hex")
-    .toUpperCase();
+  let code = "";
+
+  for (const b of bytes) {
+    code += alphabet[b % alphabet.length];
+  }
+
+  return code;
 }
 
+function localTimeHHMM(dateTime) {
+  if (!dateTime) return "";
 
-// Converte data e ora italiane in un Date corretto,
-// gestendo automaticamente ora solare e ora legale.
-function createRomeDate(date, time) {
-  const [year, month, day] = date.split("-").map(Number);
-  const [hour, minute] = time.split(":").map(Number);
+  try {
+    return new Intl.DateTimeFormat("it-IT", {
+      timeZone: TZ,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(new Date(dateTime));
+  } catch {
+    return "";
+  }
+}
 
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Europe/Rome",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23"
-  });
+function base64UrlEncode(value) {
+  return Buffer.from(value, "utf8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
 
-  let guess = new Date(
-    Date.UTC(year, month - 1, day, hour, minute, 0)
-  );
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
-  const parts = formatter.formatToParts(guess);
-  const values = {};
+async function sendEmail(accessToken, { to, cc, subject, html }) {
+  const message = [
+    `From: CAF Punto Cittadino <${EMAIL_SEDE}>`,
+    `To: ${to}`,
+    cc ? `Cc: ${cc}` : null,
+    `Subject: ${subject}`,
+    "MIME-Version: 1.0",
+    'Content-Type: text/html; charset="UTF-8"',
+    "",
+    html
+  ]
+    .filter(v => v !== null)
+    .join("\r\n");
 
-  for (const part of parts) {
-    if (part.type !== "literal") {
-      values[part.type] = part.value;
+  const r = await fetch(
+    "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        raw: base64UrlEncode(message)
+      })
     }
-  }
-
-  const asUTC = Date.UTC(
-    Number(values.year),
-    Number(values.month) - 1,
-    Number(values.day),
-    Number(values.hour),
-    Number(values.minute),
-    Number(values.second)
   );
 
-  const offset = asUTC - guess.getTime();
+  const x = await r.json().catch(() => ({}));
 
-  return new Date(guess.getTime() - offset);
+  if (!r.ok) {
+    throw new Error(
+      x.error?.message ||
+      "Errore durante l'invio dell'email"
+    );
+  }
+
+  return x;
 }
 
-
-exports.handler = async function (event) {
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store"
-  };
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return json(200, { ok: true });
+  }
 
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({
-        error: "Metodo non consentito"
-      })
-    };
+    return json(405, {
+      error: "Metodo non consentito"
+    });
   }
 
   try {
-    const body = JSON.parse(event.body || "{}");
+    const p = JSON.parse(event.body || "{}");
 
-    const nome = String(body.nome || "").trim();
-    const telefono = String(body.telefono || "").trim();
-    const email = String(body.email || "").trim();
-    const servizio = String(body.servizio || "").trim();
-    const data = String(body.data || "").trim();
-    const ora = String(body.ora || "").trim();
+    const servizio = String(
+      p.servizio || p.service || ""
+    ).trim();
 
-    if (!nome || !telefono || !servizio || !data || !ora) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error: "Compila tutti i campi obbligatori"
-        })
-      };
+    const data = String(
+      p.data || p.date || ""
+    ).trim();
+
+    const ora = String(
+      p.ora || p.time || ""
+    ).trim().slice(0, 5);
+
+    const nome = String(
+      p.nome || p.name || ""
+    ).trim();
+
+    const telefono = String(
+      p.telefono || p.phone || ""
+    ).trim();
+
+    const email = String(
+      p.email || ""
+    ).trim();
+
+    const modalita = String(
+      p.modalita ||
+      p.mode ||
+      p.appointmentType ||
+      "In sede"
+    ).trim();
+
+    const missing = [];
+
+    if (!servizio) missing.push("servizio");
+    if (!data) missing.push("data");
+    if (!ora) missing.push("ora");
+    if (!nome) missing.push("nome");
+    if (!telefono) missing.push("telefono");
+    if (!email) missing.push("email");
+
+    if (missing.length) {
+      return json(400, {
+        error:
+          "Dati mancanti: " +
+          missing.join(", ")
+      });
     }
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error: "Data non valida"
-        })
-      };
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      return json(400, {
+        error: "Inserisci un indirizzo email valido"
+      });
     }
 
-    if (!/^\d{2}:\d{2}$/.test(ora)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error: "Orario non valido"
-        })
-      };
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(data) ||
+      !/^\d{2}:\d{2}$/.test(ora)
+    ) {
+      return json(400, {
+        error: "Data o orario non validi"
+      });
     }
 
     const accessToken = await getAccessToken();
 
-    const start = createRomeDate(data, ora);
+    const dayStart = `${data}T00:00:00Z`;
 
-    const end = new Date(
-      start.getTime() + 20 * 60 * 1000
+    const nextDay = new Date(`${data}T00:00:00Z`);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+
+    const listUrl = new URL(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`
     );
 
-
-    // CONTROLLO DISPONIBILITÀ
-    const checkUrl = new URL(
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events"
-    );
-
-    checkUrl.searchParams.set(
-      "timeMin",
-      start.toISOString()
-    );
-
-    checkUrl.searchParams.set(
+    listUrl.searchParams.set("timeMin", dayStart);
+    listUrl.searchParams.set(
       "timeMax",
-      end.toISOString()
+      nextDay.toISOString()
     );
+    listUrl.searchParams.set("singleEvents", "true");
+    listUrl.searchParams.set("showDeleted", "false");
+    listUrl.searchParams.set("maxResults", "250");
 
-    checkUrl.searchParams.set(
-      "singleEvents",
-      "true"
-    );
-
-    const checkResponse = await fetch(checkUrl, {
+    const lr = await fetch(listUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
     });
 
-    const checkData = await checkResponse.json();
+    const lx = await lr.json();
 
-    if (!checkResponse.ok) {
-      console.error(
-        "Errore controllo disponibilità:",
-        checkData
-      );
-
+    if (!lr.ok) {
       throw new Error(
-        "Impossibile controllare la disponibilità"
+        lx.error?.message ||
+        "Errore nel controllo disponibilità"
       );
     }
 
-    if ((checkData.items || []).length > 0) {
-      return {
-        statusCode: 409,
-        headers,
-        body: JSON.stringify({
-          error: "Questo orario non è più disponibile"
-        })
-      };
+    const occupied = (lx.items || []).some(
+      ev =>
+        localTimeHHMM(ev.start?.dateTime) === ora
+    );
+
+    if (occupied) {
+      return json(409, {
+        error:
+          "Questo orario non è più disponibile. Scegline un altro."
+      });
     }
 
+    const codiceDisdetta = makeCancelCode();
 
-    // GENERAZIONE CODICE PERSONALE
-    const codiceDisdetta = generaCodiceDisdetta();
+    const icon =
+      /telefon/i.test(modalita)
+        ? "📞"
+        : "🏢";
 
+    const description = [
+      `Servizio: ${servizio}`,
+      `Modalità: ${modalita}`,
+      `Nome: ${nome}`,
+      `Telefono: ${telefono}`,
+      `Email: ${email}`,
+      `Codice disdetta: ${codiceDisdetta}`
+    ].join("\n");
 
-    // CREAZIONE EVENTO GOOGLE CALENDAR
-    const calendarEvent = {
-      summary: `Appuntamento CAF - ${nome}`,
+    const [h, m] = ora
+      .split(":")
+      .map(Number);
 
-      description:
-        `Servizio: ${servizio}\n` +
-        `Nome: ${nome}\n` +
-        `Telefono: ${telefono}\n` +
-        (email ? `Email: ${email}\n` : "") +
-        `Codice disdetta: ${codiceDisdetta}\n` +
-        `Prenotazione effettuata da cafpuntocittadino.it`,
+    const totalMinutes =
+      h * 60 + m + 20;
+
+    const endOra =
+      `${String(
+        Math.floor(totalMinutes / 60) % 24
+      ).padStart(2, "0")}:` +
+      `${String(
+        totalMinutes % 60
+      ).padStart(2, "0")}`;
+
+    const eventBody = {
+      summary:
+        `${icon} ${servizio} - ${nome}`,
+
+      description,
 
       start: {
-        dateTime: start.toISOString(),
-        timeZone: "Europe/Rome"
+        dateTime:
+          `${data}T${ora}:00`,
+        timeZone: TZ
       },
 
       end: {
-        dateTime: end.toISOString(),
-        timeZone: "Europe/Rome"
+        dateTime:
+          `${data}T${endOra}:00`,
+        timeZone: TZ
       },
 
       extendedProperties: {
         private: {
-          cancellationCode: codiceDisdetta,
-          bookingDate: data,
-          bookingTime: ora
+          cancelCode: codiceDisdetta,
+          appointmentMode: modalita,
+          phone: telefono,
+          email: email,
+          service: servizio,
+          reminder24hSent: "false"
         }
       }
     };
 
-
-    const createResponse = await fetch(
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+    const ir = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`,
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(calendarEvent)
+        body: JSON.stringify(eventBody)
       }
     );
 
-    const createdEvent = await createResponse.json();
+    const ix = await ir.json();
 
-    if (!createResponse.ok) {
-      console.error(
-        "Errore creazione appuntamento:",
-        createdEvent
-      );
-
+    if (!ir.ok) {
       throw new Error(
-        "Impossibile creare l'appuntamento"
+        ix.error?.message ||
+        "Errore nella creazione dell'appuntamento"
       );
     }
 
+    let emailInviata = false;
 
-    // RISPOSTA AL SITO
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        message: "Appuntamento prenotato correttamente",
-        eventId: createdEvent.id,
-        codiceDisdetta: codiceDisdetta,
-        data: data,
-        ora: ora,
-        servizio: servizio,
-        nome: nome
-      })
-    };
+    try {
+      const dataIt =
+        data.split("-").reverse().join("/");
 
-  } catch (error) {
+      const nomeHtml =
+        escapeHtml(nome);
 
+      const servizioHtml =
+        escapeHtml(servizio);
+
+      const modalitaHtml =
+        escapeHtml(modalita);
+
+      const indicazione =
+        /telefon/i.test(modalita)
+          ? `
+            <p>
+              <strong>Appuntamento telefonico:</strong><br>
+              sarà la sede a contattarti al numero
+              indicato nella prenotazione.
+            </p>
+          `
+          : `
+            <p>
+              Ti aspettiamo presso la sede di
+              <strong>Via Paradiso 34 – Molfetta</strong>.
+            </p>
+          `;
+
+      const html = `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#17233c">
+          
+          <h2>
+            ✅ Appuntamento confermato
+          </h2>
+
+          <p>
+            Gentile ${nomeHtml},
+          </p>
+
+          <p>
+            il tuo appuntamento presso
+            <strong>CAF Punto Cittadino</strong>
+            è stato confermato.
+          </p>
+
+          <p>
+            <strong>Servizio:</strong>
+            ${servizioHtml}<br>
+
+            <strong>Data:</strong>
+            ${dataIt}<br>
+
+            <strong>Ora:</strong>
+            ${ora}<br>
+
+            <strong>Modalità:</strong>
+            ${modalitaHtml}
+          </p>
+
+          ${indicazione}
+
+          <p>
+            <strong>Codice di disdetta:</strong>
+            ${codiceDisdetta}
+          </p>
+
+          <p>
+            Conserva il codice di disdetta.
+            La disdetta online è consentita
+            con almeno
+            <strong>2 giorni di anticipo</strong>.
+          </p>
+
+          <p>
+            Riceverai anche un promemoria
+            prima dell'appuntamento.
+          </p>
+
+          <hr>
+
+          <p>
+            <strong>CAF Punto Cittadino</strong><br>
+            Via Paradiso 34 – Molfetta<br>
+            Tel. 080 6455509
+          </p>
+
+        </div>
+      `;
+
+      await sendEmail(
+        accessToken,
+        {
+          to: email,
+          cc: EMAIL_SEDE,
+          subject:
+            `Conferma appuntamento CAF Punto Cittadino - ${dataIt} ore ${ora}`,
+          html
+        }
+      );
+
+      emailInviata = true;
+
+    } catch (mailError) {
+      console.error(
+        "EMAIL_CONFIRMATION_ERROR:",
+        mailError?.message ||
+        mailError
+      );
+    }
+
+    return json(200, {
+      ok: true,
+
+      eventId: ix.id,
+
+      codiceDisdetta,
+      codice_disdetta:
+        codiceDisdetta,
+      cancelCode:
+        codiceDisdetta,
+
+      data,
+      ora,
+
+      modalita,
+      mode: modalita,
+
+      emailInviata
+    });
+
+  } catch (e) {
     console.error(
-      "Errore prenotazione:",
-      error
+      "CALENDAR_BOOK_ERROR:",
+      e?.message || e
     );
 
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        error: "Errore durante la prenotazione"
-      })
-    };
+    return json(500, {
+      error:
+        e?.message ||
+        "Errore durante la prenotazione"
+    });
   }
 };
