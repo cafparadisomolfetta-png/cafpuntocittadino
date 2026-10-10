@@ -1532,7 +1532,7 @@ button,a{touch-action:manipulation}
    <a href="#azioni-rapide" style="text-decoration:none;background:white;padding:22px;border-radius:18px;box-shadow:0 6px 22px #1232"><div style="font-size:30px">🎯</div><strong>Scopri cosa ti spetta</strong><div style="color:#667;margin-top:6px">Bonus, prestazioni e agevolazioni.</div></a>
    <a href="#servizi-digitali" style="text-decoration:none;background:white;padding:22px;border-radius:18px;box-shadow:0 6px 22px #1232"><div style="font-size:30px">📲</div><strong>Fai una pratica online</strong><div style="color:#667;margin-top:6px">Molti servizi possono essere gestiti a distanza.</div></a>
    <a href="#contatti" style="text-decoration:none;background:white;padding:22px;border-radius:18px;box-shadow:0 6px 22px #1232"><div style="font-size:30px">📎</div><strong>Invia i documenti</strong><div style="color:#667;margin-top:6px">Contattaci per sapere cosa serve e come inviarlo.</div></a>
-  <a href="#consulenza-20" style="text-decoration:none;background:white;padding:22px;border-radius:18px;box-shadow:0 6px 22px #1232"><div style="font-size:30px">👩‍💼</div><strong>Consulenza 20 minuti</strong><div style="color:#667;margin-top:6px">Quota associativa €35 · eventuale contributo in base al servizio</div></a></div>
+  <a href="#consulenza-20" style="text-decoration:none;background:white;padding:22px;border-radius:18px;box-shadow:0 6px 22px #1232"><div style="font-size:30px">👩‍💼</div><strong>Consulenza 20 minuti</strong><div style="color:#667;margin-top:6px">Tesseramento associativo · eventuale contributo in base al servizio</div></a></div>
  </div>
 </section>
 
@@ -1681,16 +1681,16 @@ button,a{touch-action:manipulation}
    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px">
     <div style="padding:18px;border:1px solid #dbe6ef;border-radius:15px"><strong>👤 Non tesserato</strong><p>Consulenza 20 minuti</p><b>Importo in base al servizio</b><br><small>L'importo viene indicato prima della conferma.</small></div>
     <div style="padding:18px;border:1px solid #dbe6ef;border-radius:15px"><strong>💳 Già tesserato</strong><p>Indica solo nome e cognome.</p><b>Consulenza gratuita</b><br><small>La sede verifica l'iscrizione prima di confermare l'accesso gratuito.</small></div>
-    <div style="padding:18px;border:1px solid #dbe6ef;border-radius:15px"><strong>🤝 Voglio tesserarmi</strong><p>Puoi richiedere il tesseramento collegato alla prestazione.</p><b>Quota associativa €35</b><br><small>Tessera personale e non familiare. La consulenza di 20 minuti è gratuita per l'intestatario tesserato.</small></div>
+    <div style="padding:18px;border:1px solid #dbe6ef;border-radius:15px"><strong>🤝 Voglio tesserarmi</strong><p>Puoi richiedere il tesseramento collegato alla prestazione.</p><b>Tesseramento associativo</b><br><small>Tessera personale e non familiare. La consulenza di 20 minuti è gratuita per l'intestatario tesserato.</small></div>
    </div>
    <h3 style="margin-bottom:8px">Come funziona</h3>
    <ol style="line-height:1.7">
     <li>Inserisci <strong>nome e cognome</strong> e scegli la tua situazione.</li>
-    <li>Se non sei tesserato, se scegli un servizio con contributo, l'importo viene mostrato in base alla pratica selezionata. Se vuoi tesserarti, compili i dati, confermi la richiesta e poi accedi al pagamento della quota associativa di <strong>€35</strong>.</li>
+    <li>Se non sei tesserato, se scegli un servizio con contributo, l'importo viene mostrato in base alla pratica selezionata. Se vuoi tesserarti, compili i dati, confermi la richiesta e poi prosegui con il tesseramento associativo.</li>
     <li>Se sei già tesserato, verifichiamo l'iscrizione tramite nome e cognome.</li>
     <li>Dopo l'invio della ricevuta e la verifica del pagamento, oppure dopo la verifica positiva di una tessera già attiva, viene confermato l'accesso alla consulenza.</li>
    </ol>
-   <div style="padding:14px 16px;background:#fff8e5;border-radius:12px;margin:16px 0"><strong>Importante:</strong> la quota associativa è distinta dal prezzo della consulenza. La quota associativa è di <strong>€35</strong>. Condizioni e benefici del tesseramento vengono indicati prima dell'adesione.</div>
+   <div style="padding:14px 16px;background:#fff8e5;border-radius:12px;margin:16px 0"><strong>Importante:</strong> il tesseramento associativo è distinto dall’eventuale contributo richiesto per la consulenza. Condizioni e modalità del tesseramento vengono indicate prima dell’adesione.</div>
    
 <div id="scelta-consulenza" style="margin:22px 0;padding:20px;border:1px solid #dbe6ef;border-radius:16px;background:#f8fbfe">
  <h3 style="margin-top:0">Prova la prenotazione</h3>
@@ -1699,7 +1699,7 @@ button,a{touch-action:manipulation}
  <p><strong>Cosa vuoi fare?</strong></p>
  <div style="display:grid;gap:10px">
   <button type="button" class="btn btn--primary" onclick="scegliConsulenza('servizio')">Accedi ai servizi · tesseramento necessario</button>
-  <button type="button" class="btn btn--primary" onclick="apriTesseramento()">Procedi al tesseramento · quota associativa €35</button>
+  <button type="button" class="btn btn--primary" onclick="apriTesseramento()">Procedi al tesseramento</button>
   <button type="button" class="btn" onclick="scegliConsulenza('tesserato')">Sono già tesserato · verifica gratuita</button>
  </div>
  <div id="esito-consulenza" style="display:none;margin-top:15px;padding:14px;border-radius:12px;background:white"></div>
@@ -1709,7 +1709,7 @@ button,a{touch-action:manipulation}
   <div id="tess-step-dati">
     <span class="badge-2026">TESSERAMENTO PERSONALE</span>
     <h3>Compila i dati</h3>
-    <p>La quota associativa è di <strong>€35</strong>. La tessera è personale e non familiare ed è necessaria per accedere ai servizi dell’associazione.</p>
+    <p>Il tesseramento è personale e non familiare ed è necessario per accedere ai servizi dell’associazione.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
       <label><strong>Nome *</strong><input id="tessNome" type="text" autocomplete="given-name" style="width:100%;box-sizing:border-box;padding:12px;margin-top:5px;border:1px solid #ccd7e0;border-radius:10px"></label>
       <label><strong>Cognome *</strong><input id="tessCognome" type="text" autocomplete="family-name" style="width:100%;box-sizing:border-box;padding:12px;margin-top:5px;border:1px solid #ccd7e0;border-radius:10px"></label>
@@ -1726,19 +1726,18 @@ button,a{touch-action:manipulation}
     <span class="badge-2026">RIEPILOGO</span>
     <h3>Conferma i dati</h3>
     <div id="tessRiepilogo" style="padding:16px;background:#f7fafc;border-radius:12px;line-height:1.7"></div>
-    <p style="margin-top:14px"><strong>Quota associativa:</strong> €35,00</p>
+    <p style="margin-top:14px"><strong>Tesseramento associativo</strong></p>
     <button type="button" class="btn" onclick="modificaTesseramento()">Modifica dati</button>
     <button type="button" class="btn btn--primary" onclick="confermaTesseramento()">Conferma e vai al pagamento</button>
   </div>
 
   <div id="tess-step-pagamento" style="display:none">
     <span class="badge-2026">PAGAMENTO</span>
-    <h3>Bonifico quota associativa · €35</h3>
+    <h3>Bonifico quota associativa</h3>
     <p>Effettua il bonifico utilizzando esclusivamente i dati riportati qui sotto. Questa sezione viene mostrata solo dopo la compilazione e la conferma dei dati.</p>
     <div style="padding:18px;background:#f7fafc;border:1px solid #dbe6ef;border-radius:14px;line-height:1.75">
       <div><strong>Intestatario:</strong> ASSOCIAZIONE COMUNALE MOLFETTA</div>
       <div><strong>Banca:</strong> Banco BPM</div>
-      <div><strong>Importo:</strong> €35,00</div>
       <div><strong>IBAN:</strong> <span id="tessIban">IT58Y0503441360000000003374</span></div>
       <div><strong>Causale:</strong> <span id="tessCausale"></span></div>
     </div>
@@ -3565,7 +3564,7 @@ button,a{touch-action:manipulation}
 <div id="booking-choice-summary" style="display:none;margin:16px 0 20px;padding:16px 18px;background:#fff8df;border:1px solid #efd276;border-radius:14px">
  <strong>Hai scelto:</strong> <span id="booking-choice-text"></span>
 </div>
-<label for="bkServizio">Servizio richiesto *</label><select id="bkServizio"><option value="">Seleziona il servizio</option><option>ISEE</option><option>Modello 730</option><option>Pratiche INPS</option><option>Pensioni</option><option>NASpI</option><option>Invalidità civile / Legge 104</option><option>Assegno di Inclusione</option><option>Consulenza sindacale</option><option>Assistenza fiscale</option><option>Altro</option><option value="Consulenza / servizio riservato agli associati">Consulenza / servizio riservato agli associati</option><option value="Tesseramento associativo €35">Tesseramento associativo €35</option><option value="Consulenza 20 minuti – Tesserato">Consulenza 20 minuti – Tesserato (previa verifica)</option><option value="Area Aziende – appuntamento">Area Aziende – appuntamento</option></select>
+<label for="bkServizio">Servizio richiesto *</label><select id="bkServizio"><option value="">Seleziona il servizio</option><option>ISEE</option><option>Modello 730</option><option>Pratiche INPS</option><option>Pensioni</option><option>NASpI</option><option>Invalidità civile / Legge 104</option><option>Assegno di Inclusione</option><option>Consulenza sindacale</option><option>Assistenza fiscale</option><option>Altro</option><option value="Consulenza / servizio riservato agli associati">Consulenza / servizio riservato agli associati</option><option value="Tesseramento associativo">Tesseramento associativo</option><option value="Consulenza 20 minuti – Tesserato">Consulenza 20 minuti – Tesserato (previa verifica)</option><option value="Area Aziende – appuntamento">Area Aziende – appuntamento</option></select>
 <div id="serviceAmountNotice" style="display:none;margin:10px 0;padding:11px 13px;border-radius:10px;background:#eef6fb;color:#234"></div>
 <label for="bkModalita">Modalità appuntamento *</label><select id="bkModalita"><option value="In sede">In sede</option><option value="Telefonico">Telefonico – ti chiamiamo noi al numero indicato</option></select>
 <label for="bkData">Data appuntamento *</label><input type="date" id="bkData"><div id="bkSlotStatus" class="booking-message"></div><div id="bkSlots" class="booking-slots"></div>
@@ -3700,7 +3699,7 @@ button,a{touch-action:manipulation}
     <h2 style="margin:10px 0 8px">Accesso ai servizi riservato agli associati</h2>
     <p style="color:#526273;max-width:860px">
       CAF Punto Cittadino opera come associazione. Per accedere ai servizi è necessario effettuare il
-      <strong>tesseramento personale</strong>, con quota associativa di <strong>€35</strong>.
+      <strong>tesseramento personale</strong>.
     </p>
     <p style="color:#526273;max-width:860px">
       Alcune pratiche o attività possono richiedere un <strong>contributo aggiuntivo</strong> rispetto alla quota associativa.
@@ -4307,7 +4306,7 @@ function riepilogaTesseramento(){
     '<br><strong>Codice fiscale:</strong> '+tessEsc(cf)+
     '<br><strong>Telefono:</strong> '+tessEsc(tel)+
     (email?'<br><strong>Email:</strong> '+tessEsc(email):'')+
-    '<br><br><strong>Quota associativa:</strong> €35,00';
+    '<br><br><strong>Tesseramento associativo</strong>';
   document.getElementById('tess-step-dati').style.display='none';
   document.getElementById('tess-step-conferma').style.display='block';
   document.getElementById('tess-step-conferma').scrollIntoView({behavior:'smooth',block:'start'});
