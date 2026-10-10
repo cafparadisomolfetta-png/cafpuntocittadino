@@ -1,0 +1,22 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prenota appuntamento | CAF Punto Cittadino</title><meta name="description" content="CAF Punto Cittadino - Molfetta. CAF, Patronato, Sindacato, lavoro e servizi alle aziende."><link rel="stylesheet" href="/site.css"></head><body>
+<div class="topbar"><div class="container"><span>📍 Via Paradiso 34 · Molfetta (BA)</span><span>☎ 080 6455509 · ✉ info@cafpuntocittadino.it</span></div></div>
+<header class="site-header"><div class="container header-inner"><a class="brand" href="/"><strong>CAF PUNTO CITTADINO</strong><span>CAF · PATRONATO · SINDACATO</span></a><button class="menu-toggle" aria-label="Apri menu">☰</button><nav class="main-nav">
+<a  href="/">Home</a>
+<a  href="/servizi.html">Servizi</a>
+<a  href="/news.html">News e bonus</a>
+<a  href="/lavoro.html">Lavoro</a>
+<a  href="/aziende.html">Area aziende</a>
+<a  href="/chi-siamo.html">Chi siamo</a>
+<a class="nav-book" href="/prenota.html">Prenota</a>
+</nav></div></header><section class="page-hero"><div class="container"><h1>Prenota un appuntamento</h1><p>Una pagina dedicata solo all’agenda: scegli servizio, data e orario.</p></div></section>
+<section class="section alt"><div class="container booking-wrap"><div class="booking-card">
+<label for="bkServizio">Servizio richiesto *</label><select id="bkServizio"><option value="">Seleziona</option><option>ISEE</option><option>Modello 730</option><option>Pratiche INPS</option><option>Pensioni</option><option>NASpI</option><option>Invalidità civile / Legge 104</option><option>Assegno di Inclusione</option><option>Consulenza sindacale</option><option>Assistenza fiscale</option><option>Tesseramento associativo</option><option>Area Aziende – appuntamento</option><option>Altro</option></select>
+<label for="bkModalita">Modalità *</label><select id="bkModalita"><option value="In sede">In sede</option><option value="Telefonico">Telefonico</option></select>
+<label for="bkData">Data *</label><input type="date" id="bkData"><div id="bkSlotStatus" class="booking-message"></div><div id="bkSlots" class="booking-slots"></div><input type="hidden" id="bkOra">
+<label for="bkNome">Nome e cognome *</label><input id="bkNome" autocomplete="name">
+<label for="bkTelefono">Telefono *</label><input id="bkTelefono" type="tel" autocomplete="tel">
+<label for="bkEmail">Email *</label><input id="bkEmail" type="email" autocomplete="email">
+<label style="display:flex;gap:8px;align-items:flex-start"><input id="bkPrivacy" type="checkbox" style="width:auto;margin-top:4px"><span>Ho letto l’<a href="/privacy.html" target="_blank">informativa privacy</a>. *</span></label>
+<button class="booking-action" id="bkPrenota" type="button">Conferma prenotazione</button><div id="bkResult" class="booking-message"></div>
+</div></div></section><script src="/booking.js"></script><footer class="footer"><div class="container footer-grid"><div><strong>CAF Punto Cittadino</strong><p>Assistenza CAF, Patronato e Sindacato. Sede di Molfetta, Via Paradiso 34.</p><small>Le informazioni online hanno carattere orientativo. Per la pratica concreta interviene un operatore.</small></div><div><strong>Contatti</strong><p>080 6455509<br>info@cafpuntocittadino.it</p></div><div><strong>Link</strong><p><a href="/privacy.html">Privacy</a><br><a href="/prenota.html">Prenota appuntamento</a></p></div></div></footer>
+<button id="aiLauncher" class="ai-launcher">💬 Segretaria AI</button><section id="aiPanel" class="ai-panel"><div class="ai-head"><strong>Segretaria AI</strong><button id="aiClose" class="ai-close">×</button></div><div id="aiBody" class="ai-body"><div class="ai-msg bot">Ciao! Posso aiutarti a capire quale servizio scegliere e quali documenti possono essere necessari.</div></div><form id="aiForm" class="ai-compose"><div class="ai-row"><input id="aiInput" maxlength="1200" placeholder="Scrivi la tua domanda…"><button id="aiSend" type="submit">Invia</button></div><div class="ai-note">Non inserire codice fiscale, dati sanitari, password, IBAN o documenti. <a href="/privacy.html">Privacy</a></div></form></section><script src="/site.js"></script></body></html>
