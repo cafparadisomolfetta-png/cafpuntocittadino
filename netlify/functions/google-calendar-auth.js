@@ -19,7 +19,8 @@ exports.handler = async function () {
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: "code",
-    scope: "https://www.googleapis.com/auth/calendar",
+    scope:
+      "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.send",
     access_type: "offline",
     prompt: "consent",
     state: state
@@ -31,8 +32,10 @@ exports.handler = async function () {
       Location:
         "https://accounts.google.com/o/oauth2/v2/auth?" +
         params.toString(),
+
       "Set-Cookie":
         `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+
       "Cache-Control": "no-store"
     },
     body: ""
