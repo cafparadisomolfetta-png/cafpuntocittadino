@@ -1459,6 +1459,7 @@ button,a{touch-action:manipulation}
    <a href="#centro-impiego-lavoro">Centro Impiego / Lavoro</a>
    <a href="#area-aziende">Area Aziende</a>
    <a href="#lavora-con-noi">Lavora con noi</a>
+   <a href="/privacy.html">Privacy</a>
 </nav>
 <div class="pro-hero">
    <div class="pro-hero__main">
@@ -1627,7 +1628,7 @@ button,a{touch-action:manipulation}
   <div style="max-width:760px;margin:24px auto 0;background:white;padding:24px;border-radius:20px;box-shadow:0 8px 28px #1232">
    <h3 style="margin-top:0">📄 Invia il tuo curriculum</h3>
    <p>Indica <strong>nome e cognome</strong>, recapito, tipologia di candidatura e allega il tuo <strong>CV</strong>. L'invio della candidatura non comporta l'avvio automatico di un tirocinio o di una collaborazione: ogni candidatura viene valutata e ricontattata se compatibile con le opportunità disponibili.</p>
-   <div style="padding:14px 16px;background:#eef6ff;border-radius:12px;margin:16px 0"><strong>Privacy:</strong> il curriculum sarà utilizzato esclusivamente per la valutazione della candidatura secondo l'informativa privacy dedicata, che verrà resa disponibile prima dell'invio definitivo.</div>
+   <div style="padding:14px 16px;background:#eef6ff;border-radius:12px;margin:16px 0"><strong>Privacy:</strong> il curriculum sarà utilizzato esclusivamente per la valutazione della candidatura. <a href="/privacy.html" target="_blank" rel="noopener">Leggi l'informativa privacy completa</a>.</div>
    
 <a href="#form-candidatura" class="btn btn--primary"><i class="fa-solid fa-file-arrow-up"></i> Invia curriculum</a>
 <div id="form-candidatura" style="display:block;margin-top:22px;padding:20px;border:1px solid #dbe6ef;border-radius:16px;background:#fff">
@@ -1639,7 +1640,7 @@ button,a{touch-action:manipulation}
    <label><strong>Nome *</strong><input name="nome" required type="text" autocomplete="given-name" style="width:100%;box-sizing:border-box;padding:12px;margin-top:5px;border:1px solid #ccd7e0;border-radius:10px"></label>
    <label><strong>Cognome *</strong><input name="cognome" required type="text" autocomplete="family-name" style="width:100%;box-sizing:border-box;padding:12px;margin-top:5px;border:1px solid #ccd7e0;border-radius:10px"></label>
    <label><strong>Telefono *</strong><input name="telefono" required type="tel" autocomplete="tel" style="width:100%;box-sizing:border-box;padding:12px;margin-top:5px;border:1px solid #ccd7e0;border-radius:10px"></label>
-   <label><strong>Email (facoltativa)</strong><input name="email" required type="email" autocomplete="email" style="width:100%;box-sizing:border-box;padding:12px;margin-top:5px;border:1px solid #ccd7e0;border-radius:10px"></label>
+   <label><strong>Email *</strong><input name="email" required type="email" autocomplete="email" style="width:100%;box-sizing:border-box;padding:12px;margin-top:5px;border:1px solid #ccd7e0;border-radius:10px"></label>
   </div>
   <label style="display:block;margin-top:14px"><strong>Tipo di candidatura *</strong>
    <select name="tipo_candidatura" required style="width:100%;padding:12px;margin-top:5px;border:1px solid #ccd7e0;border-radius:10px">
@@ -1658,9 +1659,9 @@ button,a{touch-action:manipulation}
   </label>
   <label style="display:flex;gap:9px;align-items:flex-start;margin-top:16px">
    <input name="privacy_cv" required type="checkbox" value="presa-visione" style="margin-top:4px">
-   <span>Ho letto l'informativa privacy relativa alle candidature e autorizzo l'invio dei dati necessari alla valutazione del mio profilo. *</span>
+   <span>Ho letto l'<a href="/privacy.html" target="_blank" rel="noopener">informativa privacy</a> e chiedo l'invio dei dati necessari alla valutazione della mia candidatura. *</span>
   </label>
-  <p style="font-size:13px;color:#657585">La candidatura sarà gestita dalla sede CAF Punto Cittadino. I dati e il CV saranno utilizzati esclusivamente per finalità connesse alla candidatura. L'informativa completa sarà disponibile nella sezione Privacy del sito prima della pubblicazione definitiva.</p>
+  <p style="font-size:13px;color:#657585">La candidatura sarà gestita dalla sede CAF Punto Cittadino. I dati e il CV saranno utilizzati esclusivamente per finalità connesse alla candidatura. Consulta l'<a href="/privacy.html" target="_blank" rel="noopener">informativa completa sul trattamento dei dati</a>.</p>
   <button type="submit" class="btn btn--primary"><i class="fa-solid fa-paper-plane"></i> Invia candidatura</button>
  </form>
  <div id="cv-form-message" style="display:none;margin-top:14px;padding:14px;border-radius:12px;background:#eaf7ef"></div>
@@ -3571,6 +3572,8 @@ button,a{touch-action:manipulation}
 <label for="bkNome">Nome e cognome *</label><input type="text" id="bkNome" autocomplete="name" placeholder="Nome e cognome">
 <label for="bkTelefono">Telefono *</label><input type="tel" id="bkTelefono" autocomplete="tel" placeholder="Numero di telefono">
 <label for="bkEmail">Email *</label><input type="email" id="bkEmail" autocomplete="email" placeholder="Inserisci la tua email" required><small style="display:block;margin-top:6px;color:#657585">Necessaria per ricevere la conferma e il promemoria dell’appuntamento.</small><input type="hidden" id="bkOra">
+<label style="display:flex;gap:9px;align-items:flex-start;margin:14px 0 4px"><input type="checkbox" id="bkPrivacy" style="margin-top:4px"><span>Ho letto l'<a href="/privacy.html" target="_blank" rel="noopener">informativa privacy</a> sul trattamento dei dati per la prenotazione. *</span></label>
+<small style="display:block;margin:0 0 10px;color:#657585">Per prenotare è richiesta la presa visione dell'informativa; non è un consenso a finalità promozionali.</small>
 <button type="button" class="booking-action" id="bkPrenota">Conferma prenotazione</button><div id="bkResult" class="booking-message"></div>
 <div class="booking-manage"><h3>Hai già un appuntamento?</h3><p>Inserisci il codice ricevuto al momento della prenotazione. La disdetta online è consentita solo con almeno <strong>2 giorni di anticipo</strong>.</p><label for="bkCodiceGestione">Codice di disdetta</label><input type="text" id="bkCodiceGestione" placeholder="Inserisci il codice" autocomplete="off" autocapitalize="characters"><button type="button" class="booking-action cancel" id="bkDisdiciCodice">Disdici il mio appuntamento</button><div id="bkManageResult" class="booking-message"></div></div>
 </div>
@@ -4054,7 +4057,7 @@ Posso orientarti sui servizi CAF, Patronato e Sindacato, indicarti i documenti g
       <input class="ai-secretary-input" id="aiSecretaryInput" maxlength="1200" autocomplete="off" placeholder="Scrivi la tua domanda…" aria-label="Scrivi alla Segretaria AI">
       <button class="ai-secretary-send" id="aiSecretarySend" type="submit">Invia</button>
     </div>
-    <div class="ai-secretary-note">Non inserire codice fiscale, dati sanitari, password, IBAN o altri dati sensibili. Le risposte sono informative: per la pratica concreta interviene un operatore.</div>
+    <div class="ai-secretary-note">Non inserire codice fiscale, dati sanitari, password, IBAN o altri dati sensibili. Le risposte sono informative: per la pratica concreta interviene un operatore. <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a>.</div>
   </form>
 </section>
 
@@ -4141,6 +4144,7 @@ B.onclick=async()=>{
  const nome=(E("bkNome")?.value||"").trim();
  const telefono=(E("bkTelefono")?.value||"").trim();
  const email=(E("bkEmail")?.value||"").trim();
+ const privacyOk=!!E("bkPrivacy")?.checked;
  clr(R);
 
  if(/tesseramento/i.test(servizio)){
@@ -4160,6 +4164,7 @@ B.onclick=async()=>{
  if(!nome)mancanti.push("nome e cognome");
  if(!telefono)mancanti.push("telefono");
  if(!email)mancanti.push("email");
+ if(!privacyOk)mancanti.push("presa visione dell'informativa privacy");
  if(mancanti.length){msg(R,"Manca: "+mancanti.join(", ")+".","err");return}
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg(R,"Inserisci un indirizzo email valido.","err");return}
  if(O){O.value=ora;O.setAttribute("value",ora)}
