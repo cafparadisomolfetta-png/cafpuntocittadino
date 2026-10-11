@@ -1,3 +1,4 @@
+const {validDate}=require('./gestionale-date');
 'use strict';
 const CALENDAR_ID=process.env.GOOGLE_CALENDAR_ID||'primary';
 const reply=(status,obj)=>({statusCode:status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'},body:JSON.stringify(obj)});
@@ -48,7 +49,7 @@ exports.handler=async(event)=>{
  const requestedSite=(event.queryStringParameters||{}).site||'';
  const site=requestedSite||user.sites[0]||'';
  const day=(event.queryStringParameters||{}).date||'';
- if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(Date.parse(day+'T00:00:00Z')))return reply(400,{error:'INVALID_DATE'});
+ if(!validDate(day))return reply(400,{error:'INVALID_DATE'});
  if(!site||!user.sites.includes(site))return reply(403,{error:'SITE_FORBIDDEN'});
  // Only known configured site/calendar mappings are accessible.
  let calendarMap;try{calendarMap=JSON.parse(process.env.GESTIONALE_SITE_CALENDARS_JSON||'{}')}catch{return reply(503,{error:'CALENDAR_CONFIGURATION_INVALID'})}
