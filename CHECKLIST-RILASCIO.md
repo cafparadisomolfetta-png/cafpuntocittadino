@@ -1,6 +1,12 @@
 # Rilascio controllato — CAF Punto Cittadino
 Stato: NON PRONTO AL LIVE. Non riattivare deploy Netlify senza superare i test.
 
+## Organizzazione confermata
+- Sedi iniziali: Molfetta e Bari.
+- Un unico account amministratrice/responsabile per entrambe, ruolo `admin` con `sites: ["molfetta", "bari"]`.
+- Altri operatori limitati alle sedi espressamente assegnate.
+- Email dell'amministratrice da configurare in Netlify, mai nel repository.
+
 ## Prima del rilascio
 - [ ] Configurare in Netlify GESTIONALE_GOOGLE_CLIENT_ID, GESTIONALE_OPERATORS_JSON e GESTIONALE_SITE_CALENDARS_JSON senza inserire segreti in GitHub.
 - [ ] Verificare che ogni sede disponga di calendario separato: per il momento il modulo pubblico prenota sul calendario GOOGLE_CALENDAR_ID. Se esiste più di una sede pubblica, servirà associare esplicitamente sede e calendario anche a prenotazione, disponibilità e disdetta.
