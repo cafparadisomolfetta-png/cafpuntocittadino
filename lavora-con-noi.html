@@ -1580,7 +1580,6 @@ section[id]:not(#lavora-con-noi){display:none!important}
    <a href="/area-aziende.html"><i class="fa-solid fa-briefcase"></i>Area Aziende</a>
    <a href="/news-bonus.html"><i class="fa-regular fa-newspaper"></i>News e Bonus</a>
    <a href="/servizi-online.html"><i class="fa-solid fa-laptop"></i>Servizi online</a>
-   <a href="/privacy.html">Privacy</a>
   </nav>
 <div class="pro-hero">
    <div class="pro-hero__main">
@@ -4682,6 +4681,70 @@ document.addEventListener('DOMContentLoaded',applicaSceltaPrenotazione);
 })();
 </script>
 
+
+<!-- COOKIE CONSENT -->
+<style id="cafpc-cookie-style">
+#cafpcCookieBackdrop{position:fixed;inset:0;background:rgba(15,31,48,.52);z-index:99998;display:none;align-items:center;justify-content:center;padding:18px}
+#cafpcCookieBox{width:min(680px,100%);max-height:min(86vh,760px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.28);font-family:inherit;color:#14283d}
+#cafpcCookieHead{display:flex;justify-content:space-between;align-items:center;padding:22px 24px;border-bottom:1px solid #e2e8ef}
+#cafpcCookieHead strong{font-size:1.05rem}
+#cafpcCookieClose{border:0;background:transparent;font-size:30px;line-height:1;cursor:pointer;color:#14283d}
+#cafpcCookieBody{padding:24px}
+#cafpcCookieBody h2{font-size:1.45rem;margin:0 0 12px}
+#cafpcCookieBody p{margin:0 0 16px;line-height:1.55;color:#43566a}
+#cafpcCookieDetails{display:none;background:#f5f8fb;border-radius:12px;padding:14px 16px;margin:10px 0 16px}
+.cafpc-cookie-row{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:10px 0;border-bottom:1px solid #e4eaf0}
+.cafpc-cookie-row:last-child{border-bottom:0}
+.cafpc-cookie-actions{display:grid;gap:10px;margin-top:18px}
+.cafpc-cookie-btn{border:2px solid #0b5fa5;background:#fff;color:#0b5fa5;border-radius:10px;padding:14px 16px;font-weight:800;font-size:1rem;cursor:pointer}
+.cafpc-cookie-btn.primary{background:#0b5fa5;color:#fff}
+.cafpc-cookie-link{display:inline-block;margin-top:10px;font-size:.92rem;color:#0b5fa5;text-decoration:underline}
+@media(max-width:600px){
+ #cafpcCookieBackdrop{align-items:flex-end;padding:0}
+ #cafpcCookieBox{border-radius:18px 18px 0 0;max-height:92vh}
+ #cafpcCookieHead,#cafpcCookieBody{padding:18px}
+ #cafpcCookieBody h2{font-size:1.25rem}
+}
+</style>
+<div id="cafpcCookieBackdrop" role="dialog" aria-modal="true" aria-labelledby="cafpcCookieTitle">
+ <div id="cafpcCookieBox">
+  <div id="cafpcCookieHead"><strong>Preferenze cookie</strong><button id="cafpcCookieClose" aria-label="Chiudi">×</button></div>
+  <div id="cafpcCookieBody">
+   <h2 id="cafpcCookieTitle">Questo sito utilizza cookie e tecnologie simili</h2>
+   <p>Usiamo le tecnologie necessarie al funzionamento del sito e, solo con il tuo consenso, eventuali funzionalità aggiuntive. Puoi accettare, personalizzare oppure usare solo quelle necessarie.</p>
+   <button class="cafpc-cookie-btn" id="cafpcCookieShowDetails" type="button">Mostra dettagli</button>
+   <div id="cafpcCookieDetails">
+    <div class="cafpc-cookie-row"><div><strong>Necessari</strong><br><small>Funzionamento del sito e memorizzazione delle preferenze.</small></div><input type="checkbox" checked disabled></div>
+    <div class="cafpc-cookie-row"><div><strong>Funzionali</strong><br><small>Servizi opzionali e funzionalità avanzate.</small></div><input id="cafpcFunctional" type="checkbox"></div>
+   </div>
+   <div class="cafpc-cookie-actions">
+    <button class="cafpc-cookie-btn primary" id="cafpcAcceptAll" type="button">Accetta tutti</button>
+    <button class="cafpc-cookie-btn" id="cafpcCustomize" type="button">Personalizza</button>
+    <button class="cafpc-cookie-btn" id="cafpcNecessary" type="button">Usa solo i cookie necessari</button>
+   </div>
+   <a class="cafpc-cookie-link" href="/privacy.html">Informativa Privacy e Cookie</a>
+  </div>
+ </div>
+</div>
+<script id="cafpc-cookie-script">
+(function(){
+ const key='cafpc_cookie_consent_v1';
+ const box=document.getElementById('cafpcCookieBackdrop');
+ const details=document.getElementById('cafpcCookieDetails');
+ const functional=document.getElementById('cafpcFunctional');
+ function save(v){try{localStorage.setItem(key,JSON.stringify({choice:v,date:new Date().toISOString()}));}catch(e){} box.style.display='none';}
+ if(!localStorage.getItem(key)) box.style.display='flex';
+ document.getElementById('cafpcAcceptAll').onclick=()=>save('all');
+ document.getElementById('cafpcNecessary').onclick=()=>save('necessary');
+ document.getElementById('cafpcCustomize').onclick=()=>{
+   if(details.style.display==='block'){save(functional.checked?'functional':'necessary');}
+   else{details.style.display='block';document.getElementById('cafpcCustomize').textContent='Salva preferenze';}
+ };
+ document.getElementById('cafpcCookieShowDetails').onclick=()=>{details.style.display=details.style.display==='block'?'none':'block';};
+ document.getElementById('cafpcCookieClose').onclick=()=>save('necessary');
+})();
+</script>
+<!-- /COOKIE CONSENT -->
 </body>
 </html>
 <section id="invalidita-civile" class="fade-in" style="padding:42px 18px;background:#fff">
