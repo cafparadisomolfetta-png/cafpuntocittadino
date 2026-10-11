@@ -20,7 +20,7 @@ async function load(identity=false){
  if(!credential)return info('Effettua l’accesso prima di aprire l’agenda.');
  const site=$('site'),day=$('day');
  const selected=site.value||''; // The server never trusts this selection.
- const date=day.value||new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const date=day.value||(()=>{const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k)?.value;return [v('year'),v('month'),v('day')].join('-')})();
  day.value=date;
  info('Caricamento agenda…');
  try{
@@ -64,6 +64,10 @@ async function load(identity=false){
 $('retry').addEventListener('click',configure);$('load').addEventListener('click',()=>load(false));
 $('logout').addEventListener('click',()=>{clear();google?.accounts?.id?.disableAutoSelect();info('Accesso terminato.');});
 window.addEventListener('load',configure);
+// Periodic refresh only for a visible, authenticated dashboard.
+let refreshing=false;
+async function refreshSafely(){if(refreshing||document.hidden||!credential||panel.hidden)return;refreshing=true;try{await load(false)}finally{refreshing=false}}
+setInterval(refreshSafely,60000);
 // Refresh on foreground return; do not duplicate overlapping background requests.
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&credential&&!panel.hidden)load(false)});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshSafely()});
 })();
