@@ -31,3 +31,13 @@ test('refuse requests when provider token exchange fails',async()=>{
  const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
  assert.equal(r.statusCode,503);
 });
+
+test('reject invalid calendar day before requesting calendar data',async()=>{
+ process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta',bari:'calendar-bari'});
+ global.fetch=async url=>{
+  if(String(url).includes('tokeninfo'))return {ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'operator@example.org',sub:'sample-google-sub'})};
+  throw new Error('No Google Calendar call expected');
+ };
+ const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-02-30'}});
+ assert.equal(r.statusCode,400);
+});
