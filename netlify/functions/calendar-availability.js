@@ -81,33 +81,30 @@ exports.handler = async function (event) {
       timeZone: "Europe/Rome"
     });
 
-    const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params.toString()}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+    // Fetch all calendar pages. Never advertise a slot based on an incomplete busy list.
+    params.set("maxResults","250");
+    const eventi = [];
+    let pageToken = "";
+    for (let page = 0; page < 20; page++) {
+      if (pageToken) params.set("pageToken",pageToken);
+      else params.delete("pageToken");
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params.toString()}`,
+        {headers: {Authorization: `Bearer ${accessToken}`}}
+      );
+      if (!response.ok) {
+        return {statusCode:503,headers,body:JSON.stringify({error:"Impossibile verificare la disponibilità"})};
       }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Errore Google Calendar:", data);
-
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({
-          error: "Impossibile leggere Google Calendar"
-        })
-      };
+      const data = await response.json();
+      for (const item of data.items || []) {
+        eventi.push({inizio:item.start?.dateTime||item.start?.date,fine:item.end?.dateTime||item.end?.date});
+      }
+      pageToken = data.nextPageToken || "";
+      if (!pageToken) break;
+      if (page===19) {
+        return {statusCode:503,headers,body:JSON.stringify({error:"Disponibilità temporaneamente non verificabile"})};
+      }
     }
-
-    const eventi = (data.items || []).map((evento) => ({
-      inizio: evento.start?.dateTime || evento.start?.date,
-      fine: evento.end?.dateTime || evento.end?.date
-    }));
 
     const slots = validSlots(date).filter(ora => {
       const slotStart = new Date(`${date}T${ora}:00${offset}`);
