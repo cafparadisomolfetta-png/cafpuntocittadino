@@ -1,7 +1,8 @@
+const {calendarForSite} = require('./site-calendars');
 const {slots: validSlots} = require('./booking-schedule');
 const crypto = require("crypto");
 
-const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || "primary";
+
 const TZ = "Europe/Rome";
 const EMAIL_SEDE = "cafparadiso.molfetta@gmail.com";
 
@@ -253,6 +254,10 @@ exports.handler = async (event) => {
     if (!validSlots(data).includes(ora)) {
       return json(400, {error:"Data o orario fuori dagli slot prenotabili della sede"});
     }
+
+    const resolved=calendarForSite(p.sede||p.site||'molfetta');
+    if(resolved.error)return json(resolved.status,{error:resolved.error});
+    const CALENDAR_ID=resolved.calendarId;
 
     const accessToken = await getAccessToken();
 
