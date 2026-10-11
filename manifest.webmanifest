@@ -1,0 +1,18 @@
+{
+  "name": "CAF Punto Cittadino",
+  "short_name": "Punto Cittadino",
+  "description": "Servizi CAF e Patronato, prenotazioni e disdette",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eaf4ff",
+  "theme_color": "#174a86",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
