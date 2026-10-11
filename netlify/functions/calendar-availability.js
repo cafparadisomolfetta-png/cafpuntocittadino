@@ -22,6 +22,15 @@ async function getAccessToken() {
   return data.access_token;
 }
 
+function romeOffset(date) {
+  const anchor = new Date(date + "T12:00:00Z");
+  const zone = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Rome", timeZoneName: "shortOffset"
+  }).formatToParts(anchor).find(x => x.type === "timeZoneName")?.value || "GMT+1";
+  const hours = Number(zone.match(/GMT([+-]\d+)/)?.[1] || "+1");
+  return (hours >= 0 ? "+" : "-") + String(Math.abs(hours)).padStart(2, "0") + ":00";
+}
+
 function minuti(orario) {
   const [h, m] = orario.split(":").map(Number);
   return h * 60 + m;
@@ -54,8 +63,9 @@ exports.handler = async function (event) {
 
     const accessToken = await getAccessToken();
 
-    const timeMin = `${date}T00:00:00+02:00`;
-    const timeMax = `${date}T23:59:59+02:00`;
+    const offset = romeOffset(date);
+    const timeMin = `${date}T00:00:00${offset}`;
+    const timeMax = `${date}T23:59:59${offset}`;
 
     const params = new URLSearchParams({
       timeMin,
@@ -66,7 +76,7 @@ exports.handler = async function (event) {
     });
 
     const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params.toString()}`,
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(process.env.GOOGLE_CALENDAR_ID || "primary")}/events?${params.toString()}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`
@@ -114,7 +124,7 @@ exports.handler = async function (event) {
       while (corrente + durata <= fine) {
         const ora = orarioDaMinuti(corrente);
 
-        const slotStart = new Date(`${date}T${ora}:00+02:00`);
+        const slotStart = new Date(`${date}T${ora}:00${offset}`);
         const slotEnd = new Date(slotStart.getTime() + durata * 60000);
 
         const occupato = eventi.some((evento) => {
