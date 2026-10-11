@@ -1,4 +1,5 @@
 'use strict';
+require('./preflight.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const out = path.join(process.cwd(), 'dist');
