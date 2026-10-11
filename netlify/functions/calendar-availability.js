@@ -125,8 +125,7 @@ exports.handler = async function (event) {
       headers,
       body: JSON.stringify({
         date,
-        slots,
-        events: eventi
+        slots
       })
     };
 
