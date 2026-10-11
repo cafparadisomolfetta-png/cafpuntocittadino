@@ -250,10 +250,11 @@ exports.handler = async (event) => {
 
     const accessToken = await getAccessToken();
 
-    const dayStart = `${data}T00:00:00Z`;
-
-    const nextDay = new Date(`${data}T00:00:00Z`);
-    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+    // Scan a padded UTC window so Rome-local appointments near midnight
+    // remain visible in both winter and summer time.
+    const midnightUtc = Date.parse(data + "T00:00:00Z");
+    const dayStart = new Date(midnightUtc - 24 * 60 * 60 * 1000).toISOString();
+    const nextDay = new Date(midnightUtc + 48 * 60 * 60 * 1000);
 
     const listUrl = new URL(
       `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`
