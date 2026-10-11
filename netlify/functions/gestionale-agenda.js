@@ -17,9 +17,14 @@ async function userFromToken(headers,config){
  if(!res.ok)return null;
  const token=await res.json();
  if(token.aud!==config.client||!['accounts.google.com','https://accounts.google.com'].includes(token.iss)||token.email_verified!== 'true'||!token.email||!token.sub)return null;
+ const adminEmail=String(process.env.GESTIONALE_ADMIN_EMAIL||'').trim().toLowerCase();
+ // The administrator is provisioned in private environment settings only.
+ // This account cannot be shadowed or modified by the operator-role array.
+ if(adminEmail&&token.email.toLowerCase()===adminEmail)
+   return {email:token.email,role:'admin',sites:['molfetta','bari']};
  const found=config.users.find(x=>typeof x.email==='string'&&x.email.toLowerCase()===token.email.toLowerCase()&&x.enabled===true);
- if(!found||!['admin','manager','operator','viewer'].includes(found.role)||!Array.isArray(found.sites))return null;
- return {email:token.email,role:found.role,sites:found.sites.filter(x=>typeof x==='string')};
+ if(!found||!['manager','operator','viewer'].includes(found.role)||!Array.isArray(found.sites))return null;
+ return {email:token.email,role:found.role,sites:found.sites.filter(x=>['molfetta','bari'].includes(x))};
 }
 async function accessToken(){
  const params=new URLSearchParams({client_id:process.env.GOOGLE_CLIENT_ID||'',client_secret:process.env.GOOGLE_CLIENT_SECRET||'',refresh_token:process.env.GOOGLE_REFRESH_TOKEN||'',grant_type:'refresh_token'});
