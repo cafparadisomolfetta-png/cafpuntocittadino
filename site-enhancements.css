@@ -19,3 +19,21 @@
 .cafpc-career-grid article:nth-child(2){border-top-color:var(--caf-purple)}
 .cafpc-career-grid a{color:var(--caf-blue)}
 @media(max-width:680px){.cafpc-page-nav{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.cafpc-page-nav a{white-space:nowrap;scroll-snap-align:start}}
+
+/* Pagine servizi: resa coordinata con gli otto mockup approvati */
+.cafpc-design-hero{max-width:1180px;margin:24px auto 18px;padding:clamp(24px,4vw,52px);border-radius:24px;background:linear-gradient(118deg,#edf8ff 0%,#dcefff 60%,#f8fcff 100%);box-shadow:0 18px 42px #174a8616;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(220px,.6fr);gap:20px;align-items:center;color:#103c77;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.cafpc-design-hero h1{font-size:clamp(29px,4vw,49px);line-height:1.12;margin:10px 0 14px;letter-spacing:-.035em;color:#103a74}
+.cafpc-design-hero h1 em{color:#058ec1;font-style:normal}
+.cafpc-design-hero p{font-size:clamp(15px,1.7vw,18px);line-height:1.6;max-width:670px;color:#3f5c7b}
+.cafpc-design-eyebrow{color:#087fac!important;font-size:12px!important;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+.cafpc-hero-mark{min-height:190px;border-radius:20px;background:linear-gradient(135deg,#1266b6,#05a8b7);display:grid;place-items:center;color:white;font-size:clamp(65px,8vw,110px);box-shadow:0 15px 35px #10619d33}
+.cafpc-design-hero--lavoro .cafpc-hero-mark{background:linear-gradient(135deg,#f2ae46,#e58131)}
+.cafpc-design-hero--aziende .cafpc-hero-mark{background:linear-gradient(135deg,#6858d0,#9b76ec)}
+.cafpc-design-hero--news .cafpc-hero-mark{background:linear-gradient(135deg,#1763b6,#16acc7)}
+.cafpc-design-hero--online .cafpc-hero-mark{background:linear-gradient(135deg,#0c928f,#34cbbd)}
+.cafpc-design-hero--lavora .cafpc-hero-mark{background:linear-gradient(135deg,#2863a3,#7766d8)}
+.cafpc-hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.cafpc-hero-actions a{background:#1358a8;color:#fff!important;padding:13px 20px;border-radius:11px;display:inline-block;text-decoration:none;font-weight:750;box-shadow:0 6px 15px #155bb030}
+.cafpc-hero-actions a:last-child{background:white;color:#1358a8!important;border:1px solid #c8dcef}
+.cafpc-hero-actions a:focus-visible{outline:3px solid #20c6c1}
+@media(max-width:700px){.cafpc-design-hero{margin:12px;padding:23px 19px;grid-template-columns:1fr}.cafpc-hero-mark{min-height:115px;font-size:65px}.cafpc-design-hero h1{font-size:32px}.cafpc-hero-actions a{flex:1 1 auto;text-align:center}}
