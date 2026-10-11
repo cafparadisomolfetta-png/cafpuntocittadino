@@ -1544,8 +1544,78 @@ body{background:#eaf1f7!important;overflow-x:hidden}
 .thematic-back{display:inline-block;margin-bottom:12px;color:#0758a8;text-decoration:none;font-weight:800}
 @media(max-width:700px){.thematic-page-head{margin:14px 10px 4px;padding:18px}.thematic-page-head h1{font-size:1.5rem}}
 </style>
+
+<style id="privacy-entry-modal-style">
+#privacyEntryModal{
+ position:fixed;inset:0;z-index:999999;
+ display:none;align-items:center;justify-content:center;
+ padding:20px;background:rgba(12,35,60,.78);
+ backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)
+}
+#privacyEntryModal.is-open{display:flex}
+#privacyEntryModal .pem-card{
+ width:min(540px,100%);background:#fff;border-radius:20px;
+ box-shadow:0 24px 70px rgba(0,0,0,.28);padding:30px;
+ color:#17324d;text-align:center
+}
+#privacyEntryModal .pem-icon{
+ width:58px;height:58px;border-radius:50%;margin:0 auto 14px;
+ display:flex;align-items:center;justify-content:center;
+ background:#eaf3fb;color:#0b5fa5;font-size:25px
+}
+#privacyEntryModal h2{margin:0 0 10px;font-size:1.55rem}
+#privacyEntryModal p{margin:0 auto 20px;line-height:1.55;color:#526273;max-width:450px}
+#privacyEntryModal .pem-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#privacyEntryModal .pem-btn{
+ border:0;border-radius:12px;padding:12px 18px;font-weight:700;
+ cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center
+}
+#privacyEntryModal .pem-primary{background:#0b5fa5;color:#fff}
+#privacyEntryModal .pem-secondary{background:#edf3f8;color:#0b4f8a}
+#privacyEntryModal .pem-note{font-size:.76rem;color:#7a8793;margin-top:14px}
+@media(max-width:560px){
+ #privacyEntryModal .pem-card{padding:24px 18px}
+ #privacyEntryModal .pem-actions{flex-direction:column}
+ #privacyEntryModal .pem-btn{width:100%}
+}
+</style>
 </head>
 <body>
+
+<div id="privacyEntryModal" role="dialog" aria-modal="true" aria-labelledby="privacyEntryTitle">
+ <div class="pem-card">
+  <div class="pem-icon" aria-hidden="true">🔒</div>
+  <h2 id="privacyEntryTitle">Privacy e utilizzo del sito</h2>
+  <p>Prima di continuare, ti informiamo che il sito utilizza strumenti tecnici necessari al funzionamento dei servizi online. Puoi consultare in qualsiasi momento l'informativa completa.</p>
+  <div class="pem-actions">
+   <button type="button" class="pem-btn pem-primary" id="privacyEntryContinue">Continua al sito</button>
+   <a class="pem-btn pem-secondary" href="/privacy.html" target="_blank" rel="noopener">Leggi l'informativa</a>
+  </div>
+  <div class="pem-note">La finestra viene mostrata al primo accesso da questo dispositivo.</div>
+ </div>
+</div>
+<script id="privacy-entry-modal-script">
+(function(){
+ const key='cafpc_privacy_notice_v1';
+ const modal=document.getElementById('privacyEntryModal');
+ const btn=document.getElementById('privacyEntryContinue');
+ if(!modal||!btn) return;
+ try{
+   if(localStorage.getItem(key)!=='ok'){
+     modal.classList.add('is-open');
+     document.documentElement.style.overflow='hidden';
+   }
+ }catch(e){
+   modal.classList.add('is-open');
+   document.documentElement.style.overflow='hidden';
+ }
+ btn.addEventListener('click',function(){
+   try{localStorage.setItem(key,'ok')}catch(e){}
+   modal.classList.remove('is-open');
+   document.documentElement.style.overflow='';
+ });
+})();
+</script>
 
 <div class="pro-home" id="home">
  <div class="container">
