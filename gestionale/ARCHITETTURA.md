@@ -14,6 +14,8 @@ La app è una web app responsive con login tramite Google Identity Services e ag
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID`: già utilizzate dal sito per gli appuntamenti; ricontrollare gli scope Calendar.
 
 ## Permessi
+**Visibilità operatori confermata:** ciascun operatore autenticato può consultare **tutti** gli appuntamenti della propria sede autorizzata, indipendentemente dall'operatore cui sono assegnati. Non può consultare appuntamenti di altre sedi non assegnate. L'amministratrice/responsabile può consultare entrambe le sedi (Molfetta e Bari). Restano in vigore le limitazioni sulle operazioni di modifica e sui dati riservati.
+
 Il controllo email verificata + audience del token Google viene svolto dal server e i ruoli/sedi derivano unicamente da `GESTIONALE_OPERATORS_JSON`. Ogni lettura seleziona un calendario dalla mappa server e impone l'appartenenza dell'utente alla sede. La dashboard non espone codice di disdetta, descrizione libera, né password/token Google.
 
 I ruoli sono `admin`, `manager`, `operator`, `viewer`. **In questa versione tutti hanno solo lettura**; l'interfaccia per invitare/disabilitare operatori, modificare appuntamenti, generare notifiche push e gestire più sedi non è ancora stata sviluppata. I privilegi di gestione vanno implementati e testati lato server, non solo nella UI.
