@@ -28,7 +28,9 @@ async function accessToken(){
  const x=await r.json();if(!x.access_token)throw Error('Calendar token missing');return x.access_token;
 }
 function dateLocal(x){
- return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(x));
+ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(x));
+ const val=type=>parts.find(p=>p.type===type)?.value;
+ return [val('year'),val('month'),val('day')].join('-');
 }
 exports.authorize=async(headers)=>{const config=settings();if(!config)return null;return await userFromToken(headers||{},config)};
 exports.handler=async(event)=>{
