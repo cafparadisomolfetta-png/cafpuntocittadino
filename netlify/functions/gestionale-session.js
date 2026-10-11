@@ -1,0 +1,3 @@
+// Security-first scaffold. No session, appointment or operator data are returned
+// until a verified identity provider, session handling and tenant-scoped RBAC are configured.
+exports.handler=async()=>({statusCode:503,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'},body:JSON.stringify({authenticated:false,error:'AUTH_NOT_CONFIGURED'})});
