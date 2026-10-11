@@ -283,10 +283,26 @@ exports.handler = async (event) => {
       );
     }
 
-    const occupied = (lx.items || []).some(
-      ev =>
-        localTimeHHMM(ev.start?.dateTime) === ora
-    );
+    // Check actual event interval overlap, including appointments that start
+    // earlier and occupy part of the requested 20-minute slot.
+    const offsetLabel = new Intl.DateTimeFormat("en-US", {
+      timeZone: TZ, timeZoneName: "shortOffset"
+    }).formatToParts(new Date(data + "T12:00:00Z"))
+      .find(x => x.type === "timeZoneName")?.value || "GMT+1";
+    const offsetHour = Number(offsetLabel.match(/GMT([+-]\\d+)/)?.[1] || "+1");
+    const offset = (offsetHour >= 0 ? "+" : "-") +
+      String(Math.abs(offsetHour)).padStart(2, "0") + ":00";
+    const requestedStart = new Date(data + "T" + ora + ":00" + offset).getTime();
+    const requestedEnd = requestedStart + 20 * 60 * 1000;
+    if (!Number.isFinite(requestedStart) || requestedStart < Date.now()) {
+      return json(400, {error:"Seleziona un appuntamento futuro valido"});
+    }
+    const occupied = (lx.items || []).some(ev => {
+      const start = Date.parse(ev.start?.dateTime || ev.start?.date || "");
+      const end = Date.parse(ev.end?.dateTime || ev.end?.date || "");
+      return Number.isFinite(start) && Number.isFinite(end) &&
+        requestedStart < end && requestedEnd > start;
+    });
 
     if (occupied) {
       return json(409, {
