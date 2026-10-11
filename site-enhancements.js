@@ -163,6 +163,25 @@ function featureNavigation(){
   }
  }
 }
-function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();showCookie()}
+
+// Resolve on-page navigation against actual form controls, without claiming unsupported features.
+function repairPageLinks(){
+ if(path!=='/servizi-online.html')return;
+ const links=[...document.querySelectorAll('.cafpc-design-hero a,.cafpc-feature-nav a,.cafpc-services-showcase a')];
+ const fields=[...document.querySelectorAll('form')];
+ const booking=fields.find(f=>/prenot|booking|calendar/i.test([f.id,f.getAttribute('name'),f.textContent.slice(0,300)].join(' ')));
+ const cancel=fields.find(f=>/disdett|annull|cancel/i.test([f.id,f.getAttribute('name'),f.textContent.slice(0,300)].join(' ')));
+ for(const a of links){
+  const href=a.getAttribute('href');
+  if(!href||!href.startsWith('#'))continue;
+  const id=href.slice(1);if(document.getElementById(id))continue;
+  const target=/prenot/i.test(id)?booking:/disdett/i.test(id)?cancel:null;
+  if(target){
+   if(!target.id)target.id='cafpc-target-'+(/prenot/i.test(id)?'booking':'cancel');
+   a.href='#'+target.id;a.removeAttribute('aria-disabled');a.removeAttribute('title');
+  }else{a.removeAttribute('href');a.setAttribute('aria-disabled','true');a.title='Funzione non disponibile in questa pagina';}
+ }
+}
+function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();repairPageLinks();showCookie()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
