@@ -21,6 +21,19 @@ Stato: NON PRONTO AL LIVE. Non riattivare deploy Netlify senza superare i test.
 - [ ] Definire gestione dei calendari e autorizzazioni di eventuali nuove sedi prima di aggiungere operatori.
 - [ ] Solo dopo esito positivo riattivare Netlify rimuovendo la regola ignore e pubblicare.
 
+
+## Verifiche della revisione grafica e dei collegamenti
+- [x] Layout condiviso delle sezioni CAF, Patronato, Lavoro, Aziende, News, Servizi online, Lavora con noi predisposto nel codice.
+- [x] Cataloghi dei servizi e schede responsive aggiunti alle pagine pertinenti.
+- [x] Collegamenti delle nuove schede verso Servizi online senza rinviare a un'ancora non verificata.
+- [x] Link interni ai moduli: se il modulo non viene individuato, il relativo pulsante viene disabilitato anziché simulare una funzione operativa.
+- [x] Controllo statico aggiunto al preflight per accertare la presenza dei moduli di navigazione e del blocco deploy.
+- [ ] Eseguire il preflight completo con Node in ambiente di build; il controllo sintattico eseguito tramite connettore GitHub NON lo sostituisce.
+- [ ] Aprire ogni pagina reale in browser per verificare che le nuove schede siano effettivamente renderizzate e che il markup storico non interferisca.
+- [ ] Verificare destinazioni e presenza reali del modulo di prenotazione, del modulo disdetta e del modulo CV.
+- [ ] Sostituire i segni grafici provvisori con risorse coerenti con i mockup e autorizzate per il sito.
+- [ ] Completare e collaudare tutti i ruoli e gli accessi del gestionale; la demo grafica non equivale a funzionalità attiva.
+
 ## Limitazioni conosciute
 - L'agenda gestionale è in lettura; la modifica diretta di appuntamenti e l'amministrazione operatori da interfaccia non sono attive.
 - Non è garantita prevenzione atomica di due prenotazioni contemporanee: la verifica disponibilità e la creazione dell'evento Google sono due operazioni distinte.
