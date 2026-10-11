@@ -1,4 +1,5 @@
 (()=>{'use strict';
+if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('/public-sw.js',{scope:'/'}).catch(()=>{});
 const routes=[['Home','/'],['CAF e Fiscale','/caf.html'],['Patronato / INPS','/patronato.html'],['Lavoro / Sindacato','/lavoro-sindacato.html'],['Area Aziende','/area-aziende.html'],['News e Bonus','/news-bonus.html'],['Servizi online','/servizi-online.html'],['Lavora con noi','/lavora-con-noi.html']];
 const path=location.pathname;
 const same=(a,b)=>a.replace(/\s+/g,' ').trim().toLowerCase()===b.toLowerCase();
