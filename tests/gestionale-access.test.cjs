@@ -60,3 +60,24 @@ test('reject calendar mapping that is not an object',async()=>{
  const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
  assert.equal(r.statusCode,503);
 });
+
+test('administrator may read Bari agenda without exposing private cancellation codes',async()=>{
+ process.env.GESTIONALE_GOOGLE_CLIENT_ID='test-client';
+ process.env.GESTIONALE_ADMIN_EMAIL='admin@example.org';
+ process.env.GESTIONALE_OPERATORS_JSON='[]';
+ process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta',bari:'calendar-bari'});
+ global.fetch=async (url)=>{
+  const target=String(url);
+  if(target.includes('/tokeninfo?'))return {ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'admin@example.org',sub:'admin-google-sub'})};
+  if(target.includes('oauth2.googleapis.com/token'))return {ok:true,json:async()=>({access_token:'fake-calendar-token'})};
+  assert.ok(target.includes('/calendars/calendar-bari/events'));
+  return {ok:true,json:async()=>({items:[{id:'event-1',summary:'CAF - Assistito Demo',start:{dateTime:'2026-10-12T09:00:00+02:00'},end:{dateTime:'2026-10-12T09:20:00+02:00'},description:'Codice disdetta: SECRET',extendedProperties:{private:{cancelCode:'SECRET',service:'CAF'}}}]})};
+ };
+ const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'bari',date:'2026-10-12'}});
+ assert.equal(r.statusCode,200);
+ const body=JSON.parse(r.body);
+ assert.deepEqual(body.sites,['molfetta','bari']);
+ assert.equal(body.role,'admin');
+ assert.equal(body.appointments.length,1);
+ assert.ok(!JSON.stringify(body).includes('SECRET'));
+});
