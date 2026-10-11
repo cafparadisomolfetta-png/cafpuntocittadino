@@ -1,3 +1,4 @@
+const {slots: validSlots} = require('./booking-schedule');
 async function getAccessToken() {
   const response = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -103,46 +104,16 @@ exports.handler = async function (event) {
       fine: evento.end?.dateTime || evento.end?.date
     }));
 
-    /*
-      Orari di apertura attuali:
-      mattina 09:00 - 11:30
-      pomeriggio 17:00 - 19:00
-      appuntamenti ogni 20 minuti.
-    */
-    const fasce = [
-      ["09:00", "11:30"],
-      ["17:00", "19:00"]
-    ];
-
-    const durata = 20;
-    const slots = [];
-
-    for (const [inizioFascia, fineFascia] of fasce) {
-      let corrente = minuti(inizioFascia);
-      const fine = minuti(fineFascia);
-
-      while (corrente + durata <= fine) {
-        const ora = orarioDaMinuti(corrente);
-
-        const slotStart = new Date(`${date}T${ora}:00${offset}`);
-        const slotEnd = new Date(slotStart.getTime() + durata * 60000);
-
-        const occupato = eventi.some((evento) => {
-          if (!evento.inizio || !evento.fine) return false;
-
-          const eventoStart = new Date(evento.inizio);
-          const eventoEnd = new Date(evento.fine);
-
-          return slotStart < eventoEnd && slotEnd > eventoStart;
-        });
-
-        if (!occupato) {
-          slots.push(ora);
-        }
-
-        corrente += durata;
-      }
-    }
+    const slots = validSlots(date).filter(ora => {
+      const slotStart = new Date(`${date}T${ora}:00${offset}`);
+      const slotEnd = new Date(slotStart.getTime() + 20 * 60000);
+      if(slotStart.getTime() < Date.now()) return false;
+      return !eventi.some(evento => {
+        if(!evento.inizio || !evento.fine)return false;
+        const start = new Date(evento.inizio),end = new Date(evento.fine);
+        return slotStart < end && slotEnd > start;
+      });
+    });
 
     return {
       statusCode: 200,
