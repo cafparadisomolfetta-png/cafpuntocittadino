@@ -1,3 +1,4 @@
+const {calendarForSite} = require('./site-calendars');
 const {slots: validSlots} = require('./booking-schedule');
 async function getAccessToken() {
   const response = await fetch("https://oauth2.googleapis.com/token", {
@@ -62,6 +63,10 @@ exports.handler = async function (event) {
       };
     }
 
+    const resolved=calendarForSite(event.queryStringParameters?.sede||event.queryStringParameters?.site||'molfetta');
+    if(resolved.error)return {statusCode:resolved.status,headers,body:JSON.stringify({error:resolved.error})};
+    const calendarId=resolved.calendarId;
+
     const accessToken = await getAccessToken();
 
     const offset = romeOffset(date);
@@ -77,7 +82,7 @@ exports.handler = async function (event) {
     });
 
     const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(process.env.GOOGLE_CALENDAR_ID || "primary")}/events?${params.toString()}`,
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params.toString()}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`
