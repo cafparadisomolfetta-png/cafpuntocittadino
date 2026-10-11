@@ -1,4 +1,4 @@
- const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || "primary";
+const {calendarForSite} = require('./site-calendars');
 const TZ = "Europe/Rome";
 const EMAIL_SEDE = "cafparadiso.molfetta@gmail.com";
 
@@ -151,6 +151,10 @@ exports.handler = async (event) => {
         error: "Inserisci il codice di disdetta"
       });
     }
+
+    const resolved=calendarForSite(p.sede||p.site||'molfetta');
+    if(resolved.error)return json(resolved.status,{error:resolved.error});
+    const CALENDAR_ID=resolved.calendarId;
 
     const accessToken = await getAccessToken();
 
