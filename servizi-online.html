@@ -1528,52 +1528,24 @@ body{background:#eaf1f7!important;overflow-x:hidden}
 @media(max-width:700px){.thematic-page-head{margin:14px 10px 4px;padding:18px}.thematic-page-head h1{font-size:1.5rem}}
 </style>
 <style id="privacy-entry-modal-style">
-#privacyEntryModal{
- position:fixed;left:0;right:0;bottom:0;z-index:999999;
- display:none;justify-content:center;align-items:flex-end;
- padding:14px;
- background:linear-gradient(to top,rgba(13,41,70,.20),transparent 65%);
-}
+#privacyEntryModal{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.46)}
 #privacyEntryModal.is-open{display:flex}
-#privacyEntryModal .pem-card{
- width:min(680px,100%);background:#eef0ff;border:1px solid #d7dcf7;
- border-radius:24px;box-shadow:0 -8px 34px rgba(12,35,60,.18);
- padding:24px 28px 22px;color:#202936;position:relative
-}
-#privacyEntryModal .pem-close{
- position:absolute;right:18px;top:14px;border:0;background:transparent;
- font-size:28px;line-height:1;color:#20324a;cursor:pointer
-}
-#privacyEntryModal h2{margin:2px 42px 18px 0;text-align:center;font-size:1.45rem;font-weight:600}
-#privacyEntryModal p{margin:0 0 20px;line-height:1.5;font-size:1rem;color:#273444}
-#privacyEntryModal .pem-actions{display:grid;gap:10px}
-#privacyEntryModal .pem-btn{
- border:1px solid #dce3ee;border-radius:12px;padding:13px 16px;
- font-weight:600;font-size:1rem;cursor:pointer;text-decoration:none;
- display:flex;align-items:center;justify-content:center;background:#fff;color:#16263a
-}
-#privacyEntryModal .pem-primary{background:#1976c9;color:#fff;border-color:#1976c9}
-#privacyEntryModal .pem-links{
- display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:18px;font-size:.92rem
-}
-#privacyEntryModal .pem-links a{color:#1d67a4;text-decoration:underline}
-#privacyEntryModal .pem-preferences{
- display:none;margin:14px 0 4px;padding:14px;background:#fff;border-radius:12px
-}
+#privacyEntryModal .pem-card{width:min(600px,calc(100% - 24px));background:#fff;color:#171717;border-radius:4px;box-shadow:0 18px 60px rgba(0,0,0,.28);padding:42px 38px 28px;text-align:center;font-family:Arial,sans-serif}
+#privacyEntryModal h2{margin:0 0 24px;font-size:16px;font-weight:500;color:#111}
+#privacyEntryModal p{margin:0 auto 28px;max-width:520px;line-height:1.55;font-size:15px;color:#222}
+#privacyEntryModal p a{color:#c33;text-decoration:underline}
+#privacyEntryModal .pem-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+#privacyEntryModal .pem-btn{min-height:44px;border-radius:4px;padding:0 20px;border:1px solid #c8c8c8;background:#f4f4f4;color:#222;font-weight:700;font-size:14px;cursor:pointer}
+#privacyEntryModal .pem-primary{background:#ff5c61;color:#fff;border-color:#ff5c61}
+#privacyEntryModal .pem-secondary{background:#e6e6e6}
+#privacyEntryModal .pem-preferences{display:none;text-align:left;margin:22px 0 4px;padding:16px 18px;background:#f7f7f7;border:1px solid #e4e4e4;border-radius:4px}
 #privacyEntryModal .pem-preferences.is-open{display:block}
-#privacyEntryModal .pem-pref-row{
- display:flex;justify-content:space-between;gap:16px;align-items:center;
- padding:10px 0;border-bottom:1px solid #edf0f4
-}
+#privacyEntryModal .pem-pref-row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:10px 0;border-bottom:1px solid #e5e5e5;font-size:14px}
 #privacyEntryModal .pem-pref-row:last-child{border-bottom:0}
-#privacyEntryModal .pem-status{font-size:.88rem;font-weight:700;color:#0b7a50}
-#privacyEntryModal input[type="checkbox"]{width:22px;height:22px}
-@media(max-width:560px){
- #privacyEntryModal{padding:0;align-items:flex-end}
- #privacyEntryModal .pem-card{border-radius:22px 22px 0 0;padding:22px 18px 18px}
- #privacyEntryModal h2{font-size:1.25rem}
- #privacyEntryModal p{font-size:.96rem}
-}
+#privacyEntryModal .pem-pref-row small{display:block;color:#666;margin-top:3px}
+#privacyEntryModal .pem-pref-row input{width:20px;height:20px}
+#privacyEntryModal .pem-save{margin-top:14px;width:100%;background:#222;color:#fff;border-color:#222}
+@media(max-width:620px){#privacyEntryModal{padding:12px}#privacyEntryModal .pem-card{padding:30px 20px 22px}#privacyEntryModal h2{font-size:15px}#privacyEntryModal p{font-size:14px}#privacyEntryModal .pem-actions{display:grid;grid-template-columns:1fr}#privacyEntryModal .pem-btn{width:100%}}
 </style>
 
 <style id="cookie-consent-style">
@@ -1597,51 +1569,33 @@ body{background:#eaf1f7!important;overflow-x:hidden}
 
 <div id="privacyEntryModal" role="dialog" aria-modal="true" aria-labelledby="privacyEntryTitle">
  <div class="pem-card">
-  <button type="button" class="pem-close" id="privacyEntryClose" aria-label="Chiudi">✕</button>
-  <h2 id="privacyEntryTitle">Gestisci Consenso</h2>
-  <p>Per offrirti una corretta esperienza di navigazione utilizziamo tecnologie necessarie al funzionamento del sito e dei servizi online. Puoi accettare, negare i consensi non necessari oppure scegliere le tue preferenze. La tua scelta potrà essere modificata successivamente.</p>
+  <h2 id="privacyEntryTitle">Cosa sono i cookie e come li usiamo</h2>
+  <p>Usiamo cookie tecnici necessari al funzionamento del sito e, solo con il tuo consenso, eventuali funzionalità aggiuntive. Puoi scegliere le tue preferenze e modificarle in seguito. <a href="/privacy.html">Leggi la privacy</a>.</p>
   <div class="pem-preferences" id="privacyPreferences">
-   <div class="pem-pref-row"><div><strong>Necessari</strong><br><small>Funzionamento, sicurezza e memorizzazione della scelta.</small></div><span class="pem-status">Sempre attivi</span></div>
-   <label class="pem-pref-row"><div><strong>Funzionali</strong><br><small>Servizi e funzioni aggiuntive del sito.</small></div><input type="checkbox" id="functionalConsent"></label>
+   <div class="pem-pref-row"><div><strong>Cookie tecnici necessari</strong><small>Servono al corretto funzionamento del sito.</small></div><input type="checkbox" checked disabled aria-label="Cookie tecnici necessari"></div>
+   <div class="pem-pref-row"><div><strong>Funzionalità opzionali</strong><small>Abilita eventuali funzioni non strettamente necessarie.</small></div><input type="checkbox" id="functionalConsent" aria-label="Funzionalità opzionali"></div>
+   <button type="button" class="pem-btn pem-save" id="privacySavePreferences">Salva preferenze</button>
   </div>
   <div class="pem-actions">
-   <button type="button" class="pem-btn pem-primary" id="privacyAccept">Accetta</button>
-   <button type="button" class="pem-btn" id="privacyDeny">Nega</button>
-   <button type="button" class="pem-btn" id="privacyPreferencesBtn">Visualizza preferenze</button>
-  </div>
-  <div class="pem-links">
-   <a href="/servizi-online.html#cookie-policy">Cookie Policy</a>
-   <a href="/privacy.html">Privacy Policy</a>
+   <button type="button" class="pem-btn" id="privacyPreferencesBtn">⚙ Personalizza</button>
+   <button type="button" class="pem-btn pem-secondary" id="privacyDeny">Continua senza accettare</button>
+   <button type="button" class="pem-btn pem-primary" id="privacyAccept">ACCETTA</button>
   </div>
  </div>
 </div>
 <script id="privacy-entry-modal-script">
 (function(){
- const key='cafpc_cookie_consent_v2';
+ const key='cafpc_cookie_consent_v3';
  const modal=document.getElementById('privacyEntryModal');
- const accept=document.getElementById('privacyAccept');
- const deny=document.getElementById('privacyDeny');
- const prefBtn=document.getElementById('privacyPreferencesBtn');
- const prefBox=document.getElementById('privacyPreferences');
- const functional=document.getElementById('functionalConsent');
- const close=document.getElementById('privacyEntryClose');
+ const accept=document.getElementById('privacyAccept'),deny=document.getElementById('privacyDeny'),prefBtn=document.getElementById('privacyPreferencesBtn'),prefBox=document.getElementById('privacyPreferences'),functional=document.getElementById('functionalConsent'),savePref=document.getElementById('privacySavePreferences');
  if(!modal) return;
  function read(){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}
- function save(value){
-   try{localStorage.setItem(key,JSON.stringify({necessary:true,functional:!!value,date:new Date().toISOString()}))}catch(e){}
-   modal.classList.remove('is-open');
- }
- const saved=read();
- if(!saved) modal.classList.add('is-open');
- else if(functional) functional.checked=!!saved.functional;
+ function save(optional){try{localStorage.setItem(key,JSON.stringify({necessary:true,functional:!!optional,date:new Date().toISOString()}))}catch(e){} modal.classList.remove('is-open')}
+ const saved=read(); if(!saved){modal.classList.add('is-open')} else if(functional){functional.checked=!!saved.functional}
  if(accept) accept.onclick=function(){save(true)};
  if(deny) deny.onclick=function(){save(false)};
- if(prefBtn) prefBtn.onclick=function(){
-   prefBox.classList.toggle('is-open');
-   prefBtn.textContent=prefBox.classList.contains('is-open')?'Salva preferenze':'Visualizza preferenze';
-   if(!prefBox.classList.contains('is-open')) save(functional&&functional.checked);
- };
- if(close) close.onclick=function(){save(false)};
+ if(prefBtn) prefBtn.onclick=function(){prefBox.classList.toggle('is-open')};
+ if(savePref) savePref.onclick=function(){save(functional&&functional.checked)};
 })();
 </script>
 
