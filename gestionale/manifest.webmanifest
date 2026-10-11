@@ -1,0 +1,18 @@
+{
+  "name": "CAF Punto Cittadino — Gestionale",
+  "short_name": "CAF Gestionale",
+  "description": "Agenda riservata per operatori autorizzati",
+  "start_url": "/gestionale/",
+  "scope": "/gestionale/",
+  "display": "standalone",
+  "background_color": "#f1f5fa",
+  "theme_color": "#14365e",
+  "icons": [
+    {
+      "src": "/gestionale/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
