@@ -41,3 +41,22 @@ test('reject invalid calendar day before requesting calendar data',async()=>{
  const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-02-30'}});
  assert.equal(r.statusCode,400);
 });
+
+test('disabled or unassigned operator cannot authenticate to a site',async()=>{
+ process.env.GESTIONALE_GOOGLE_CLIENT_ID='test-client';
+ process.env.GESTIONALE_ADMIN_EMAIL='admin@example.org';
+ process.env.GESTIONALE_OPERATORS_JSON=JSON.stringify([{email:'operator@example.org',role:'operator',sites:[],enabled:true}]);
+ global.fetch=async url=>{
+  assert.match(String(url),/tokeninfo/);
+  return {ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'operator@example.org',sub:'sample-google-sub'})};
+ };
+ const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
+ assert.equal(r.statusCode,401);
+});
+test('reject calendar mapping that is not an object',async()=>{
+ process.env.GESTIONALE_OPERATORS_JSON=JSON.stringify([{email:'operator@example.org',role:'operator',sites:['molfetta'],enabled:true}]);
+ process.env.GESTIONALE_SITE_CALENDARS_JSON='[]';
+ global.fetch=async url=>({ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'operator@example.org',sub:'sample-google-sub'})});
+ const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
+ assert.equal(r.statusCode,503);
+});
