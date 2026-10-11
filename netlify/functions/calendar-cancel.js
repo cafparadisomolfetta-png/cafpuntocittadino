@@ -287,6 +287,30 @@ exports.handler = async (event) => {
       throw new Error(message);
     }
 
+    // Persist a minimal cancellation record after the Calendar event was deleted.
+    // Failure to write the audit must not undo the successful cancellation.
+    let storicoRegistrato = false;
+    try {
+      const { getStore } = require("@netlify/blobs");
+      const store = getStore("caf-cancellations");
+      const day = new Intl.DateTimeFormat("en-CA", {
+        timeZone: TZ, year:"numeric", month:"2-digit", day:"2-digit"
+      }).format(new Date(start));
+      const record = {
+        id: appuntamento.id,
+        calendarId: CALENDAR_ID,
+        date: day,
+        start,
+        summary: String(appuntamento.summary || "Appuntamento").slice(0, 180),
+        category: String(props.service || "").slice(0, 90),
+        cancelledAt: new Date().toISOString()
+      };
+      await store.setJSON("event/" + encodeURIComponent(appuntamento.id), record);
+      storicoRegistrato = true;
+    } catch(error) {
+      console.error("CANCELLATION_AUDIT_ERROR", error?.message || "store unavailable");
+    }
+
     let emailInviata = false;
 
     if (email) {
@@ -370,7 +394,8 @@ exports.handler = async (event) => {
       ok: true,
       message:
         "Appuntamento disdetto correttamente",
-      emailInviata
+      emailInviata,
+      storicoRegistrato
     });
 
   } catch (e) {
