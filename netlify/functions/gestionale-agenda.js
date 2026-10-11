@@ -37,7 +37,8 @@ exports.handler=async(event)=>{
  if(!config)return reply(503,{error:'AUTH_NOT_CONFIGURED'});
  let user;try{user=await userFromToken(event.headers||{},config)}catch{return reply(503,{error:'IDENTITY_UNAVAILABLE'})}
  if(!user)return reply(401,{error:'UNAUTHORIZED'});
- const site=(event.queryStringParameters||{}).site||'';
+ const requestedSite=(event.queryStringParameters||{}).site||'';
+ const site=requestedSite||user.sites[0]||'';
  const day=(event.queryStringParameters||{}).date||'';
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(Date.parse(day+'T00:00:00Z')))return reply(400,{error:'INVALID_DATE'});
  if(!site||!user.sites.includes(site))return reply(403,{error:'SITE_FORBIDDEN'});
