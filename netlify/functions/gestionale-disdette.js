@@ -13,6 +13,8 @@ exports.handler=async event=>{
  if(!site||!user.sites.includes(site))return reply(403,{error:'SITE_FORBIDDEN'});
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date+'T00:00:00Z')))return reply(400,{error:'INVALID_DATE'});
  let sites;try{sites=JSON.parse(process.env.GESTIONALE_SITE_CALENDARS_JSON||'{}')}catch{return reply(503,{error:'CALENDAR_CONFIGURATION_INVALID'})}
+ const ids=Object.values(sites);
+ if(ids.some(id=>typeof id!=='string'||!id.trim())||new Set(ids).size!==ids.length)return reply(503,{error:'SITE_CALENDAR_ISOLATION_REQUIRED'});
  const calendar=sites[site];if(!calendar)return reply(503,{error:'SITE_CALENDAR_NOT_CONFIGURED'});
  try{
   const store=getStore('caf-cancellations');
