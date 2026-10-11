@@ -23,7 +23,7 @@ exports.handler=async event=>{
   const history=[];let cursor;
   let pages=0;
   do{
-   if(++pages>20)break;
+   if(++pages>20)return reply(503,{error:'HISTORY_PAGINATION_LIMIT'});
    const page=await store.list({prefix:'event/',paginate:false,cursor});
    for(const {key} of page.blobs||[]){
     const row=await store.get(key,{type:'json'});
