@@ -40,10 +40,30 @@ async function load(identity=false){
    const d=document.createElement('p');d.textContent=[a.category,a.mode].filter(Boolean).join(' — ');
    item.append(t,d);container.append(item);
   }
+  // Load cancelled appointments independently, so a history outage cannot hide live appointments.
+  const historyContainer=document.createElement('section');
+  const heading=document.createElement('h3');heading.textContent='Disdette del giorno';
+  historyContainer.append(heading);container.append(historyContainer);
+  try{
+   const response=await fetch('/.netlify/functions/gestionale-disdette?'+new URLSearchParams({site:data.site,date}),{headers:{Authorization:'Bearer '+credential},cache:'no-store'});
+   if(!response.ok)throw Error('Storico temporaneamente non disponibile');
+   const cancellations=await response.json();
+   if(!cancellations.history?.length){const empty=document.createElement('p');empty.textContent='Nessuna disdetta registrata per il giorno selezionato.';historyContainer.append(empty)}
+   for(const item of cancellations.history||[]){
+    const card=document.createElement('article');card.className='appointment appointment-cancelled';
+    const title=document.createElement('strong');title.textContent='DISDETTO · '+item.summary;
+    const detail=document.createElement('p');detail.textContent='Appuntamento: '+new Date(item.start).toLocaleString('it-IT',{timeZone:'Europe/Rome'})+' · Annullato: '+new Date(item.cancelledAt).toLocaleString('it-IT',{timeZone:'Europe/Rome'});
+    card.append(title,detail);historyContainer.append(card);
+   }
+  }catch{
+   const warning=document.createElement('p');warning.textContent='Storico disdette non disponibile: gli appuntamenti attivi sono comunque aggiornati.';historyContainer.append(warning);
+  }
   info('Agenda caricata. I dati sono visibili solo ai profili autorizzati.');
  }catch(e){info(e.message||'Errore agenda')}
 }
 $('retry').addEventListener('click',configure);$('load').addEventListener('click',()=>load(false));
 $('logout').addEventListener('click',()=>{clear();google?.accounts?.id?.disableAutoSelect();info('Accesso terminato.');});
 window.addEventListener('load',configure);
+// Refresh on foreground return; do not duplicate overlapping background requests.
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&credential&&!panel.hidden)load(false)});
 })();
