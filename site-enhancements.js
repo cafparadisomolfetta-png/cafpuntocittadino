@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const routes=[['Home','/'],['CAF e Fiscale','/caf.html'],['Patronato / INPS','/patronato.html'],['Lavoro / Sindacato','/lavoro-sindacato.html'],['Area Aziende','/area-aziende.html'],['News e Bonus','/news-bonus.html'],['Servizi online','/servizi-online.html'],['Lavora con noi','/lavora-con-noi.html']];
 const path=location.pathname;
-const same=(a,b)=>a.replace(/\\s+/g,' ').trim().toLowerCase()===b.toLowerCase();
+const same=(a,b)=>a.replace(/\s+/g,' ').trim().toLowerCase()===b.toLowerCase();
 function setupNav(){
  const candidates=[...document.querySelectorAll('nav')];let nav=candidates.find(n=>n.querySelectorAll('a').length>=3);
  if(!nav){nav=document.createElement('nav');nav.className='cafpc-page-nav';(document.querySelector('header')||document.body).append(nav)}
@@ -34,7 +34,7 @@ function showCookie(force=false){
 }
 function careers(){
  if(!/lavora-con-noi\.html$/.test(path))return;
- const section=document.createElement('section');section.id='cafpc-career-choices';
+ if(document.querySelector('.lavora-choice-grid')){const links=document.querySelectorAll('.lavora-choice-grid a');links.forEach((a,i)=>a.setAttribute('href','#form-candidatura'));return;}\n const section=document.createElement('section');section.id='cafpc-career-choices';
  section.innerHTML='<h1>Lavora con noi</h1><p>Seleziona il percorso più adatto a te: entra nella nostra rete con una struttura esistente oppure proponi una nuova collaborazione.</p><div class="cafpc-career-grid"><article><h2>Hai già una struttura?</h2><p>Hai un ufficio, uno sportello o una struttura già operativa? Contattaci per valutare un possibile percorso di collaborazione, secondo i requisiti previsti.</p><a href="#cafpc-career-form" data-cafpc-choice="Struttura esistente">Presenta la tua struttura →</a></article><article><h2>Vuoi iniziare/collaborare con noi?</h2><p>Vuoi avviare un nuovo punto di riferimento, collaborare oppure proporti per un tirocinio? Raccontaci il tuo progetto.</p><a href="#cafpc-career-form" data-cafpc-choice="Nuova collaborazione">Proponi la tua candidatura →</a></article></div>';
  const target=document.querySelector('main')||document.body;target.insertBefore(section,target.firstChild);
  const forms=[...document.querySelectorAll('form')];const form=forms.find(f=>f.querySelector('input[type=file]'))||forms[0];if(form){form.id='cafpc-career-form';section.querySelectorAll('[data-cafpc-choice]').forEach(a=>a.onclick=()=>{const sel=form.querySelector('select');if(sel){const choice=a.dataset.cafpcChoice;let option=[...sel.options].find(x=>/collabor|struttur/i.test(x.textContent));if(option)sel.value=option.value;}});
