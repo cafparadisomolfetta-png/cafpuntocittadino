@@ -19,7 +19,7 @@ async function configure(){
 async function load(identity=false){
  if(!credential)return info('Effettua l’accesso prima di aprire l’agenda.');
  const site=$('site'),day=$('day');
- const selected=site.value||'molfetta'; // The server never trusts this selection.
+ const selected=site.value||''; // The server never trusts this selection.
  const date=day.value||new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
  day.value=date;
  info('Caricamento agenda…');
