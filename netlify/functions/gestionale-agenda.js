@@ -25,7 +25,9 @@ async function userFromToken(headers,config){
    return {email:token.email,role:'admin',sites:['molfetta','bari']};
  const found=config.users.find(x=>typeof x.email==='string'&&x.email.toLowerCase()===token.email.toLowerCase()&&x.enabled===true);
  if(!found||!['manager','operator','viewer'].includes(found.role)||!Array.isArray(found.sites))return null;
- return {email:token.email,role:found.role,sites:found.sites.filter(x=>['molfetta','bari'].includes(x))};
+ const sites=[...new Set(found.sites.filter(x=>['molfetta','bari'].includes(x)))];
+ if(!sites.length)return null;
+ return {email:token.email,role:found.role,sites};
 }
 async function accessToken(){
  const params=new URLSearchParams({client_id:process.env.GOOGLE_CLIENT_ID||'',client_secret:process.env.GOOGLE_CLIENT_SECRET||'',refresh_token:process.env.GOOGLE_REFRESH_TOKEN||'',grant_type:'refresh_token'});
@@ -53,6 +55,7 @@ exports.handler=async(event)=>{
  if(!site||!user.sites.includes(site))return reply(403,{error:'SITE_FORBIDDEN'});
  // Only known configured site/calendar mappings are accessible.
  let calendarMap;try{calendarMap=JSON.parse(process.env.GESTIONALE_SITE_CALENDARS_JSON||'{}')}catch{return reply(503,{error:'CALENDAR_CONFIGURATION_INVALID'})}
+ if(!calendarMap||typeof calendarMap!=='object'||Array.isArray(calendarMap))return reply(503,{error:'CALENDAR_CONFIGURATION_INVALID'});
  const ids=Object.values(calendarMap);
  if(ids.some(id=>typeof id!=='string'||!id.trim())||new Set(ids).size!==ids.length)return reply(503,{error:'SITE_CALENDAR_ISOLATION_REQUIRED'});
  const calendarId=calendarMap[site];
