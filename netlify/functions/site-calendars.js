@@ -14,8 +14,8 @@ function calendarForSite(site){
   if(mapping.bari&&mapping.bari===id)return {error:'Calendari sedi non separati',status:503};
   return {site:requested,calendarId:id};
  }
- if(!mapping.bari||!mapping.molfetta||mapping.bari===mapping.molfetta)
-  return {error:'Prenotazioni Bari non ancora abilitate',status:503};
- return {site:requested,calendarId:mapping.bari};
+ // The public booking hours and customer-facing venue instructions are still Molfetta-specific.
+ // Fail closed rather than placing a Bari appointment on Molfetta's schedule.
+ return {error:'Prenotazioni online Bari non ancora abilitate',status:503};
 }
 module.exports={calendarForSite};
