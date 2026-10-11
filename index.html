@@ -1543,36 +1543,50 @@ section.hero,.news-banner,.site-header{display:none!important}
 
 <style id="privacy-entry-modal-style">
 #privacyEntryModal{
- position:fixed;inset:0;z-index:999999;
- display:none;align-items:center;justify-content:center;
- padding:20px;background:rgba(12,35,60,.78);
- backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)
+ position:fixed;left:0;right:0;bottom:0;z-index:999999;
+ display:none;justify-content:center;align-items:flex-end;
+ padding:14px;
+ background:linear-gradient(to top,rgba(13,41,70,.20),transparent 65%);
 }
 #privacyEntryModal.is-open{display:flex}
 #privacyEntryModal .pem-card{
- width:min(540px,100%);background:#fff;border-radius:20px;
- box-shadow:0 24px 70px rgba(0,0,0,.28);padding:30px;
- color:#17324d;text-align:center
+ width:min(680px,100%);background:#eef0ff;border:1px solid #d7dcf7;
+ border-radius:24px;box-shadow:0 -8px 34px rgba(12,35,60,.18);
+ padding:24px 28px 22px;color:#202936;position:relative
 }
-#privacyEntryModal .pem-icon{
- width:58px;height:58px;border-radius:50%;margin:0 auto 14px;
- display:flex;align-items:center;justify-content:center;
- background:#eaf3fb;color:#0b5fa5;font-size:25px
+#privacyEntryModal .pem-close{
+ position:absolute;right:18px;top:14px;border:0;background:transparent;
+ font-size:28px;line-height:1;color:#20324a;cursor:pointer
 }
-#privacyEntryModal h2{margin:0 0 10px;font-size:1.55rem}
-#privacyEntryModal p{margin:0 auto 20px;line-height:1.55;color:#526273;max-width:450px}
-#privacyEntryModal .pem-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#privacyEntryModal h2{margin:2px 42px 18px 0;text-align:center;font-size:1.45rem;font-weight:600}
+#privacyEntryModal p{margin:0 0 20px;line-height:1.5;font-size:1rem;color:#273444}
+#privacyEntryModal .pem-actions{display:grid;gap:10px}
 #privacyEntryModal .pem-btn{
- border:0;border-radius:12px;padding:12px 18px;font-weight:700;
- cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center
+ border:1px solid #dce3ee;border-radius:12px;padding:13px 16px;
+ font-weight:600;font-size:1rem;cursor:pointer;text-decoration:none;
+ display:flex;align-items:center;justify-content:center;background:#fff;color:#16263a
 }
-#privacyEntryModal .pem-primary{background:#0b5fa5;color:#fff}
-#privacyEntryModal .pem-secondary{background:#edf3f8;color:#0b4f8a}
-#privacyEntryModal .pem-note{font-size:.76rem;color:#7a8793;margin-top:14px}
+#privacyEntryModal .pem-primary{background:#1976c9;color:#fff;border-color:#1976c9}
+#privacyEntryModal .pem-links{
+ display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:18px;font-size:.92rem
+}
+#privacyEntryModal .pem-links a{color:#1d67a4;text-decoration:underline}
+#privacyEntryModal .pem-preferences{
+ display:none;margin:14px 0 4px;padding:14px;background:#fff;border-radius:12px
+}
+#privacyEntryModal .pem-preferences.is-open{display:block}
+#privacyEntryModal .pem-pref-row{
+ display:flex;justify-content:space-between;gap:16px;align-items:center;
+ padding:10px 0;border-bottom:1px solid #edf0f4
+}
+#privacyEntryModal .pem-pref-row:last-child{border-bottom:0}
+#privacyEntryModal .pem-status{font-size:.88rem;font-weight:700;color:#0b7a50}
+#privacyEntryModal input[type="checkbox"]{width:22px;height:22px}
 @media(max-width:560px){
- #privacyEntryModal .pem-card{padding:24px 18px}
- #privacyEntryModal .pem-actions{flex-direction:column}
- #privacyEntryModal .pem-btn{width:100%}
+ #privacyEntryModal{padding:0;align-items:flex-end}
+ #privacyEntryModal .pem-card{border-radius:22px 22px 0 0;padding:22px 18px 18px}
+ #privacyEntryModal h2{font-size:1.25rem}
+ #privacyEntryModal p{font-size:.96rem}
 }
 </style>
 </head>
@@ -1580,36 +1594,51 @@ section.hero,.news-banner,.site-header{display:none!important}
 
 <div id="privacyEntryModal" role="dialog" aria-modal="true" aria-labelledby="privacyEntryTitle">
  <div class="pem-card">
-  <div class="pem-icon" aria-hidden="true">🔒</div>
-  <h2 id="privacyEntryTitle">Privacy e utilizzo del sito</h2>
-  <p>Prima di continuare, ti informiamo che il sito utilizza strumenti tecnici necessari al funzionamento dei servizi online. Puoi consultare in qualsiasi momento l'informativa completa.</p>
-  <div class="pem-actions">
-   <button type="button" class="pem-btn pem-primary" id="privacyEntryContinue">Continua al sito</button>
-   <a class="pem-btn pem-secondary" href="/privacy.html" target="_blank" rel="noopener">Leggi l'informativa</a>
+  <button type="button" class="pem-close" id="privacyEntryClose" aria-label="Chiudi">✕</button>
+  <h2 id="privacyEntryTitle">Gestisci Consenso</h2>
+  <p>Per offrirti una corretta esperienza di navigazione utilizziamo tecnologie necessarie al funzionamento del sito e dei servizi online. Puoi accettare, negare i consensi non necessari oppure scegliere le tue preferenze. La tua scelta potrà essere modificata successivamente.</p>
+  <div class="pem-preferences" id="privacyPreferences">
+   <div class="pem-pref-row"><div><strong>Necessari</strong><br><small>Funzionamento, sicurezza e memorizzazione della scelta.</small></div><span class="pem-status">Sempre attivi</span></div>
+   <label class="pem-pref-row"><div><strong>Funzionali</strong><br><small>Servizi e funzioni aggiuntive del sito.</small></div><input type="checkbox" id="functionalConsent"></label>
   </div>
-  <div class="pem-note">La finestra viene mostrata al primo accesso da questo dispositivo.</div>
+  <div class="pem-actions">
+   <button type="button" class="pem-btn pem-primary" id="privacyAccept">Accetta</button>
+   <button type="button" class="pem-btn" id="privacyDeny">Nega</button>
+   <button type="button" class="pem-btn" id="privacyPreferencesBtn">Visualizza preferenze</button>
+  </div>
+  <div class="pem-links">
+   <a href="/servizi-online.html#cookie-policy">Cookie Policy</a>
+   <a href="/privacy.html">Privacy Policy</a>
+  </div>
  </div>
 </div>
 <script id="privacy-entry-modal-script">
 (function(){
- const key='cafpc_privacy_notice_v1';
+ const key='cafpc_cookie_consent_v2';
  const modal=document.getElementById('privacyEntryModal');
- const btn=document.getElementById('privacyEntryContinue');
- if(!modal||!btn) return;
- try{
-   if(localStorage.getItem(key)!=='ok'){
-     modal.classList.add('is-open');
-     document.documentElement.style.overflow='hidden';
-   }
- }catch(e){
-   modal.classList.add('is-open');
-   document.documentElement.style.overflow='hidden';
- }
- btn.addEventListener('click',function(){
-   try{localStorage.setItem(key,'ok')}catch(e){}
+ const accept=document.getElementById('privacyAccept');
+ const deny=document.getElementById('privacyDeny');
+ const prefBtn=document.getElementById('privacyPreferencesBtn');
+ const prefBox=document.getElementById('privacyPreferences');
+ const functional=document.getElementById('functionalConsent');
+ const close=document.getElementById('privacyEntryClose');
+ if(!modal) return;
+ function read(){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}
+ function save(value){
+   try{localStorage.setItem(key,JSON.stringify({necessary:true,functional:!!value,date:new Date().toISOString()}))}catch(e){}
    modal.classList.remove('is-open');
-   document.documentElement.style.overflow='';
- });
+ }
+ const saved=read();
+ if(!saved) modal.classList.add('is-open');
+ else if(functional) functional.checked=!!saved.functional;
+ if(accept) accept.onclick=function(){save(true)};
+ if(deny) deny.onclick=function(){save(false)};
+ if(prefBtn) prefBtn.onclick=function(){
+   prefBox.classList.toggle('is-open');
+   prefBtn.textContent=prefBox.classList.contains('is-open')?'Salva preferenze':'Visualizza preferenze';
+   if(!prefBox.classList.contains('is-open')) save(functional&&functional.checked);
+ };
+ if(close) close.onclick=function(){save(false)};
 })();
 </script>
 
@@ -4660,7 +4689,7 @@ document.addEventListener('DOMContentLoaded',applicaSceltaPrenotazione);
 <footer id="footer-istituzionale" style="background:#091b30;color:#dbe7f3;padding:36px 18px">
  <div style="max-width:1180px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px">
   <div><strong>CAF PUNTO CITTADINO</strong><p>CAF · Patronato · Sindacato<br>Via Paradiso 34 · Molfetta<br>080 6455509<br>cafparadiso.molfetta@gmail.com</p></div>
-  <div><strong>Informative</strong><p><a href="/servizi-online.html#privacy-policy" style="color:white">Privacy Policy</a><br><a href="/servizi-online.html#cookie-policy" style="color:white">Cookie Policy</a><br><a href="/servizi-online.html#condizioni-consulenza" style="color:white">Condizioni consulenza e tesseramento</a><br><a href="/lavoro-sindacato.html" style="color:white">Lavora con noi</a></p></div>
+  <div><strong>Informative</strong><p><a href="/privacy.html" style="color:white">Privacy Policy</a><br><a href="/servizi-online.html#cookie-policy" style="color:white">Cookie Policy</a><br><a href="/servizi-online.html#condizioni-consulenza" style="color:white">Condizioni consulenza e tesseramento</a><br><a href="/lavoro-sindacato.html" style="color:white">Lavora con noi</a></p></div>
   <div><strong>Servizi rapidi</strong><p><a href="/servizi-online.html#prenotazione-online" style="color:white">Prenota appuntamento</a><br><a href="/servizi-online.html#richiamami" style="color:white">Richiedi richiamata</a><br><a href="/servizi-online.html#invio-documenti" style="color:white">Invio documenti</a><br><a href="/area-aziende.html" style="color:white">Area Aziende</a></p></div>
  </div>
 </footer>
