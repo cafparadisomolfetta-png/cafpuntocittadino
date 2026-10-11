@@ -47,6 +47,8 @@ exports.handler=async(event)=>{
  if(!site||!user.sites.includes(site))return reply(403,{error:'SITE_FORBIDDEN'});
  // Only known configured site/calendar mappings are accessible.
  let calendarMap;try{calendarMap=JSON.parse(process.env.GESTIONALE_SITE_CALENDARS_JSON||'{}')}catch{return reply(503,{error:'CALENDAR_CONFIGURATION_INVALID'})}
+ const ids=Object.values(calendarMap);
+ if(ids.some(id=>typeof id!=='string'||!id.trim())||new Set(ids).size!==ids.length)return reply(503,{error:'SITE_CALENDAR_ISOLATION_REQUIRED'});
  const calendarId=calendarMap[site];
  if(typeof calendarId!=='string'||!calendarId)return reply(503,{error:'SITE_CALENDAR_NOT_CONFIGURED'});
  try{
