@@ -37,3 +37,22 @@
 .cafpc-hero-actions a:last-child{background:white;color:#1358a8!important;border:1px solid #c8dcef}
 .cafpc-hero-actions a:focus-visible{outline:3px solid #20c6c1}
 @media(max-width:700px){.cafpc-design-hero{margin:12px;padding:23px 19px;grid-template-columns:1fr}.cafpc-hero-mark{min-height:115px;font-size:65px}.cafpc-design-hero h1{font-size:32px}.cafpc-hero-actions a{flex:1 1 auto;text-align:center}}
+
+/* Cataloghi servizi responsive: schede ispirate ai mockup approvati */
+.cafpc-services-showcase{max-width:1180px;margin:0 auto 30px;padding:12px 10px 24px;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#123e78}
+.cafpc-services-showcase h2{font-size:clamp(23px,3vw,30px);margin:16px 0 20px}
+.cafpc-services-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.cafpc-service-card{border:1px solid #d9e7f6;border-radius:18px;background:#fff;padding:22px;box-shadow:0 9px 25px #164a7d13;transition:transform .16s,box-shadow .16s}
+.cafpc-service-card:hover{transform:translateY(-2px);box-shadow:0 14px 28px #164a7d21}
+.cafpc-service-icon{display:inline-grid;place-items:center;width:47px;height:47px;border-radius:13px;color:#1764b9;font-size:26px;background:#dff0ff}
+.cafpc-service-card:nth-child(6n+2) .cafpc-service-icon{background:#d9f7eb;color:#12886d}
+.cafpc-service-card:nth-child(6n+3) .cafpc-service-icon{background:#ffecd5;color:#bf711b}
+.cafpc-service-card:nth-child(6n+4) .cafpc-service-icon{background:#f1e9ff;color:#7253b8}
+.cafpc-service-card:nth-child(6n+5) .cafpc-service-icon{background:#def3ff;color:#0b90ba}
+.cafpc-service-card:nth-child(6n+6) .cafpc-service-icon{background:#ffe5ed;color:#c04470}
+.cafpc-service-card h3{font-size:19px;margin:12px 0 6px;color:#173f7d}
+.cafpc-service-card p{font-size:14px;line-height:1.5;color:#58708a;margin:0 0 14px}
+.cafpc-service-card a{font-size:13px;font-weight:750;color:#1466ba;text-decoration:none}
+.cafpc-service-card a:hover{text-decoration:underline}
+@media(max-width:750px){.cafpc-services-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cafpc-services-showcase{padding:10px 14px 20px}}
+@media(max-width:480px){.cafpc-services-grid{grid-template-columns:1fr}.cafpc-service-card{padding:18px}}
