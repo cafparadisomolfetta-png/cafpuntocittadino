@@ -1,1 +1,9 @@
-[build]\n  command = "node deploy-build.cjs"\n  publish = "."\n  functions = "netlify/functions"\n
+# Deploy automatici temporaneamente sospesi per evitare consumo di crediti.
+# Per pubblicare una versione verificata: rimuovere la riga 'ignore = "exit 0"'
+# in un unico commit di rilascio. I deploy avviati tramite build hook non
+# vengono bloccati da questa regola: disabilitare anche eventuali build hook.
+[build]
+  command = "node deploy-build.cjs"
+  publish = "."
+  functions = "netlify/functions"
+  ignore = "exit 0"
