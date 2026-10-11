@@ -1,9 +1,21 @@
-const fs=require('node:fs');const path=require('node:path');
-const files=fs.readdirSync('.').filter(x=>x.endsWith('.html'));
-for(const file of files){let html=fs.readFileSync(file,'utf8');
-html=html.replace(/<!-- COOKIE CONSENT -->[\s\S]*?<!-- \/COOKIE CONSENT -->/g,'');
-html=html.replace(/<script\b[^>]*id=["']cafpc-cookie-script["'][\s\S]*?<\/script>/gi,'');
-html=html.replace(/<\/head>/i,'<link rel="stylesheet" href="/site-enhancements.css">\n</head>');
-html=html.replace(/<\/body>/i,'<script src="/site-enhancements.js" defer></script>\n</body>');
-fs.writeFileSync(file,html);}
-console.log('Enhanced '+files.length+' HTML pages while preserving existing booking and Netlify code.');
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const out = path.join(process.cwd(), 'dist');
+fs.mkdirSync(out, {recursive:true});
+const pages = fs.readdirSync('.').filter(file=>file.endsWith('.html'));
+for (const page of pages) {
+  let html=fs.readFileSync(page,'utf8');
+  // Remove superseded consent block; the shared script owns the single dialog.
+  html=html.replace(/<!-- COOKIE CONSENT -->[\s\S]*?<!-- \/COOKIE CONSENT -->/g,'');
+  html=html.replace(/<script\b[^>]*id=["']cafpc-cookie-script["'][\s\S]*?<\/script>/gi,'');
+  if(!html.includes('href="/site-enhancements.css"'))
+    html=html.replace(/<\/head>/i,'<link rel="stylesheet" href="/site-enhancements.css">\n</head>');
+  if(!html.includes('src="/site-enhancements.js"'))
+    html=html.replace(/<\/body>/i,'<script src="/site-enhancements.js" defer></script>\n</body>');
+  fs.writeFileSync(path.join(out,page),html);
+}
+for (const asset of ['site-enhancements.css','site-enhancements.js']) {
+  fs.copyFileSync(asset,path.join(out,asset));
+}
+console.log('Ready: '+pages.length+' pages, shared assets. Server functions stay outside public dist/.');
