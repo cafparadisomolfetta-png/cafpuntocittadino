@@ -8,6 +8,20 @@ function setupNav(){
  nav.classList.add('cafpc-page-nav');
  nav.querySelectorAll('a').forEach(a=>{const t=a.textContent.trim();if(/^privacy$/i.test(t))a.remove();});
  routes.forEach(([label,url])=>{const anchors=[...nav.querySelectorAll('a')].filter(a=>same(a.textContent,label));let a=anchors[0];if(!a){a=document.createElement('a');a.textContent=label;nav.append(a)}a.href=url;if(url===path||(url==='/'&&path==='/index.html'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');anchors.slice(1).forEach(x=>x.remove());});
+ // Redirect category links that used to scroll through the long single-page layout.
+ const categoryIds={
+  '#catalogo':'/caf.html','#isee':'/caf.html','#modello730':'/caf.html','#successioni':'/caf.html','#imu':'/caf.html','#f24':'/caf.html',
+  '#naspi':'/patronato.html','#pensioni':'/patronato.html','#inail':'/patronato.html','#assegno-unico':'/patronato.html',
+  '#dimissioni':'/lavoro-sindacato.html','#vertenze':'/lavoro-sindacato.html',
+  '#area-aziende':'/area-aziende.html','#lavora-con-noi':'/lavora-con-noi.html',
+  '#centro-aggiornamenti':'/news-bonus.html','#aggiornamenti-automatici':'/news-bonus.html',
+  '#prenotazione-online':'/servizi-online.html#prenotazione-online'
+ };
+ document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  if(a.closest('nav,header') && categoryIds[a.getAttribute('href')]) a.href=categoryIds[a.getAttribute('href')];
+ });
+ // The original home navigation must not point to the Lavoro page for careers.
+ nav.querySelectorAll('a').forEach(a=>{if(/lavora con noi/i.test(a.textContent))a.href='/lavora-con-noi.html'});
  // Make all sitewide navigation cards point to their own page.
  document.querySelectorAll('a').forEach(a=>{const txt=a.textContent.trim(); if(/^privacy$/i.test(txt)&&a.closest('nav'))a.remove();});
 }
