@@ -121,6 +121,48 @@ function serviceCards(){
  });
  section.append(grid);hero.insertAdjacentElement('afterend',section);
 }
-function init(){setupNav();setupFooter();careers();designPages();serviceCards();showCookie()}
+
+function featureNavigation(){
+ const catalog={
+ '/news-bonus.html':[
+  ['Fisco','Guide e aggiornamenti fiscali','/caf.html'],
+  ['Famiglia','Prestazioni e agevolazioni familiari','/patronato.html'],
+  ['Lavoro','Novità e informazioni sul lavoro','/lavoro-sindacato.html'],
+  ['Previdenza','Pensioni e prestazioni INPS','/patronato.html']],
+ '/servizi-online.html':[
+  ['Prenota appuntamento','Scegli il servizio e consulta la disponibilità','#prenotazione-online'],
+  ['Disdici appuntamento','Utilizza il tuo codice di disdetta','#disdetta-appuntamento'],
+  ['CAF e Fiscale','Scopri le prestazioni fiscali','/caf.html'],
+  ['Patronato / INPS','Informazioni sui servizi previdenziali','/patronato.html']],
+ '/lavora-con-noi.html':[
+  ['Hai già una struttura?','Proponi la tua struttura per una collaborazione','#form-candidatura'],
+  ['Vuoi iniziare con noi?','Presenta la tua candidatura','#form-candidatura']]
+ };
+ const items=catalog[path];if(!items)return;
+ const hero=document.querySelector('.cafpc-design-hero'),main=document.querySelector('main');
+ if(!hero||!main||main.querySelector('.cafpc-feature-nav'))return;
+ const section=document.createElement('section');section.className='cafpc-feature-nav';
+ const title=document.createElement('h2');title.textContent=path.includes('news-')?'Esplora gli argomenti':path.includes('lavora')?'Scegli il tuo percorso':'Come possiamo aiutarti?';
+ const grid=document.createElement('div');grid.className='cafpc-feature-grid';
+ items.forEach(([label,desc,href],i)=>{
+  const a=document.createElement('a');a.className='cafpc-feature-card';a.href=href;
+  const icon=document.createElement('span');icon.setAttribute('aria-hidden','true');icon.className='cafpc-feature-symbol';icon.textContent=['✦','♡','▣','◈'][i%4];
+  const heading=document.createElement('strong');heading.textContent=label;
+  const copy=document.createElement('small');copy.textContent=desc;
+  const arrow=document.createElement('span');arrow.className='cafpc-feature-arrow';arrow.textContent='→';
+  a.append(icon,heading,copy,arrow);grid.append(a);
+ });
+ section.append(title,grid);hero.insertAdjacentElement('afterend',section);
+ // Never manufacture working links to forms that are not available.
+ for(const a of section.querySelectorAll('a[href^="#"]')){
+  const target=document.getElementById(a.getAttribute('href').slice(1));
+  if(!target){
+   const targetFallback=a.href.endsWith('#form-candidatura')?document.querySelector('#cv-form'):null;
+   if(targetFallback)a.href='#cv-form';
+   else {a.removeAttribute('href');a.setAttribute('aria-disabled','true');a.title='Funzione in preparazione';}
+  }
+ }
+}
+function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();showCookie()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
