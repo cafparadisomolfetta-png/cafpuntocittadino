@@ -34,6 +34,14 @@ Stato: NON PRONTO AL LIVE. Non riattivare deploy Netlify senza superare i test.
 - [ ] Sostituire i segni grafici provvisori con risorse coerenti con i mockup e autorizzate per il sito.
 - [ ] Completare e collaudare tutti i ruoli e gli accessi del gestionale; la demo grafica non equivale a funzionalità attiva.
 
+## Test aggiunti il 12 ottobre 2026
+- [x] Test automatici per durata slot, chiusura giovedì/fine settimana e venerdì ridotto, date invalide e instradamento calendari.
+- [x] Esecuzione di tali test inclusa nel preflight del build.
+- [ ] Esecuzione effettiva della suite completa in ambiente Node/Netlify (non disponibile attraverso il solo collegamento GitHub).
+- [ ] Inserire in Netlify le variabili di ambiente necessarie e verificare gli accessi con account reali.
+- [ ] Calendario e orari Bari: sede deliberatamente non prenotabile online finché non configurata e collaudata.
+- [ ] Test sul servizio Google: invio email, doppie richieste concorrenti, disdette, sincronizzazione calendario e storici.
+
 ## Limitazioni conosciute
 - L'agenda gestionale è in lettura; la modifica diretta di appuntamenti e l'amministrazione operatori da interfaccia non sono attive.
 - Non è garantita prevenzione atomica di due prenotazioni contemporanee: la verifica disponibilità e la creazione dell'evento Google sono due operazioni distinte.
