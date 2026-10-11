@@ -70,6 +70,34 @@ function careers(){
  const forms=[...document.querySelectorAll('form')];const form=forms.find(f=>f.querySelector('input[type=file]'))||forms[0];if(form){form.id='cafpc-career-form';section.querySelectorAll('[data-cafpc-choice]').forEach(a=>a.onclick=()=>{const sel=form.querySelector('select');if(sel){const choice=a.dataset.cafpcChoice;let option=[...sel.options].find(x=>/collabor|struttur/i.test(x.textContent));if(option)sel.value=option.value;}});
  }else{section.querySelectorAll('[data-cafpc-choice]').forEach(a=>a.href='mailto:molfetta@sindacatosilpa.it?subject=Collaborazione%20CAF%20Punto%20Cittadino')}
 }
-function init(){setupNav();setupFooter();careers();showCookie()}
+
+// Branded per-page introductory panels; existing service content and forms are retained.
+function designPages(){
+ const pages={
+  '/caf.html':{eyebrow:'CAF E FISCALE',title:'Più semplici i tuoi <em>adempimenti fiscali</em>',desc:'Consulenza e assistenza per privati, famiglie e imprese: dichiarazioni, ISEE, IMU, successioni e servizi fiscali.',icon:'▤',style:'caf',link:'/servizi-online.html#prenotazione-online'},
+  '/patronato.html':{eyebrow:'PATRONATO / INPS',title:'I tuoi diritti, <em>il nostro supporto</em>',desc:'Assistenza su pensioni, NASpI, invalidità civile, maternità, assegno unico e permessi Legge 104.',icon:'♡',style:'patronato',link:'/servizi-online.html#prenotazione-online'},
+  '/lavoro-sindacato.html':{eyebrow:'LAVORO / SINDACATO',title:'Lavoro e sindacato, <em>sempre al tuo fianco</em>',desc:'Contratti, buste paga, TFR, ferie, permessi, vertenze, dimissioni e consulenza del lavoro.',icon:'⚖',style:'lavoro',link:'/servizi-online.html#prenotazione-online'},
+  '/area-aziende.html':{eyebrow:'AREA AZIENDE',title:'La tua impresa, <em>un partner affidabile</em>',desc:'Servizi dedicati alle imprese, consulenza organizzativa, paghe, contributi e gestione del personale.',icon:'▥',style:'aziende',link:'/servizi-online.html#prenotazione-online'},
+  '/news-bonus.html':{eyebrow:'NEWS E BONUS',title:'Informazione oggi, <em>opportunità domani</em>',desc:'Notizie, guide e approfondimenti su fisco, famiglia, lavoro e previdenza.',icon:'✦',style:'news',link:'/servizi-online.html'},
+  '/servizi-online.html':{eyebrow:'SERVIZI ONLINE',title:'Più servizi, <em>più tempo per te</em>',desc:'Prenota appuntamenti, accedi alle informazioni e utilizza i servizi digitali disponibili.',icon:'✉',style:'online',link:'#prenotazione-online'},
+  '/lavora-con-noi.html':{eyebrow:'LAVORA CON NOI',title:'Costruiamo insieme <em>nuove opportunità</em>',desc:'Hai già una struttura oppure vuoi iniziare un percorso di collaborazione? Scopri come proporti.',icon:'♧',style:'lavora',link:'#form-candidatura'}
+ };
+ const cfg=pages[path];if(!cfg||document.querySelector('.cafpc-design-hero'))return;
+ const main=document.querySelector('main');if(!main)return;
+ const panel=document.createElement('section');panel.className='cafpc-design-hero cafpc-design-hero--'+cfg.style;
+ const copy=document.createElement('div');
+ const eyebrow=document.createElement('p');eyebrow.className='cafpc-design-eyebrow';eyebrow.textContent=cfg.eyebrow;
+ const heading=document.createElement('h1');heading.innerHTML=cfg.title;
+ const description=document.createElement('p');description.textContent=cfg.desc;
+ const actions=document.createElement('div');actions.className='cafpc-hero-actions';
+ const primary=document.createElement('a');primary.href=cfg.link;primary.textContent=cfg.style==='lavora'?'Invia candidatura':cfg.style==='news'?'Scopri i servizi':'Prenota un appuntamento';
+ const secondary=document.createElement('a');secondary.href='#cafpc-servizi';secondary.textContent='Scopri i servizi ↓';
+ actions.append(primary,secondary);copy.append(eyebrow,heading,description,actions);
+ const graphic=document.createElement('div');graphic.className='cafpc-hero-mark';graphic.setAttribute('aria-hidden','true');graphic.textContent=cfg.icon;
+ panel.append(copy,graphic);main.prepend(panel);
+ // Anchor the original content after the new intro; existing forms and links are untouched.
+ let next=panel.nextElementSibling;if(next&&!document.getElementById('cafpc-servizi'))next.id='cafpc-servizi';
+}
+function init(){setupNav();setupFooter();careers();designPages();showCookie()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
