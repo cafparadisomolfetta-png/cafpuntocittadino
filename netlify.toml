@@ -1,9 +1,7 @@
-# Deploy automatici temporaneamente sospesi per evitare consumo di crediti.
-# Per pubblicare una versione verificata: rimuovere la riga 'ignore = "exit 0"'
-# in un unico commit di rilascio. I deploy avviati tramite build hook non
-# vengono bloccati da questa regola: disabilitare anche eventuali build hook.
+# Deploy automatici sospesi fino al rilascio verificato.
+# Per ripristinarli rimuovere "ignore" solo durante il rilascio.
 [build]
   command = "node deploy-build.cjs"
-  publish = "."
+  publish = "dist"
   functions = "netlify/functions"
   ignore = "exit 0"
