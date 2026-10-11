@@ -7,10 +7,11 @@ Le sedi iniziali sono **Molfetta** e **Bari**. La titolare del gestionale avrà 
 La app è una web app responsive con login tramite Google Identity Services e agenda **in sola lettura**. Nessun utente è abilitato in automatico. Il codice non contiene password o refresh token.
 
 ## Impostazioni necessarie in Netlify (variabili di ambiente, NON GitHub)
+- `GESTIONALE_ADMIN_EMAIL`: impostare in Netlify l'indirizzo Gmail scelto dall'amministratrice. Il server assegna a questo account il ruolo `admin` e le sedi `molfetta` e `bari`, senza riportarlo nel codice.
 - `GESTIONALE_GOOGLE_CLIENT_ID`: OAuth web client ID di Google Cloud. Aggiungere il dominio finale nelle *Authorized JavaScript origins*.
-- `GESTIONALE_OPERATORS_JSON`: JSON con utenti abilitati manualmente, ad esempio:
-  `[{"email":"amministratrice@example.org","role":"admin","sites":["molfetta","bari"],"enabled":true},{"email":"operatore@example.org","role":"operator","sites":["molfetta"],"enabled":true}]`
-- `GESTIONALE_SITE_CALENDARS_JSON`: mappa fra sede autorizzata e ID calendario Google, ad esempio `{"molfetta":"primary"}` (valore da verificare nell'account che ha autorizzato il refresh token).
+- `GESTIONALE_OPERATORS_JSON`: JSON degli **altri** utenti abilitati manualmente; lasciare `[]` fino al loro inserimento, ad esempio:
+  `[{"email":"operatore@example.org","role":"operator","sites":["molfetta"],"enabled":true}]`
+- `GESTIONALE_SITE_CALENDARS_JSON`: mappa fra sede autorizzata e ID calendario Google, ad esempio `{"molfetta":"calendario-molfetta@group.calendar.google.com","bari":"calendario-bari@group.calendar.google.com"}` (valore da verificare nell'account che ha autorizzato il refresh token).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID`: già utilizzate dal sito per gli appuntamenti; ricontrollare gli scope Calendar.
 
 ## Permessi
@@ -18,7 +19,7 @@ La app è una web app responsive con login tramite Google Identity Services e ag
 
 Il controllo email verificata + audience del token Google viene svolto dal server e i ruoli/sedi derivano unicamente da `GESTIONALE_OPERATORS_JSON`. Ogni lettura seleziona un calendario dalla mappa server e impone l'appartenenza dell'utente alla sede. La dashboard non espone codice di disdetta, descrizione libera, né password/token Google.
 
-I ruoli sono `admin`, `manager`, `operator`, `viewer`. **In questa versione tutti hanno solo lettura**; l'interfaccia per invitare/disabilitare operatori, modificare appuntamenti, generare notifiche push e gestire più sedi non è ancora stata sviluppata. I privilegi di gestione vanno implementati e testati lato server, non solo nella UI.
+I ruoli sono `admin`, `manager`, `operator`, `viewer`. L'admin è provisionato esclusivamente con `GESTIONALE_ADMIN_EMAIL`, non dalla lista operatori. **In questa versione tutti hanno solo lettura**; l'interfaccia per invitare/disabilitare operatori, modificare appuntamenti, generare notifiche push e gestire più sedi non è ancora stata sviluppata. I privilegi di gestione vanno implementati e testati lato server, non solo nella UI.
 
 ## Prima di rendere live
 1. Verificare assenza di credenziali e dati personali nel repo e nel bundle pubblico.
@@ -29,3 +30,6 @@ I ruoli sono `admin`, `manager`, `operator`, `viewer`. **In questa versione tutt
 6. Solo a test superati, rimuovere `ignore = "exit 0"` nel file `netlify.toml` e pubblicare una versione verificata.
 
 **Non acquistare crediti Netlify finché non è pronto il collaudo finale e la configurazione degli accessi.**
+
+## Blocco tecnico da risolvere prima del live
+Attualmente le funzioni pubbliche di prenotazione/disdetta usano `GOOGLE_CALENDAR_ID` e non assegnano la sede. **I calendari Molfetta e Bari non sono ancora integrati end-to-end**. Occorre stabilire il percorso di scelta sede sul sito e aggiornare i tre endpoint pubblici prima di accettare prenotazioni su due sedi. Al momento la app gestionale rifiuta configurazioni che riutilizzano lo stesso calendario per entrambe le sedi.
