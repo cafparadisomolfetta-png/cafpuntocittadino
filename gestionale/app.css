@@ -41,3 +41,15 @@ main{max-width:1160px}
 .tiles article:nth-child(3){background:linear-gradient(135deg,#fff2df,#fff);border-left-color:#f2a02d}
 .tiles article:nth-child(4){background:linear-gradient(135deg,#f0eaff,#fff);border-left-color:#7a63da}
 @media(prefers-reduced-motion:reduce){.appointment,.actions a,.actions button,#load,#logout{transition:none}}
+
+/* Agenda compact on phones, refined status presentation */
+.agenda-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;text-align:left;margin:0 0 16px;flex-wrap:wrap}
+.agenda-heading h2{color:#143f7b;margin:5px 0;font-size:clamp(1.2rem,2.5vw,1.55rem)}
+.agenda-heading .eyebrow{color:#1579a7}
+.agenda-heading #profile{margin:4px 0;font-size:.84rem;color:#526b82}
+.sync-label{font-size:.78rem;border:1px solid #b6e5dd;background:#dff9f3;color:#087c70;padding:9px 12px;border-radius:999px;font-weight:700}
+#results>section{margin-top:12px;border-top:1px solid #c5ddec;padding-top:15px}
+#results>section h3{color:#9d3150;font-size:1rem;margin:0 0 12px}
+.appointment strong{color:#134577;font-size:.98rem}
+.appointment-cancelled strong{color:#a92f51}
+@media(max-width:600px){#agenda-panel{padding:16px 12px}#agenda-panel label{display:flex;justify-content:space-between}#agenda-panel select,#agenda-panel input{max-width:70%;min-width:0}#load,#logout{width:100%;margin:5px 0}.sync-label{font-size:.72rem}.appointment{padding:14px 12px}}
