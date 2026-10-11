@@ -1,3 +1,8 @@
-// Security-first scaffold. No session, appointment or operator data are returned
-// until a verified identity provider, session handling and tenant-scoped RBAC are configured.
-exports.handler=async()=>({statusCode:503,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'},body:JSON.stringify({authenticated:false,error:'AUTH_NOT_CONFIGURED'})});
+'use strict';
+const reply=(status,body)=>({statusCode:status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'},body:JSON.stringify(body)});
+exports.handler=async(event)=>{
+ if(event.httpMethod!=='GET')return reply(405,{error:'METHOD_NOT_ALLOWED'});
+ const client=process.env.GESTIONALE_GOOGLE_CLIENT_ID;
+ if(!client||!process.env.GESTIONALE_OPERATORS_JSON)return reply(503,{authenticated:false,error:'AUTH_NOT_CONFIGURED'});
+ return reply(200,{configured:true,clientId:client,authenticated:false});
+};
