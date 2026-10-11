@@ -1585,6 +1585,23 @@ body{background:#eaf1f7!important;overflow-x:hidden}
  #privacyEntryModal p{font-size:.96rem}
 }
 </style>
+
+<style id="cookie-consent-style">
+#cookieConsentOverlay{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:99998;display:none;align-items:center;justify-content:center;padding:18px}
+#cookieConsentBox{width:min(620px,100%);background:#fff;border-radius:6px;box-shadow:0 24px 70px rgba(0,0,0,.28);padding:34px 28px 26px;color:#172033;font-family:Arial,sans-serif}
+#cookieConsentBox h2{font-size:18px;text-align:center;margin:0 0 22px;font-weight:500}
+#cookieConsentBox p{font-size:15px;line-height:1.55;text-align:center;margin:0 0 24px}
+#cookieConsentBox a{color:#b32626;text-decoration:underline}
+.cookie-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cookie-btn{border:0;border-radius:4px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer}
+.cookie-btn.manage{background:#f7f7f7;border:1px solid #cfcfcf;color:#202633}
+.cookie-btn.reject{background:#e7e7e7;color:#202633}
+.cookie-btn.accept{background:#ff6267;color:#fff}
+#cookiePrefs{display:none;margin:18px 0 4px;padding:14px;border:1px solid #ddd;border-radius:6px;background:#fafafa}
+.cookie-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:8px 0;font-size:14px}
+.cookie-reopen{position:fixed;left:14px;bottom:14px;z-index:9990;width:38px;height:38px;border-radius:50%;border:1px solid #ccd6df;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.12);cursor:pointer;font-size:18px}
+@media(max-width:600px){#cookieConsentBox{padding:26px 18px}.cookie-actions{flex-direction:column}.cookie-btn{width:100%}}
+</style>
 </head>
 <body>
 
@@ -4817,6 +4834,54 @@ document.addEventListener('DOMContentLoaded',applicaSceltaPrenotazione);
 })();
 </script>
 <!-- /COOKIE CONSENT -->
+
+<div id="cookieConsentOverlay" role="dialog" aria-modal="true" aria-labelledby="cookieConsentTitle">
+  <div id="cookieConsentBox">
+    <h2 id="cookieConsentTitle">Cosa sono i cookie e come li usiamo</h2>
+    <p>Usiamo cookie tecnici necessari e, solo con il tuo consenso, eventuali cookie per statistiche e contenuti personalizzati. Puoi modificare o revocare le tue preferenze in qualsiasi momento dalla sezione Privacy. <a href="/privacy.html">Leggi la privacy</a>.</p>
+    <div id="cookiePrefs">
+      <div class="cookie-row"><span><strong>Cookie tecnici</strong><br><small>Necessari al funzionamento del sito</small></span><input type="checkbox" checked disabled></div>
+      <div class="cookie-row"><span><strong>Statistiche e contenuti opzionali</strong><br><small>Attivati solo con il tuo consenso</small></span><input id="cookieOptional" type="checkbox"></div>
+    </div>
+    <div class="cookie-actions">
+      <button class="cookie-btn manage" id="cookieManageBtn" type="button">⚙ Personalizza</button>
+      <button class="cookie-btn reject" id="cookieRejectBtn" type="button">Continua senza accettare</button>
+      <button class="cookie-btn accept" id="cookieAcceptBtn" type="button">ACCETTA</button>
+    </div>
+  </div>
+</div>
+<button class="cookie-reopen" id="cookieReopenBtn" type="button" aria-label="Gestisci preferenze cookie">🍪</button>
+<script id="cookie-consent-script">
+(function(){
+  const KEY='cafpc_cookie_consent_v1';
+  const overlay=document.getElementById('cookieConsentOverlay');
+  const prefs=document.getElementById('cookiePrefs');
+  const optional=document.getElementById('cookieOptional');
+  const manage=document.getElementById('cookieManageBtn');
+  const reject=document.getElementById('cookieRejectBtn');
+  const accept=document.getElementById('cookieAcceptBtn');
+  const reopen=document.getElementById('cookieReopenBtn');
+  function save(v){
+    try{localStorage.setItem(KEY,JSON.stringify({value:v,date:Date.now()}));}catch(e){}
+    overlay.style.display='none';
+    document.documentElement.style.overflow='';
+    window.dispatchEvent(new CustomEvent('cafpc-cookie-choice',{detail:v}));
+  }
+  function open(){
+    overlay.style.display='flex';
+    document.documentElement.style.overflow='hidden';
+  }
+  let stored=null;
+  try{stored=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
+  const sixMonths=1000*60*60*24*183;
+  if(!stored || !stored.date || (Date.now()-stored.date)>sixMonths) open();
+  manage.addEventListener('click',()=>{prefs.style.display=prefs.style.display==='block'?'none':'block';});
+  reject.addEventListener('click',()=>save({necessary:true,optional:false}));
+  accept.addEventListener('click',()=>save({necessary:true,optional:true}));
+  optional.addEventListener('change',()=>{});
+  reopen.addEventListener('click',open);
+})();
+</script>
 </body>
 </html>
 <section id="invalidita-civile" class="fade-in" style="padding:42px 18px;background:#fff">
