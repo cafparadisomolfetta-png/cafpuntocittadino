@@ -98,6 +98,29 @@ function designPages(){
  // Anchor the original content after the new intro; existing forms and links are untouched.
  let next=panel.nextElementSibling;if(next&&!document.getElementById('cafpc-servizi'))next.id='cafpc-servizi';
 }
-function init(){setupNav();setupFooter();careers();designPages();showCookie()}
+
+function serviceCards(){
+ const catalog={
+ '/caf.html':[['730','Dichiarazione dei redditi'],['ISEE','Indicatore della situazione economica'],['IMU','Calcolo e assistenza'],['Successioni','Pratiche e volture catastali'],['F24','Modelli e tributi'],['Detrazioni','Agevolazioni fiscali']],
+ '/patronato.html':[['Pensioni','Consulenza previdenziale'],['NASpI','Disoccupazione'],['Invalidità civile','Assistenza alla domanda'],['Assegno unico','Prestazioni per figli'],['Maternità','Congedi e prestazioni'],['Permessi 104','Assistenza ai familiari']],
+ '/lavoro-sindacato.html':[['Contratti','Consulenza contrattuale'],['Buste paga','Lettura e verifica'],['TFR','Verifica competenze'],['Ferie e permessi','Controllo spettanze'],['Vertenze','Tutela del lavoro'],['Dimissioni','Assistenza alla procedura']],
+ '/area-aziende.html':[['Consulenza aziende','Supporto organizzativo'],['Paghe e contributi','Elaborazioni e adempimenti'],['Assunzioni','Contratti e procedure'],['Pratiche INPS','Gestione previdenziale'],['Supporto HR','Gestione personale'],['Sportello imprese','Assistenza dedicata']]
+ };
+ const services=catalog[path];if(!services)return;
+ const main=document.querySelector('main'),hero=main?.querySelector('.cafpc-design-hero');if(!hero||main.querySelector('.cafpc-services-showcase'))return;
+ const section=document.createElement('section');section.className='cafpc-services-showcase';
+ const h=document.createElement('h2');h.textContent='I nostri servizi';section.append(h);
+ const grid=document.createElement('div');grid.className='cafpc-services-grid';
+ services.forEach(([name,desc],i)=>{
+  const article=document.createElement('article');article.className='cafpc-service-card';
+  const badge=document.createElement('span');badge.className='cafpc-service-icon';badge.setAttribute('aria-hidden','true');badge.textContent=['▣','✦','⌂','◈','▤','✓'][i];
+  const title=document.createElement('h3');title.textContent=name;
+  const info=document.createElement('p');info.textContent=desc;
+  const a=document.createElement('a');a.href='/servizi-online.html#prenotazione-online';a.textContent='Richiedi informazioni →';a.setAttribute('aria-label','Richiedi informazioni: '+name);
+  article.append(badge,title,info,a);grid.append(article);
+ });
+ section.append(grid);hero.insertAdjacentElement('afterend',section);
+}
+function init(){setupNav();setupFooter();careers();designPages();serviceCards();showCookie()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
