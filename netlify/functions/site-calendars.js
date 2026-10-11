@@ -7,6 +7,8 @@ function calendarForSite(site){
  if(process.env.GESTIONALE_SITE_CALENDARS_JSON){
   try{mapping=JSON.parse(process.env.GESTIONALE_SITE_CALENDARS_JSON)}
   catch{return {error:'Configurazione calendari non valida',status:503}}
+  if(!mapping||typeof mapping!=='object'||Array.isArray(mapping)||typeof mapping.molfetta!=='string'||!mapping.molfetta.trim())
+   return {error:'Calendario Molfetta non configurato',status:503};
  }
  const legacy=process.env.GOOGLE_CALENDAR_ID||'primary';
  if(requested==='molfetta'){
