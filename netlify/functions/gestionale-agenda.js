@@ -30,6 +30,7 @@ async function accessToken(){
 function dateLocal(x){
  return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(x));
 }
+exports.authorize=async(headers)=>{const config=settings();if(!config)return null;return await userFromToken(headers||{},config)};
 exports.handler=async(event)=>{
  if(event.httpMethod!=='GET')return reply(405,{error:'METHOD_NOT_ALLOWED'});
  let config;
