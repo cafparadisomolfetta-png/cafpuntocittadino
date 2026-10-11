@@ -20,7 +20,13 @@ test('operator cannot access another site even when selecting it manually',async
  const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'bari',date:'2026-10-12'}});
  assert.equal(r.statusCode,403);
 });
-test('do not expose unconfigured calendar',async()=>{
+test('reject shared calendar between two independent sites',async()=>{
+ process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'shared',bari:'shared'});
+ const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
+ assert.equal(r.statusCode,503);
+ assert.equal(JSON.parse(r.body).error,'SITE_CALENDAR_ISOLATION_REQUIRED');
+});
+test('refuse requests when provider token exchange fails',async()=>{
  const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
  assert.equal(r.statusCode,503);
 });
