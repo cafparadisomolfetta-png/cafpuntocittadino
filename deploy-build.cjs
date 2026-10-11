@@ -19,4 +19,9 @@ for (const page of pages) {
 for (const asset of ['site-enhancements.css','site-enhancements.js']) {
   fs.copyFileSync(asset,path.join(out,asset));
 }
+// Publish only the frontend of the management app, never its internal documentation.
+const privateFrontend=path.join(out,'gestionale');
+fs.mkdirSync(privateFrontend,{recursive:true});
+for(const asset of ['index.html','app.css','app.js'])
+  fs.copyFileSync(path.join('gestionale',asset),path.join(privateFrontend,asset));
 console.log('Ready: '+pages.length+' pages, shared assets. Server functions stay outside public dist/.');
