@@ -1,3 +1,4 @@
+const {validDate}=require('./gestionale-date');
 'use strict';
 const { getStore }=require('@netlify/blobs');
 const { authorize }=require('./gestionale-agenda');
@@ -11,7 +12,7 @@ exports.handler=async event=>{
  const site=qs.site||user.sites[0]||'';
  const date=qs.date||'';
  if(!site||!user.sites.includes(site))return reply(403,{error:'SITE_FORBIDDEN'});
- if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date+'T00:00:00Z')))return reply(400,{error:'INVALID_DATE'});
+ if(!validDate(date))return reply(400,{error:'INVALID_DATE'});
  let sites;try{sites=JSON.parse(process.env.GESTIONALE_SITE_CALENDARS_JSON||'{}')}catch{return reply(503,{error:'CALENDAR_CONFIGURATION_INVALID'})}
  const ids=Object.values(sites);
  if(ids.some(id=>typeof id!=='string'||!id.trim())||new Set(ids).size!==ids.length)return reply(503,{error:'SITE_CALENDAR_ISOLATION_REQUIRED'});
