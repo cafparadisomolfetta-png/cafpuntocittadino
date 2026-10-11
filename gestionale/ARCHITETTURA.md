@@ -1,22 +1,25 @@
-# Gestionale CAF Punto Cittadino — progetto di sicurezza
+# Gestionale: configurazione prima del rilascio
 
-## Stato
-Interfaccia responsive e accesso **bloccato per impostazione predefinita**. Non è ancora un gestionale operativo. Nessuna credenziale, password, nome assistito o appuntamento viene incorporato nei file pubblici.
+La app è una web app responsive con login tramite Google Identity Services e agenda **in sola lettura**. Nessun utente è abilitato in automatico. Il codice non contiene password o refresh token.
 
-## Ruoli e permessi server-side proposti
-- **Amministratrice**: gestisce sedi, inviti, ruoli e consultazione appuntamenti secondo l'ambito autorizzato.
-- **Responsabile sede**: vede e gestisce appuntamenti e operatori solo della propria sede.
-- **Operatore**: consulta e gestisce esclusivamente gli appuntamenti della/e sede/i assegnata/e, con funzioni più ristrette.
-- **Lettura**: solo consultazione della propria sede, ove autorizzata.
+## Impostazioni necessarie in Netlify (variabili di ambiente, NON GitHub)
+- `GESTIONALE_GOOGLE_CLIENT_ID`: OAuth web client ID di Google Cloud. Aggiungere il dominio finale nelle *Authorized JavaScript origins*.
+- `GESTIONALE_OPERATORS_JSON`: JSON con utenti abilitati manualmente, ad esempio:
+  `[{"email":"amministratrice@example.org","role":"admin","sites":["molfetta"],"enabled":true},{"email":"operatore@example.org","role":"operator","sites":["molfetta"],"enabled":true}]`
+- `GESTIONALE_SITE_CALENDARS_JSON`: mappa fra sede autorizzata e ID calendario Google, ad esempio `{"molfetta":"primary"}` (valore da verificare nell'account che ha autorizzato il refresh token).
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID`: già utilizzate dal sito per gli appuntamenti; ricontrollare gli scope Calendar.
 
-La sede e il ruolo non devono mai essere accettati da parametri forniti dal browser: vanno derivati da una sessione verificata sul server. Vietare per default ogni operazione non esplicitamente autorizzata. Audit delle operazioni amministrative e modifiche appuntamenti.
+## Permessi
+Il controllo email verificata + audience del token Google viene svolto dal server e i ruoli/sedi derivano unicamente da `GESTIONALE_OPERATORS_JSON`. Ogni lettura seleziona un calendario dalla mappa server e impone l'appartenenza dell'utente alla sede. La dashboard non espone codice di disdetta, descrizione libera, né password/token Google.
 
-## Passi prima dell'attivazione
-1. Scegliere e configurare identity provider con MFA, inviti individuali, disabilitazione utenti, sessioni HttpOnly/Secure/SameSite e anti-CSRF.
-2. Persistenza sicura delle assegnazioni operatore-sede con controllo tenant/ruolo per ogni endpoint.
-3. Integrare Google Calendar **solo lato server** e con minimi dati necessari, verificando la corretta separazione tra sedi.
-4. Gestire annullamenti, errori, rate limiting, log senza dati sensibili, privacy e conservazione.
-5. Test automatizzati contro accessi incrociati, escalation di ruolo, sessioni scadute e accessi anonimi.
-6. Collaudare sito e funzioni live in un unico rilascio approvato, senza rimuovere la sospensione deploy prima dei test.
+I ruoli sono `admin`, `manager`, `operator`, `viewer`. **In questa versione tutti hanno solo lettura**; l'interfaccia per invitare/disabilitare operatori, modificare appuntamenti, generare notifiche push e gestire più sedi non è ancora stata sviluppata. I privilegi di gestione vanno implementati e testati lato server, non solo nella UI.
 
-La pagina `/gestionale/` non concede accesso: la funzione `gestionale-session` restituisce sempre HTTP 503 fino alla realizzazione del sistema di login sicuro.
+## Prima di rendere live
+1. Verificare assenza di credenziali e dati personali nel repo e nel bundle pubblico.
+2. Testare token assente, scaduto, di altro client, account non presente, sede non autorizzata, calendario indisponibile.
+3. Configurare MFA degli account Google, revoca utenti in Netlify, monitoraggio accessi e tempi di conservazione.
+4. Verificare form e funzioni originali, dominio, email e refresh token.
+5. Valutare con attenzione privacy e separazione dei calendari: un calendario unico per più sedi NON garantisce l'isolamento per sede.
+6. Solo a test superati, rimuovere `ignore = "exit 0"` nel file `netlify.toml` e pubblicare una versione verificata.
+
+**Non acquistare crediti Netlify finché non è pronto il collaudo finale e la configurazione degli accessi.**
