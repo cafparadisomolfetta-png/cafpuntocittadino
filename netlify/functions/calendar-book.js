@@ -1,3 +1,4 @@
+const {slots: validSlots} = require('./booking-schedule');
 const crypto = require("crypto");
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || "primary";
@@ -248,6 +249,11 @@ exports.handler = async (event) => {
       });
     }
 
+    // Reject requests outside the same opening slots advertised by availability.
+    if (!validSlots(data).includes(ora)) {
+      return json(400, {error:"Data o orario fuori dagli slot prenotabili della sede"});
+    }
+
     const accessToken = await getAccessToken();
 
     // Scan a padded UTC window so Rome-local appointments near midnight
@@ -290,7 +296,7 @@ exports.handler = async (event) => {
       timeZone: TZ, timeZoneName: "shortOffset"
     }).formatToParts(new Date(data + "T12:00:00Z"))
       .find(x => x.type === "timeZoneName")?.value || "GMT+1";
-    const offsetHour = Number(offsetLabel.match(/GMT([+-]\\d+)/)?.[1] || "+1");
+    const offsetHour = Number(offsetLabel.match(/GMT([+-]\d+)/)?.[1] || "+1");
     const offset = (offsetHour >= 0 ? "+" : "-") +
       String(Math.abs(offsetHour)).padStart(2, "0") + ":00";
     const requestedStart = new Date(data + "T" + ora + ":00" + offset).getTime();
