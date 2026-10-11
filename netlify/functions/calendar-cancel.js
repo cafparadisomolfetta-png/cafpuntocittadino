@@ -293,9 +293,11 @@ exports.handler = async (event) => {
     try {
       const { getStore } = require("@netlify/blobs");
       const store = getStore("caf-cancellations");
-      const day = new Intl.DateTimeFormat("en-CA", {
+      const dateParts = new Intl.DateTimeFormat("en-GB", {
         timeZone: TZ, year:"numeric", month:"2-digit", day:"2-digit"
-      }).format(new Date(start));
+      }).formatToParts(new Date(start));
+      const part = kind => dateParts.find(x => x.type === kind)?.value;
+      const day = [part("year"), part("month"), part("day")].join("-");
       const record = {
         id: appuntamento.id,
         calendarId: CALENDAR_ID,
