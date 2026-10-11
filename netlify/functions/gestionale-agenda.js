@@ -4,9 +4,9 @@ const reply=(status,obj)=>({statusCode:status,headers:{'Content-Type':'applicati
 function settings(){
  const client=process.env.GESTIONALE_GOOGLE_CLIENT_ID;
  const raw=process.env.GESTIONALE_OPERATORS_JSON;
- if(!client||!raw)return null;
+ if(!client||!raw||!process.env.GESTIONALE_ADMIN_EMAIL)return null;
  const users=JSON.parse(raw);
- if(!Array.isArray(users)||!users.length)throw new Error('Invalid role mapping');
+ if(!Array.isArray(users))throw new Error('Invalid role mapping');
  return {client,users};
 }
 async function userFromToken(headers,config){
