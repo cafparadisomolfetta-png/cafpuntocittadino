@@ -166,22 +166,37 @@ function featureNavigation(){
 
 // Resolve on-page navigation against actual form controls, without claiming unsupported features.
 function repairPageLinks(){
- if(path!=='/servizi-online.html')return;
+ const landing='/servizi-online.html';
+ // The destination page always exists; its optional booking/disdetta anchors might not.
+ // Never send visitors to a hash target that has not been found in the DOM.
+ if(path!==landing)return;
  const links=[...document.querySelectorAll('.cafpc-design-hero a,.cafpc-feature-nav a,.cafpc-services-showcase a')];
- const fields=[...document.querySelectorAll('form')];
- const booking=fields.find(f=>/prenot|booking|calendar/i.test([f.id,f.getAttribute('name'),f.textContent.slice(0,300)].join(' ')));
- const cancel=fields.find(f=>/disdett|annull|cancel/i.test([f.id,f.getAttribute('name'),f.textContent.slice(0,300)].join(' ')));
+ const forms=[...document.querySelectorAll('form')];
+ const descriptor=f=>[f.id,f.getAttribute('name'),f.getAttribute('action'),
+   ...[...f.querySelectorAll('input,select,button')].map(x=>[x.id,x.name,x.textContent].join(' '))].join(' ');
+ const booking=forms.find(f=>/prenot|booking|calendar/i.test(descriptor(f)));
+ const cancel=forms.find(f=>/disdett|annull|cancel|codice.disdetta/i.test(descriptor(f)));
  for(const a of links){
-  const href=a.getAttribute('href');
-  if(!href||!href.startsWith('#'))continue;
+  const href=a.getAttribute('href');if(!href||!href.startsWith('#'))continue;
   const id=href.slice(1);if(document.getElementById(id))continue;
   const target=/prenot/i.test(id)?booking:/disdett/i.test(id)?cancel:null;
   if(target){
    if(!target.id)target.id='cafpc-target-'+(/prenot/i.test(id)?'booking':'cancel');
    a.href='#'+target.id;a.removeAttribute('aria-disabled');a.removeAttribute('title');
-  }else{a.removeAttribute('href');a.setAttribute('aria-disabled','true');a.title='Funzione non disponibile in questa pagina';}
+  }else{
+   a.removeAttribute('href');a.setAttribute('aria-disabled','true');
+   a.title='Funzione non disponibile in questa pagina';
+  }
  }
 }
-function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();repairPageLinks();showCookie()}
+function safeCrossPageBookingLinks(){
+ // Preserve access to the services page if a form is temporarily unavailable.
+ if(path==='/servizi-online.html')return;
+ document.querySelectorAll('.cafpc-design-hero a[href="/servizi-online.html#prenotazione-online"],.cafpc-services-showcase a[href="/servizi-online.html#prenotazione-online"]').forEach(a=>{
+  a.href='/servizi-online.html';
+  a.title='Apri Servizi online e verifica le modalità disponibili';
+ });
+}
+function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();repairPageLinks();safeCrossPageBookingLinks();showCookie()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
