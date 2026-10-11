@@ -1,11 +1,15 @@
 # Gestionale: configurazione prima del rilascio
 
+## Struttura organizzativa confermata
+Le sedi iniziali sono **Molfetta** e **Bari**. La titolare del gestionale avrà un solo profilo **admin**, valido per entrambe le sedi, e svolgerà anche la funzione di responsabile. Il ruolo admin comprende la visibilità di entrambe le sedi senza creare un secondo account responsabile. Altri responsabili, operatori e lettori restano limitati alle sedi assegnate. Non inserire l'indirizzo personale dell'amministratrice in GitHub: configurarlo soltanto nelle variabili Netlify.
+
+
 La app è una web app responsive con login tramite Google Identity Services e agenda **in sola lettura**. Nessun utente è abilitato in automatico. Il codice non contiene password o refresh token.
 
 ## Impostazioni necessarie in Netlify (variabili di ambiente, NON GitHub)
 - `GESTIONALE_GOOGLE_CLIENT_ID`: OAuth web client ID di Google Cloud. Aggiungere il dominio finale nelle *Authorized JavaScript origins*.
 - `GESTIONALE_OPERATORS_JSON`: JSON con utenti abilitati manualmente, ad esempio:
-  `[{"email":"amministratrice@example.org","role":"admin","sites":["molfetta"],"enabled":true},{"email":"operatore@example.org","role":"operator","sites":["molfetta"],"enabled":true}]`
+  `[{"email":"amministratrice@example.org","role":"admin","sites":["molfetta","bari"],"enabled":true},{"email":"operatore@example.org","role":"operator","sites":["molfetta"],"enabled":true}]`
 - `GESTIONALE_SITE_CALENDARS_JSON`: mappa fra sede autorizzata e ID calendario Google, ad esempio `{"molfetta":"primary"}` (valore da verificare nell'account che ha autorizzato il refresh token).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID`: già utilizzate dal sito per gli appuntamenti; ricontrollare gli scope Calendar.
 
