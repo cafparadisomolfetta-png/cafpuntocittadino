@@ -10,13 +10,14 @@ for (const page of pages) {
   // Remove superseded consent block; the shared script owns the single dialog.
   html=html.replace(/<!-- COOKIE CONSENT -->[\s\S]*?<!-- \/COOKIE CONSENT -->/g,'');
   html=html.replace(/<script\b[^>]*id=["']cafpc-cookie-script["'][\s\S]*?<\/script>/gi,'');
+  if(!html.includes('rel="manifest"')) html=html.replace(/<\/head>/i,'<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/app-icon.svg" type="image/svg+xml"><meta name="theme-color" content="#174a86">\n</head>');
   if(!html.includes('href="/site-enhancements.css"'))
     html=html.replace(/<\/head>/i,'<link rel="stylesheet" href="/site-enhancements.css">\n</head>');
   if(!html.includes('src="/site-enhancements.js"'))
     html=html.replace(/<\/body>/i,'<script src="/site-enhancements.js" defer></script>\n</body>');
   fs.writeFileSync(path.join(out,page),html);
 }
-for (const asset of ['site-enhancements.css','site-enhancements.js']) {
+for (const asset of ['site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js']) {
   fs.copyFileSync(asset,path.join(out,asset));
 }
 // Publish only the frontend of the management app, never its internal documentation.
