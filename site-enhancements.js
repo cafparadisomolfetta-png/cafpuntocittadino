@@ -33,19 +33,8 @@ function setupFooter(){
  foot.querySelectorAll('a').forEach(a=>{if(a.closest('#cafpc-legal-links'))return;if(/privacy|cookie/i.test(a.textContent))a.remove()});
  document.getElementById('cafpc-reopen').addEventListener('click',()=>showCookie(true));
 }
-const key='cafpc_cookie_consent_v3';
-function read(){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}
-function save(optional){try{localStorage.setItem(key,JSON.stringify({necessary:true,functional:optional,date:new Date().toISOString()}))}catch(e){}document.querySelector('#cafpc-consent')?.remove();document.dispatchEvent(new CustomEvent('cafpc:cookie-preferences',{detail:{functional:optional}}))}
-function showCookie(force=false){
- if(!force&&read())return;
- document.querySelector('#cafpc-consent')?.remove();
- const overlay=document.createElement('div');overlay.id='cafpc-consent';overlay.innerHTML='<section role="dialog" aria-modal="true" aria-labelledby="cafpc-consent-title"><h2 id="cafpc-consent-title">La tua privacy è importante</h2><p>Utilizziamo cookie necessari al funzionamento del sito. Eventuali cookie facoltativi sono attivati solo con il tuo consenso. <a href="/privacy.html">Leggi la privacy</a></p><div class="cafpc-options" hidden><label><input type="checkbox" checked disabled> Cookie tecnici necessari</label><label><input id="cafpc-opt" type="checkbox"> Funzionalità facoltative</label><button id="cafpc-save" type="button">Salva preferenze</button></div><div class="cafpc-actions"><button id="cafpc-custom" type="button">Personalizza</button><button id="cafpc-decline" type="button">Continua senza accettare</button><button id="cafpc-accept" type="button">Accetta</button></div></section>';
- document.body.append(overlay);
- overlay.querySelector('#cafpc-custom').onclick=()=>{const p=overlay.querySelector('.cafpc-options');p.hidden=!p.hidden;p.querySelector('#cafpc-opt').checked=!!read()?.functional};
- overlay.querySelector('#cafpc-decline').onclick=()=>save(false);
- overlay.querySelector('#cafpc-accept').onclick=()=>save(true);
- overlay.querySelector('#cafpc-save').onclick=()=>save(overlay.querySelector('#cafpc-opt').checked);
- overlay.querySelector('#cafpc-custom').focus();
+function showCookie(){
+ if(window.CAFPCConsent) window.CAFPCConsent.open();
 }
 function careers(){
  if(!/lavora-con-noi\.html$/.test(path))return;
@@ -197,6 +186,6 @@ function safeCrossPageBookingLinks(){
   a.title='Apri Servizi online e verifica le modalità disponibili';
  });
 }
-function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();repairPageLinks();safeCrossPageBookingLinks();showCookie()}
+function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();repairPageLinks();safeCrossPageBookingLinks()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

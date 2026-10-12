@@ -146,7 +146,7 @@ exports.handler = async (event) => {
       .trim()
       .toUpperCase();
 
-    if (!codice) {
+    if (!/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/.test(codice)) {
       return json(400, {
         error: "Inserisci il codice di disdetta"
       });
@@ -214,8 +214,10 @@ exports.handler = async (event) => {
       );
     }
 
-    const appuntamento =
-      (x.items || [])[0];
+    if (x.nextPageToken || !Array.isArray(x.items) || x.items.length > 1) {
+      return json(503, {error:"Disdetta non verificabile. Contatta la sede."});
+    }
+    const appuntamento = (x.items || [])[0];
 
     if (!appuntamento) {
       return json(404, {
@@ -235,7 +237,7 @@ exports.handler = async (event) => {
       });
     }
 
-    if (hoursUntil(start) < 48) {
+    if (!Number.isFinite(hoursUntil(start)) || hoursUntil(start) < 48) {
       return json(400, {
         error:
           "La disdetta online è consentita solo con almeno 2 giorni di anticipo. Contatta la sede telefonicamente."
@@ -319,7 +321,7 @@ exports.handler = async (event) => {
 
     let emailInviata = false;
 
-    if (email) {
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       try {
         const html = `
           <div style="
@@ -410,10 +412,6 @@ exports.handler = async (event) => {
       e?.message || e
     );
 
-    return json(500, {
-      error:
-        e?.message ||
-        "Errore durante la disdetta"
-    });
+    return json(503, {error:"Disdetta temporaneamente non disponibile. Riprova più tardi."});
   }
 };

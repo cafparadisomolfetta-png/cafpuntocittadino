@@ -216,6 +216,9 @@ exports.handler = async (event) => {
       "In sede"
     ).trim();
 
+    if ([servizio,nome,telefono,email,modalita].some(v => v.length > 254 || /[\r\n\x00]/.test(v))) {
+      return json(400, {error:"Dati non validi o troppo lunghi"});
+    }
     const missing = [];
 
     if (!servizio) missing.push("servizio");

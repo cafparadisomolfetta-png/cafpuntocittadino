@@ -3,13 +3,19 @@ require('./preflight.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const out = path.join(process.cwd(), 'dist');
+// A previous build must not leave obsolete public files or private data behind.
+fs.rmSync(out, {recursive:true, force:true});
 fs.mkdirSync(out, {recursive:true});
 const pages = fs.readdirSync('.').filter(file=>file.endsWith('.html'));
 for (const page of pages) {
   let html=fs.readFileSync(page,'utf8');
+  html=html.replace(/accept="\.pdf,\.doc,\.docx"/g,'accept=".pdf,application/pdf"')
+    .replace(/Formati accettati: PDF, DOC, DOCX\./g,'Formato accettato: solo PDF.');
   // Remove superseded consent block; the shared script owns the single dialog.
   html=html.replace(/<!-- COOKIE CONSENT -->[\s\S]*?<!-- \/COOKIE CONSENT -->/g,'');
   html=html.replace(/<script\b[^>]*id=["']cafpc-cookie-script["'][\s\S]*?<\/script>/gi,'');
+  // Remove the second historical banner and its inline controller as one block.
+  html=html.replace(/<div\b[^>]*id=["']cookieConsentOverlay["'][\s\S]*?<script\b[^>]*id=["']cookie-consent-script["'][\s\S]*?<\/script>/gi,'');
   if(!html.includes('rel="manifest"')) html=html.replace(/<\/head>/i,'<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/app-icon.svg" type="image/svg+xml"><meta name="theme-color" content="#174a86">\n</head>');
   if(!html.includes('href="/site-enhancements.css"'))
     html=html.replace(/<\/head>/i,'<link rel="stylesheet" href="/site-enhancements.css">\n</head>');
@@ -27,3 +33,5 @@ fs.mkdirSync(privateFrontend,{recursive:true});
 for(const asset of ['index.html','app.css','app.js','manifest.webmanifest','icon.svg','service-worker.js'])
   fs.copyFileSync(path.join('gestionale',asset),path.join(privateFrontend,asset));
 console.log('Ready: '+pages.length+' pages, shared assets. Server functions stay outside public dist/.');
+
+require('node:child_process').execFileSync(process.execPath,['--test','tests/build-artifact.test.cjs'],{stdio:'inherit',timeout:15000});
