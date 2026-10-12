@@ -9,7 +9,7 @@ Stato: NON PRONTO AL LIVE. Non riattivare deploy Netlify senza superare i test.
 
 ## Prima del rilascio
 - [ ] Configurare in Netlify GESTIONALE_GOOGLE_CLIENT_ID, GESTIONALE_OPERATORS_JSON e GESTIONALE_SITE_CALENDARS_JSON senza inserire segreti in GitHub.
-- [ ] Verificare che ogni sede disponga di calendario separato: per il momento il modulo pubblico prenota sul calendario GOOGLE_CALENDAR_ID. Se esiste più di una sede pubblica, servirà associare esplicitamente sede e calendario anche a prenotazione, disponibilità e disdetta.
+- [ ] Verificare che ogni sede disponga di calendario separato. Il codice instrada esplicitamente la prenotazione pubblica di Molfetta; Bari resta non prenotabile online fino a configurazione e collaudo. Controllare coerenza fra GOOGLE_CALENDAR_ID e GESTIONALE_SITE_CALENDARS_JSON.
 - [ ] Testare accesso admin e operatore, utenti revocati, token non valido, sede non assegnata, fuso orario italiano.
 - [ ] Testare prenotazione, doppia prenotazione concorrente, eventi sovrapposti, disdetta 48 ore prima e conferma email.
 - [ ] Testare Netlify Blobs (storico disdette): completamento scrittura, lettura per sede, persistenza, limite di conservazione e cancellazione GDPR.
@@ -41,6 +41,12 @@ Stato: NON PRONTO AL LIVE. Non riattivare deploy Netlify senza superare i test.
 - [ ] Inserire in Netlify le variabili di ambiente necessarie e verificare gli accessi con account reali.
 - [ ] Calendario e orari Bari: sede deliberatamente non prenotabile online finché non configurata e collaudata.
 - [ ] Test sul servizio Google: invio email, doppie richieste concorrenti, disdette, sincronizzazione calendario e storici.
+
+## Correzioni di sicurezza pre-rilascio del 12 ottobre 2026
+- [x] La prenotazione pubblica rifiuta la richiesta se la lettura Google Calendar è paginata e non interamente ispezionata: nessuna falsa disponibilità.
+- [x] L'agenda gestionale segnala il limite di paginazione invece di presentare un elenco potenzialmente incompleto.
+- [ ] Eseguire i test automatizzati di questi controlli in Node e simulare risposte paginante di Google.
+- [ ] Verificare l'effettiva fedeltà grafica rispetto ai mockup approvati, non soltanto la presenza degli stili.
 
 ## Limitazioni conosciute
 - L'agenda gestionale è in lettura; la modifica diretta di appuntamenti e l'amministrazione operatori da interfaccia non sono attive.
