@@ -6,7 +6,7 @@ const SERVICES=Object.freeze(['730','isee']);
 const MODES=Object.freeze(['appointment','direct']);
 const MAX_FILE_BYTES=10*1024*1024;
 const MAX_FILES=20;
-const ALLOWED_MIME=Object.freeze(['application/pdf','image/jpeg','image/png']);
+const ALLOWED_MIME=Object.freeze(['application/pdf']);
 function isPlainObject(value){return value!==null&&typeof value==='object'&&!Array.isArray(value)&&Object.getPrototypeOf(value)===Object.prototype;}
 function validateRequest(input){
  if(!isPlainObject(input))return {ok:false,error:'INVALID_REQUEST'};
