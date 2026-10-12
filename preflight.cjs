@@ -7,7 +7,7 @@ for(const file of required){
  const html=fs.readFileSync(file,'utf8');
  if(!/<html\b/i.test(html)||!/<\/html>/i.test(html))errors.push('Invalid HTML document: '+file);
 }
-for(const file of ['site-enhancements.js','deploy-build.cjs']){
+for(const file of ['site-enhancements.js','cookie-consent.js','deploy-build.cjs']){
  if(!fs.existsSync(file))errors.push('Missing script: '+file);
  else try{new vm.Script(fs.readFileSync(file,'utf8'),{filename:file})}catch(e){errors.push('Syntax error: '+file+' '+e.message)}
 }
@@ -50,3 +50,6 @@ if(!fs.existsSync('tests/public-booking.test.cjs')) errors.push('Missing booking
 if(errors.length){console.error(errors.join('\n'));process.exit(1);}
 require('node:child_process').execFileSync(process.execPath,['--test','tests/gestionale-access.test.cjs','tests/public-booking.test.cjs'],{stdio:'inherit',timeout:15000});
 console.log('Preflight OK: '+required.length+' pages, career form, shared JS and critical functions.');
+
+// Shared cookie consent must be copied and inserted by the production builder.
+if(!fs.readFileSync('deploy-build.cjs','utf8').includes('cookie-consent.js')) throw Error('Consent script missing from build');
