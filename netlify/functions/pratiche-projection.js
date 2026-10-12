@@ -25,7 +25,7 @@ function listVisiblePractices(actor,records){
  return records.map(record=>projectPractice(actor,record)).filter(Boolean);
 }
 function projectDocument(actor,practice,document){
- if(!document||!authorizeOperation(actor,practice,'view').allowed)return null;
+ if(!document||!practice||typeof document.practiceId!=='string'||document.practiceId!==practice.id||document.site!==practice.site||!authorizeOperation(actor,practice,'view').allowed)return null;
  return {
    id:document.id,
    name:document.name,
