@@ -295,6 +295,12 @@ exports.handler = async (event) => {
       );
     }
 
+    // If Google paginates, scanning only the first page could double-book a slot.
+    // Reject rather than assuming that unseen events do not exist.
+    if (lx.nextPageToken) {
+      return json(503, {error:"Disponibilità temporaneamente non verificabile. Riprova più tardi."});
+    }
+
     // Check actual event interval overlap, including appointments that start
     // earlier and occupy part of the requested 20-minute slot.
     const offsetLabel = new Intl.DateTimeFormat("en-US", {
