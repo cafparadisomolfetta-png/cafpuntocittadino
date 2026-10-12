@@ -48,7 +48,7 @@ if(!releaseConfig.includes('publish = "dist"'))errors.push('Expected publish dir
 if(!fs.existsSync('tests/gestionale-access.test.cjs')) errors.push('Missing RBAC tests');
 if(!fs.existsSync('tests/public-booking.test.cjs')) errors.push('Missing booking regression tests');
 if(errors.length){console.error(errors.join('\n'));process.exit(1);}
-require('node:child_process').execFileSync(process.execPath,['--test','tests/gestionale-access.test.cjs','tests/public-booking.test.cjs'],{stdio:'inherit',timeout:15000});
+require('node:child_process').execFileSync(process.execPath,['--test','tests/gestionale-access.test.cjs','tests/public-booking.test.cjs','tests/cookie-consent.test.cjs'],{stdio:'inherit',timeout:15000});
 console.log('Preflight OK: '+required.length+' pages, career form, shared JS and critical functions.');
 
 // Shared cookie consent must be copied and inserted by the production builder.
