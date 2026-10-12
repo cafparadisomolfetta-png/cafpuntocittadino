@@ -19,9 +19,14 @@ function validateRequest(input){
 }
 function validateFileMetadata(input){
  if(!isPlainObject(input))return {ok:false,error:'INVALID_FILE'};
- if(!ALLOWED_MIME.includes(input.mime))return {ok:false,error:'INVALID_FILE_TYPE'};
+ if(!ALLOWED_MIME.includes(input.mime)||typeof input.name!=='string'||!input.name.toLowerCase().endsWith('.pdf'))return {ok:false,error:'INVALID_FILE_TYPE'};
  if(!Number.isSafeInteger(input.bytes)||input.bytes<=0||input.bytes>MAX_FILE_BYTES)return {ok:false,error:'INVALID_FILE_SIZE'};
  if(typeof input.name!=='string'||input.name.length<1||input.name.length>180||/[\\/\x00-\x1f\x7f]/.test(input.name)||input.name==='.'||input.name==='..')return {ok:false,error:'INVALID_FILE_NAME'};
  return {ok:true,mime:input.mime,bytes:input.bytes};
 }
-module.exports={SITES,SERVICES,MODES,MAX_FILE_BYTES,MAX_FILES,ALLOWED_MIME,validateRequest,validateFileMetadata};
+// Inspect actual uploaded bytes server-side as well as metadata; this is not a malware scan.
+function hasPdfSignature(bytes){
+ if(!bytes || typeof bytes.length!=='number'||bytes.length<5)return false;
+ return bytes[0]===0x25&&bytes[1]===0x50&&bytes[2]===0x44&&bytes[3]===0x46&&bytes[4]===0x2d;
+}
+module.exports={hasPdfSignature,SITES,SERVICES,MODES,MAX_FILE_BYTES,MAX_FILES,ALLOWED_MIME,validateRequest,validateFileMetadata};
