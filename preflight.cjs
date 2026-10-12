@@ -35,6 +35,11 @@ for(const target of ['/caf.html','/patronato.html','/lavoro-sindacato.html','/ar
 for(const marker of ['designPages()','serviceCards()','featureNavigation()','repairPageLinks()','safeCrossPageBookingLinks()']){
  if(!enh.includes(marker))errors.push('Public design/navigation routine missing: '+marker);
 }
+// These guards must remain in place to avoid misleading users when Google pages its data.
+const bookingCode=fs.existsSync('netlify/functions/calendar-book.js')?fs.readFileSync('netlify/functions/calendar-book.js','utf8'):'';
+const agendaCode=fs.existsSync('netlify/functions/gestionale-agenda.js')?fs.readFileSync('netlify/functions/gestionale-agenda.js','utf8'):'';
+if(!bookingCode.includes('lx.nextPageToken'))errors.push('Booking must reject an incomplete busy-event page');
+if(!agendaCode.includes('CALENDAR_PAGINATION_LIMIT'))errors.push('Management agenda must reject incomplete pagination');
 const releaseConfig=fs.existsSync('netlify.toml')?fs.readFileSync('netlify.toml','utf8'):'';
 if(!/ignore\s*=\s*["']exit 0["']/.test(releaseConfig))errors.push('Safe release lock is not enabled');
 if(!fs.existsSync('tests/gestionale-access.test.cjs')) errors.push('Missing RBAC tests');
