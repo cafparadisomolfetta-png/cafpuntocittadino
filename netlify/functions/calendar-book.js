@@ -550,10 +550,8 @@ exports.handler = async (event) => {
       e?.message || e
     );
 
-    return json(500, {
-      error:
-        e?.message ||
-        "Errore durante la prenotazione"
+    return json(503, {
+      error: "Prenotazione temporaneamente non disponibile. Riprova più tardi."
     });
   }
 };
