@@ -15,9 +15,11 @@ test('reject unknown sites, services, and extra appointment refs',()=>{
  assert.equal(validateRequest({site:'bari',service:'unknown',mode:'direct'}).ok,false);
  assert.equal(validateRequest({site:'bari',service:'isee',mode:'direct',appointmentId:'ref_1234567890123456'}).ok,false);
 });
-test('allow bounded PDF and photo metadata only',()=>{
+test('allow bounded PDF metadata only',()=>{
  assert.equal(validateFileMetadata({name:'730.pdf',mime:'application/pdf',bytes:12345}).ok,true);
- assert.equal(validateFileMetadata({name:'isee.jpg',mime:'image/jpeg',bytes:MAX_FILE_BYTES}).ok,true);
+ assert.equal(validateFileMetadata({name:'isee.pdf',mime:'application/pdf',bytes:MAX_FILE_BYTES}).ok,true);
+ assert.equal(validateFileMetadata({name:'isee.jpg',mime:'image/jpeg',bytes:1234}).ok,false);
+ assert.equal(validateFileMetadata({name:'isee.png',mime:'image/png',bytes:1234}).ok,false);
  assert.equal(validateFileMetadata({name:'a.pdf',mime:'application/pdf',bytes:MAX_FILE_BYTES+1}).ok,false);
  assert.equal(validateFileMetadata({name:'malware.exe',mime:'application/octet-stream',bytes:200}).ok,false);
  assert.equal(validateFileMetadata({name:'../other.pdf',mime:'application/pdf',bytes:100}).ok,false);
