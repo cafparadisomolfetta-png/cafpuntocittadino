@@ -10,7 +10,7 @@ function authorizePracticeQuery(actor,query){
   if(query.site!==undefined&&!['molfetta','bari'].includes(query.site))return {allowed:false};
   return {allowed:true,filter:{ownerSubject:actor.subject,...(query.site?{site:query.site}:{})}};
  }
- if(actor.role==='operator'){
+ if(['operator','manager','viewer'].includes(actor.role)){
   if(!Array.isArray(actor.sites)||!actor.sites.includes(query.site)||!['molfetta','bari'].includes(query.site))return {allowed:false};
   return {allowed:true,filter:{site:query.site}};
  }

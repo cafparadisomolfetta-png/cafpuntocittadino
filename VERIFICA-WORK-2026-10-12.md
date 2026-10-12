@@ -1,41 +1,58 @@
-# Verifica CAF Punto Cittadino — 12 ottobre 2026
+# CAF Punto Cittadino — verifica dello sviluppo in Work
 
-**Progetto non completato e non autorizzato al rilascio.** Questa revisione corregge problemi verificati nel codice; non certifica servizi esterni o conformità GDPR. Base esaminata: `bc1a840`.
+**Codice ampliato e collaudato localmente; progetto complessivo ancora non pronto al rilascio.** Netlify resta sospeso. Nessuna pubblicazione, acquisto o chiamata AI a pagamento.
 
-## Risultati riproducibili
+## Revisione iniziale
 
-Eseguire `node deploy-build.cjs`: 49 test funzionali e di autorizzazione più 2 test del bundle pubblico, tutti superati. Controllo sintattico di ogni modulo server, comprese funzioni ESM e callback OAuth. Ricompilazione con file sintetico obsoleto: rimosso correttamente. `git diff --check`: superato. Nessuna chiamata reale a OpenAI o Google durante i test: i nuovi test dei provider usano risposte simulate.
+Base del repository esaminata: `bc1a840`. Il commit remoto `6157f3a` corregge OAuth state, intestazioni email, disdette ambigue/date invalide, banner cookie concorrenti e build pulita. Quei controlli rimangono attivi.
 
-Correzioni:
-- Callback Google: verifica dello state contro il cookie HttpOnly, rifiuto di cookie duplicati e metodi diversi da GET, scadenza del cookie dopo la risposta, timeout del provider. La pagina non dichiara più operativo un collegamento il cui nuovo refresh token non è stato salvato.
-- Prenotazioni: rifiuto di caratteri di controllo e campi eccessivamente lunghi prima di qualsiasi chiamata a Google, anche per prevenire inserimento di intestazioni email.
-- Disdette: codice nel formato previsto; rifiuto di risultati ambigui/paginati e date invalide prima della cancellazione; errori interni non restituiti agli utenti; email non valida non usata per intestazioni Gmail.
-- Cookie: un unico controller nel bundle; eliminazione del secondo banner storico e del controller concorrente negli enhancement; footer collegato alle preferenze condivise.
-- Build pulita: eliminazione dei file del precedente dist prima della generazione; controllo che codice server e documentazione interna non siano distribuiti.
-- Selettori CV impostati a PDF in tutte le pagine. **Il filtro del browser non costituisce validazione server**: Netlify Forms non è un archivio documentale privato collaudato e non soddisfa da solo i requisiti di upload PDF sicuro.
-- File generati, dipendenze e file ambiente esclusi da Git.
+## Sviluppo successivo autorizzato
 
-## Stato delle funzioni concordate
+È stato aggiunto un runtime privato Node, separato dalle funzioni Netlify, con database e file cifrati fuori dal repository, senza acquistare o attivare hosting. Non usa filesystem effimero serverless per conservare documenti.
 
-| Funzione | Stato reale |
+| Funzione | Stato effettivo |
 | --- | --- |
-| Sito pubblico | Build locale riuscita; verifica visuale/mobile e dominio non eseguite |
-| Gestionale Molfetta/Bari | Frontend e API agenda con controlli sedi presenti; agenda in lettura; gestione operatori e modifica appuntamenti non implementate |
-| Area assistiti | Specifiche, validatori, proiezioni e permessi presenti; login assistiti, archivio, upload e lavorazione end-to-end non implementati; endpoint pratiche restituisce 503 intenzionalmente |
-| Prenotazioni/Google Calendar | Codice presente e test locali parziali; mancano prove reali di OAuth, Gmail e Calendar; prenotazioni simultanee non garantite atomicamente |
-| Prenotazioni Bari | Disabilitate: orari, indirizzo e conferme della sede non definiti nel percorso pubblico |
-| Segretaria AI | Codice esistente non modificato né chiamato; nessuna chiave disponibile nell'ambiente locale; nessuna prova live o verifica modello |
-| GDPR/cookie | Duplicazione controller corretta; mancano revisione informative effettive, fornitori/accordi, retention e verifica tracciamenti reali |
-| PWA | Manifest e service worker pubblico/gestionale presenti; niente cache di dati personali; installazione iPhone/Android non collaudata; PWA assistiti non implementata |
+| Sito pubblico | Build locale delle 10 pagine; navigazione verso area assistiti; markup storico ricondotto dentro body; niente deploy |
+| Area assistiti | Frontend PWA e API private per richieste 730/ISEE, pratiche personali, stato, integrazioni, PDF, download e riferimento appuntamento |
+| Gestionale Molfetta/Bari | Frontend pratiche, ruoli e sedi; admin entrambe; operatori/manager/viewer solo sedi assegnate; aggiornamento stati e gestione collaboratori; agenda Google in lettura |
+| PDF | Filtri server, dimensioni, signature/EOF e blocco azioni attive visibili; ClamAV obbligatorio prima dell'archiviazione; nessun salvataggio se scanner non disponibile; scanner reale ancora non provato |
+| Riservatezza | AES-256-GCM per record/documenti; autorizzazione server; token browser solo in memoria; download no-store; audit cifrato/concatenato; backup cifrato e ripristino testato |
+| Google Calendar | Adattatore per agenda con revoca operatori coerente; confronto email/calendario per riferimento appuntamento; prova reale Google/Gmail non eseguita |
+| Prenotazioni concorrenti | Prenotazione persistente di slot nel nuovo runtime; esiti incerti bloccati; riconciliazione admin solo dopo controllo Google e almeno 10 minuti; codice storico Netlify non acquisisce questo blocco |
+| Conservazione | Policy esplicita senza durate inventate; preview/purge admin per pratiche concluse/non accolte; conservazione audit/backup da definire operativamente |
+| PWA | Manifest assistiti/gestionale/pubblico, PNG 192/512, nessuna cache di documenti; installazione iPhone/Android non verificata |
+| Segretaria AI | Codice storico presente, non modificato/attivato in questa revisione; nessuna chiave locale e nessuna chiamata reale; servizio AI del runtime non attivo |
+| News/promemoria | Funzioni storiche Netlify conservate; scheduler non migrati o attivati nel nuovo runtime |
+| Candidature CV | Selettore PDF nel frontend; raccolta privata end-to-end ancora da implementare/collaudare; POST ai moduli statici rifiutati dal runtime |
 
-## Operazioni che richiedono intervento della responsabile
+## Verifiche eseguite
 
-1. Rendere disponibile un ambiente di collaudo e gli accessi ai servizi già posseduti, senza riattivare Netlify né acquistare servizi. Il repository non fornisce accesso alle impostazioni Google o al runtime Netlify.
-2. Effettuare l'autorizzazione Google con l'account scelto; configurare segreti e calendari distinti tramite canali privati; confermare account amministratrice/operatori, orari e indirizzo Bari. Non inviare segreti in chat o nel repository.
-3. Confermare il fornitore/ambiente già disponibile per autenticazione assistiti, database e archivio privato, scansione antivirus, backup e audit, con relativi accordi di trattamento. Non è stata attivata infrastruttura o archiviazione di documenti reali.
-4. Per l'AI scegliere riuso o creazione sicura di una chiave e un budget autorizzato. Il vincolo attuale di nessuna spesa impedisce un collaudo reale a pagamento; nessuna chiave creata o riutilizzata.
-5. Validare titolare, informative, basi giuridiche, tempi di conservazione e fornitori con il referente privacy. Le informazioni obbligatorie non possono essere semplicemente omesse dall'informativa.
+`npm test` / `node deploy-build.cjs`: **75 test automatici superati**, inclusi:
 
-Dopo la disponibilità dell'ambiente e degli accessi restano **lavori di sviluppo**, non soltanto configurazione: area assistiti completa, documenti privati PDF con scansione, gestione pratiche e operatori, prenotazione atomica, audit/retention, PWA assistiti. Seguiranno collaudi reali e visuali prima di ogni rilascio.
+- suite originali di permessi, workflow, query, cookie e prenotazioni;
+- HTTP locale autenticato: creazione, upload e download, rifiuto utenti diversi, origini e accessi a file privati;
+- ciclo pratica completo: ricevuta → integrazione → lavorazione → completamento;
+- isolamento tra sedi, permessi sola lettura, revoca operatori, scadenza/audience Google;
+- rifiuto PDF non conformi, file infetti, scanner guasto e duplicati;
+- rollback atomico in caso di errore audit, versione concorrente e riesame dello stato dopo scansione;
+- database cifrato, persistenza al riavvio, chiave errata e alterazione dei dati;
+- backup cifrato, ripristino e rifiuto di backup alterati/sovrascritture;
+- retention senza valori predefiniti e cancellazione solo di pratiche terminali scadute;
+- prenotazioni contemporanee con un'unica chiamata al provider e blocco esiti incerti;
+- controlli statici frontend, ID dei moduli, credenziali non persistite, icone PWA e bundle senza codice server/documentazione;
+- avvio privato negato senza abilitazione/revisione privacy e divieto di dati dentro sorgenti/dist.
 
-Netlify resta bloccato con `ignore = "exit 0"`. Nessun deploy, riattivazione o spesa effettuata. Le modifiche sono preparate su un branch separato per non pubblicare accidentalmente codice non collaudato end-to-end.
+In aggiunta: controllo sintattico di ogni funzione JS/ESM, modulo server e frontend; `git diff --check`. Google, Gmail, antivirus e identità sono **simulati nei test**. Non sono stati eseguiti collaudi reali, browser visuale, accessibilità su dispositivi, carico operativo o penetration test. Il superamento delle prove locali non certifica conformità GDPR né sicurezza di produzione.
+
+## Necessario intervento della responsabile
+
+1. Rendere disponibile un ambiente esistente senza nuovi costi, con HTTPS, filesystem privato persistente, antivirus aggiornato e backup separati; oppure indicare il fornitore già disponibile cui adattare il codice. Non sono state attivate risorse.
+2. Autorizzare Google con l'account scelto e configurare in modo privato account admin/operatori, client, segreti, calendari distinti e scope Gmail/Calendar. Confermare dati operativi e orari Bari. Non inviare password/token in chat o GitHub.
+3. Validare titolare, fornitori e accordi, informative, basi giuridiche e tempi di conservazione di pratiche, audit e backup. Le informazioni obbligatorie non possono essere eliminate dall'informativa. Le flag di abilitazione non sostituiscono questi controlli.
+4. Per attivare l'AI, decidere sulla chiave tramite canale sicuro e sul budget; il vincolo attuale di nessuna spesa ha escluso il collaudo reale a pagamento.
+
+## Sviluppo e collaudo ancora necessari
+
+Migrazione/attivazione della segretaria AI, news e promemoria sul runtime scelto; raccolta CV privata; modifica/spostamento appuntamenti da gestionale; collaudo Google/Gmail/ClamAV; collaudo grafico e installazione PWA; monitoraggio/incidenti e policy operative backup/audit. Le prenotazioni pubbliche Bari restano disabilitate finché non definite e collaudate. L'area assistiti non è pubblicata sul dominio.
+
+Guida tecnica e variabili: [server/README.md](server/README.md). Il branch di sviluppo rimane separato da `main`; non rimuovere `ignore = "exit 0"` in Netlify.

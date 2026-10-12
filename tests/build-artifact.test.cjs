@@ -9,6 +9,8 @@ test('Generated pages have one consent controller and PDF-only CV selection',()=
  assert.equal((text.match(/src="\/cookie-consent.js"/g)||[]).length,1,file);
  assert.ok(!/id="(?:cookieConsentOverlay|cafpcCookieBackdrop)"/.test(text),file);
  assert.ok(!text.includes('accept=".pdf,.doc,.docx"'),file);
+ assert.match(text,/<\/body>\s*<\/html>\s*$/i,file);
+ assert.equal((text.match(/<\/html>/gi)||[]).length,1,file);
  }
  assert.ok(!fs.readFileSync('site-enhancements.js','utf8').includes('cafpc_cookie_consent_v3'));
 });

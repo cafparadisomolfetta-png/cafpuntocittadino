@@ -29,7 +29,7 @@ function setupNav(){
 function setupFooter(){
  let foot=document.querySelector('footer');if(!foot){foot=document.createElement('footer');document.body.append(foot)}
  let links=document.getElementById('cafpc-legal-links');if(!links){links=document.createElement('div');links.id='cafpc-legal-links';foot.append(links)}
- links.innerHTML='<a href="/privacy.html">Privacy Policy</a><a href="/cookie-policy.html">Cookie Policy</a><button type="button" id="cafpc-reopen">Preferenze cookie</button>';
+ links.innerHTML='<a href="/assistiti/">Area assistiti</a><a href="/privacy.html">Privacy Policy</a><a href="/cookie-policy.html">Cookie Policy</a><button type="button" id="cafpc-reopen">Preferenze cookie</button>';
  foot.querySelectorAll('a').forEach(a=>{if(a.closest('#cafpc-legal-links'))return;if(/privacy|cookie/i.test(a.textContent))a.remove()});
  document.getElementById('cafpc-reopen').addEventListener('click',()=>showCookie(true));
 }

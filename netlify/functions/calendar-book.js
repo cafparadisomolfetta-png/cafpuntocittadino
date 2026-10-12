@@ -479,6 +479,8 @@ exports.handler = async (event) => {
           ${indicazione}
 
           <p>
+            <strong>Riferimento appuntamento per l’area assistiti:</strong>
+            ${escapeHtml(ix.id)}<br>
             <strong>Codice di disdetta:</strong>
             ${codiceDisdetta}
           </p>

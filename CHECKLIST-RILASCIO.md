@@ -1,3 +1,5 @@
+> Aggiornamento sviluppo Work: esiste ora un runtime privato separato da Netlify, con area assistiti e gestione pratiche collaudate localmente. Nessun servizio è stato pubblicato. Stato corrente e limitazioni: [VERIFICA-WORK-2026-10-12.md](VERIFICA-WORK-2026-10-12.md). La checklist storica sottostante non equivale a collaudo reale.
+
 # Rilascio controllato — CAF Punto Cittadino
 Stato: NON PRONTO AL LIVE. Non riattivare deploy Netlify senza superare i test.
 

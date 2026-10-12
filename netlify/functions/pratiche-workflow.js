@@ -12,7 +12,7 @@ function canTransition(from,to){return typeof from==='string'&&typeof to==='stri
 function canAccessPractice(actor,practice){
  if(!actor||!practice||!STATES.includes(practice.status)||!['molfetta','bari'].includes(practice.site))return false;
  if(actor.role==='admin')return actor.authenticated===true;
- if(actor.role==='operator')return actor.authenticated===true&&Array.isArray(actor.sites)&&actor.sites.includes(practice.site);
+ if(['operator','manager','viewer'].includes(actor.role))return actor.authenticated===true&&Array.isArray(actor.sites)&&actor.sites.includes(practice.site);
  if(actor.role==='citizen')return actor.authenticated===true&&typeof actor.subject==='string'&&actor.subject.length>0&&actor.subject===practice.ownerSubject;
  return false;
 }

@@ -3,3 +3,9 @@ dist/
 .env
 .env.*
 !.env.example
+.private-data/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.cafbackup

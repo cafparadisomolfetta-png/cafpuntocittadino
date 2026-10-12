@@ -12,10 +12,10 @@ function authorizeOperation(actor,practice,operation,options={}){
    return {allowed:practice.status==='received'||practice.status==='awaiting_documents',reason:'UPLOAD_NOT_ALLOWED'};
  }
  if(operation==='request_integration'){
-   return {allowed:actor.role==='admin'||actor.role==='operator',reason:'STAFF_ONLY'};
+   return {allowed:['admin','manager','operator'].includes(actor.role),reason:'STAFF_ONLY'};
  }
  if(operation==='change_status'){
-   if(actor.role!=='admin'&&actor.role!=='operator')return {allowed:false,reason:'STAFF_ONLY'};
+   if(!['admin','manager','operator'].includes(actor.role))return {allowed:false,reason:'STAFF_ONLY'};
    return {allowed:canTransition(practice.status,options.nextStatus),reason:'INVALID_TRANSITION'};
  }
  return {allowed:false,reason:'FORBIDDEN'};

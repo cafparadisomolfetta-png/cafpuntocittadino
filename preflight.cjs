@@ -48,7 +48,8 @@ if(!releaseConfig.includes('publish = "dist"'))errors.push('Expected publish dir
 if(!fs.existsSync('tests/gestionale-access.test.cjs')) errors.push('Missing RBAC tests');
 if(!fs.existsSync('tests/public-booking.test.cjs')) errors.push('Missing booking regression tests');
 if(errors.length){console.error(errors.join('\n'));process.exit(1);}
-require('node:child_process').execFileSync(process.execPath,['--test','tests/gestionale-access.test.cjs','tests/public-booking.test.cjs','tests/cookie-consent.test.cjs','tests/pratiche-validation.test.cjs','tests/pratiche-workflow.test.cjs','tests/pratiche-permissions.test.cjs','tests/pratiche-projection.test.cjs','tests/pratiche-disabled.test.cjs','tests/pratiche-query.test.cjs','tests/provider-security.test.cjs'],{stdio:'inherit',timeout:15000});
+const testFiles=fs.readdirSync('tests').filter(file=>file.endsWith('.test.cjs')&&file!=='build-artifact.test.cjs').sort().map(file=>'tests/'+file);
+require('node:child_process').execFileSync(process.execPath,['--test',...testFiles],{stdio:'inherit',timeout:30000});
 console.log('Preflight OK: '+required.length+' pages, career form, shared JS and critical functions.');
 
 // Shared cookie consent must be copied and inserted by the production builder.
@@ -58,3 +59,6 @@ if(!fs.readFileSync('deploy-build.cjs','utf8').includes('cookie-consent.js')) th
 for (const file of fs.readdirSync('netlify/functions').filter(x => /\.(js|mjs)$/.test(x))) {
  require('node:child_process').execFileSync(process.execPath,['--check','netlify/functions/'+file],{stdio:'inherit',timeout:5000});
 }
+
+for(const file of fs.readdirSync('server').filter(x=>x.endsWith('.cjs')))require('node:child_process').execFileSync(process.execPath,['--check','server/'+file],{stdio:'inherit',timeout:5000});
+for(const file of ['assistiti/app.js','assistiti/service-worker.js'])new vm.Script(fs.readFileSync(file,'utf8'),{filename:file});

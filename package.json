@@ -3,5 +3,13 @@
   "private": true,
   "dependencies": {
     "@netlify/blobs": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "test": "node deploy-build.cjs",
+    "build": "node deploy-build.cjs",
+    "start:private": "node server/main.cjs"
   }
 }

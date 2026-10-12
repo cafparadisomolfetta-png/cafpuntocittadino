@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);let credential=null;
 const status=$('status'),panel=$('agenda-panel');
 function info(text){status.textContent=text}
-function clear(){credential=null;panel.hidden=true;$('results').replaceChildren();$('login-button').hidden=false;}
+function clear(){credential=null;panel.hidden=true;$('results').replaceChildren();$('login-button').hidden=false;$('profile').textContent='';$('site').replaceChildren();}
 async function configure(){
  try{
   const r=await fetch('/.netlify/functions/gestionale-session',{cache:'no-store'});
@@ -63,7 +63,7 @@ async function load(identity=false){
 }
 $('retry').addEventListener('click',configure);$('load').addEventListener('click',()=>load(false));
 $('logout').addEventListener('click',()=>{clear();google?.accounts?.id?.disableAutoSelect();info('Accesso terminato.');});
-window.addEventListener('load',configure);
+window.addEventListener('load',configure);window.addEventListener('pagehide',clear);window.addEventListener('pageshow',event=>{if(event.persisted)clear()});
 // Periodic refresh only for a visible, authenticated dashboard.
 let refreshing=false;
 async function refreshSafely(){if(refreshing||document.hidden||!credential||panel.hidden)return;refreshing=true;try{await load(false)}finally{refreshing=false}}

@@ -9,6 +9,8 @@ fs.mkdirSync(out, {recursive:true});
 const pages = fs.readdirSync('.').filter(file=>file.endsWith('.html'));
 for (const page of pages) {
   let html=fs.readFileSync(page,'utf8');
+  // Historical service sections were appended after </html>; keep all content inside body.
+  html=html.replace(/<\/body>\s*<\/html>/i,'').trim()+'\n</body>\n</html>\n';
   html=html.replace(/accept="\.pdf,\.doc,\.docx"/g,'accept=".pdf,application/pdf"')
     .replace(/Formati accettati: PDF, DOC, DOCX\./g,'Formato accettato: solo PDF.');
   // Remove superseded consent block; the shared script owns the single dialog.
@@ -24,14 +26,18 @@ for (const page of pages) {
     html=html.replace(/<\/body>/i,'<script src="/site-enhancements.js" defer></script>\n</body>');
   fs.writeFileSync(path.join(out,page),html);
 }
-for (const asset of ['site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js']) {
+for (const asset of ['site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js','icon-192.png','icon-512.png']) {
   fs.copyFileSync(asset,path.join(out,asset));
 }
 // Publish only the frontend of the management app, never its internal documentation.
 const privateFrontend=path.join(out,'gestionale');
 fs.mkdirSync(privateFrontend,{recursive:true});
-for(const asset of ['index.html','app.css','app.js','manifest.webmanifest','icon.svg','service-worker.js'])
+for(const asset of ['index.html','pratiche.html','app.css','app.js','manifest.webmanifest','icon.svg','service-worker.js'])
   fs.copyFileSync(path.join('gestionale',asset),path.join(privateFrontend,asset));
+const citizenFrontend=path.join(out,'assistiti');
+fs.mkdirSync(citizenFrontend,{recursive:true});
+for(const asset of ['index.html','app.css','app.js','manifest.webmanifest','service-worker.js'])
+ fs.copyFileSync(path.join('assistiti',asset),path.join(citizenFrontend,asset));
 console.log('Ready: '+pages.length+' pages, shared assets. Server functions stay outside public dist/.');
 
 require('node:child_process').execFileSync(process.execPath,['--test','tests/build-artifact.test.cjs'],{stdio:'inherit',timeout:15000});
