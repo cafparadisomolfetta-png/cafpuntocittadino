@@ -18,6 +18,14 @@ for(const token of ['id="form-candidatura"','name="candidatura-cv"','name="email
 for(const file of ['calendar-availability.js','calendar-book.js','calendar-cancel.js','segretaria-ai.mjs','official-updates-scheduled.mjs']){
  if(!fs.existsSync('netlify/functions/'+file))errors.push('Critical Netlify function missing: '+file);
 }
+// Keep the release safe if a server endpoint or PWA asset has a parse error.
+for(const file of ['gestionale/index.html','gestionale/app.css','gestionale/app.js','gestionale/manifest.webmanifest','gestionale/icon.svg','gestionale/service-worker.js','site-enhancements.css','manifest.webmanifest','app-icon.svg','public-sw.js']){
+ if(!fs.existsSync(file))errors.push('Missing PWA or shared asset: '+file);
+}
+for(const file of ['gestionale/app.js','gestionale/service-worker.js','public-sw.js','netlify/functions/calendar-availability.js','netlify/functions/calendar-book.js','netlify/functions/calendar-cancel.js','netlify/functions/gestionale-agenda.js','netlify/functions/gestionale-disdette.js','netlify/functions/site-calendars.js','netlify/functions/booking-schedule.js','netlify/functions/gestionale-date.js']){
+ if(!fs.existsSync(file)){errors.push('Missing JavaScript: '+file);continue;}
+ try{new vm.Script(fs.readFileSync(file,'utf8'),{filename:file})}catch(e){errors.push('JavaScript parse error: '+file+' '+e.message)}
+}
 const enh=fs.existsSync('site-enhancements.js')?fs.readFileSync('site-enhancements.js','utf8'):'';
 for(const target of ['/caf.html','/patronato.html','/lavoro-sindacato.html','/area-aziende.html','/news-bonus.html','/servizi-online.html','/lavora-con-noi.html','/privacy.html','/cookie-policy.html']){
  if(!enh.includes(target))errors.push('Shared nav/privacy missing: '+target);
