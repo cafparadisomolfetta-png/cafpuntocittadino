@@ -79,7 +79,9 @@ exports.handler=async(event)=>{
     // Never return internal cancel codes, calendar provider tokens, or full free-text description.
     appointments.push({id:e.id,start:e.start.dateTime,end:e.end?.dateTime||null,summary:e.summary||'Appuntamento',category:props.service||'',mode:props.appointmentMode||''});
    }
-   pageToken=body.nextPageToken||'';if(!pageToken)break;
+   pageToken=body.nextPageToken||'';
+   if(pageToken&&page===7)return reply(503,{error:'CALENDAR_PAGINATION_LIMIT'});
+   if(!pageToken)break;
   }
   return reply(200,{authenticated:true,role:user.role,email:user.email,sites:user.sites,site,date:day,appointments});
  }catch{return reply(503,{error:'CALENDAR_UNAVAILABLE'})}
