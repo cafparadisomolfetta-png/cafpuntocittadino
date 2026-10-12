@@ -22,7 +22,7 @@ for(const file of ['calendar-availability.js','calendar-book.js','calendar-cance
 for(const file of ['gestionale/index.html','gestionale/app.css','gestionale/app.js','gestionale/manifest.webmanifest','gestionale/icon.svg','gestionale/service-worker.js','site-enhancements.css','manifest.webmanifest','app-icon.svg','public-sw.js']){
  if(!fs.existsSync(file))errors.push('Missing PWA or shared asset: '+file);
 }
-for(const file of ['gestionale/app.js','gestionale/service-worker.js','public-sw.js','netlify/functions/calendar-availability.js','netlify/functions/calendar-book.js','netlify/functions/calendar-cancel.js','netlify/functions/gestionale-agenda.js','netlify/functions/gestionale-disdette.js','netlify/functions/site-calendars.js','netlify/functions/booking-schedule.js','netlify/functions/gestionale-date.js']){
+for(const file of ['gestionale/app.js','gestionale/service-worker.js','public-sw.js','netlify/functions/calendar-availability.js','netlify/functions/calendar-book.js','netlify/functions/calendar-cancel.js','netlify/functions/gestionale-agenda.js','netlify/functions/gestionale-disdette.js','netlify/functions/site-calendars.js','netlify/functions/booking-schedule.js','netlify/functions/gestionale-date.js','netlify/functions/pratiche-validation.js']){
  if(!fs.existsSync(file)){errors.push('Missing JavaScript: '+file);continue;}
  try{new vm.Script(fs.readFileSync(file,'utf8'),{filename:file})}catch(e){errors.push('JavaScript parse error: '+file+' '+e.message)}
 }
@@ -48,7 +48,7 @@ if(!releaseConfig.includes('publish = "dist"'))errors.push('Expected publish dir
 if(!fs.existsSync('tests/gestionale-access.test.cjs')) errors.push('Missing RBAC tests');
 if(!fs.existsSync('tests/public-booking.test.cjs')) errors.push('Missing booking regression tests');
 if(errors.length){console.error(errors.join('\n'));process.exit(1);}
-require('node:child_process').execFileSync(process.execPath,['--test','tests/gestionale-access.test.cjs','tests/public-booking.test.cjs','tests/cookie-consent.test.cjs'],{stdio:'inherit',timeout:15000});
+require('node:child_process').execFileSync(process.execPath,['--test','tests/gestionale-access.test.cjs','tests/public-booking.test.cjs','tests/cookie-consent.test.cjs','tests/pratiche-validation.test.cjs'],{stdio:'inherit',timeout:15000});
 console.log('Preflight OK: '+required.length+' pages, career form, shared JS and critical functions.');
 
 // Shared cookie consent must be copied and inserted by the production builder.
