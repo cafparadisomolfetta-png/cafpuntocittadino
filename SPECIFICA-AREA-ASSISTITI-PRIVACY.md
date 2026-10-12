@@ -10,6 +10,7 @@ STATO: progettazione; non pubblicare né attivare upload prima dei collaudi e de
 - Gestionale: coda pratiche per sede; amministratore Molfetta e Bari, operatori soltanto sede autorizzata.
 
 ## Sicurezza
+- Allegati ammessi solo in PDF, massimo 10 MiB per file. Verificare estensione, MIME, intestazione PDF e scansione malware sul server.
 - Non archiviare documenti in GitHub, cartelle web pubbliche o allegati email.
 - Selezionare archivio privato cifrato con accordi di trattamento, controllo accessi server, URL temporanei, audit, backup, cancellazione e retention.
 - Autenticare gli assistiti; codice prenotazione ed email da soli non autorizzano il download.
