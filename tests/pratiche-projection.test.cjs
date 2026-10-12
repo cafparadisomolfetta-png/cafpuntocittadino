@@ -19,9 +19,16 @@ test('operator projection stays inside site',()=>{
  assert.equal(result[0].hasDocuments,true);
 });
 test('document projection excludes storage secrets and checks scan status',()=>{
- const doc={id:'d1',name:'isee.pdf',size:123,uploadedAt:'2026-10-12',scanStatus:'pending',storageKey:'SECRET'};
+ const doc={id:'d1',practiceId:'p1',site:'molfetta',name:'isee.pdf',size:123,uploadedAt:'2026-10-12',scanStatus:'pending',storageKey:'SECRET'};
  const result=projectDocument(actor,mine,doc);
  assert.equal(result.downloadable,false);
  assert.equal(JSON.stringify(result).includes('SECRET'),false);
  assert.equal(projectDocument({role:'citizen',authenticated:true,subject:'u2'},mine,doc),null);
+});
+
+test('document metadata from another practice or site is never exposed',()=>{
+ const doc={id:'d2',practiceId:'p2',site:'bari',name:'other.pdf',size:100,scanStatus:'clean'};
+ assert.equal(projectDocument(actor,mine,doc),null);
+ assert.equal(projectDocument(actor,mine,{...doc,practiceId:'p1'}),null);
+ assert.equal(projectDocument(actor,mine,{...doc,site:'molfetta'}),null);
 });
