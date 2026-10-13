@@ -28,4 +28,4 @@ La ricerca delle integrazioni non ha restituito un connettore Netlify disponibil
 
 L'accesso Netlify è ora risolto. Il blocco operativo resta l'assenza di un ambiente privato configurato per Node, disco persistente, antivirus e backup. Le variabili presenti su Netlify non sono disponibili nel workspace e non sono state trasferite al nuovo runtime; le funzioni serverless non sostituiscono tale ambiente. Serve indicare un sistema già disponibile senza nuovi costi e configurarne privatamente gli accessi. Restano necessari orari/recapiti Bari, decisioni del titolare sulle informative e sulle durate di conservazione, quindi collaudi dei provider reali e dei dispositivi. L'AI resta disattivata per il divieto di spesa. Non occorre ripetere l'autorizzazione generale al lavoro.
 
-Il codice verificato rimane sul branch `codex/verifica-sicurezza-2026-10-12`, con 109 test locali superati. Stato tecnico: [VERIFICA-WORK-2026-10-13.md](VERIFICA-WORK-2026-10-13.md).
+Il codice verificato rimane sul branch `codex/verifica-sicurezza-2026-10-12`, con 111 test locali superati. Stato tecnico: [VERIFICA-WORK-2026-10-13.md](VERIFICA-WORK-2026-10-13.md).

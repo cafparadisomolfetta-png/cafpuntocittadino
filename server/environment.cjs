@@ -8,13 +8,13 @@ const email=value=>typeof value==='string'&&value.length<=254&&/^[^\s@]+@[^\s@]+
 const duration=value=>/^\d+$/.test(value||'')&&Number(value)>=1&&Number(value)<=36500;
 const present=value=>typeof value==='string'&&!!value.trim()&&!/[\x00-\x1f\x7f]/.test(value);
 // Offline inspection only: no database access, writes, subprocesses, provider requests or secret values in results.
-function inspectEnvironment(env=process.env){
+function inspectEnvironment(env=process.env,{publicDirectory=path.join(root,'dist')}={}){
  const checks=[];
  function check(id,message,fn){let ok=false;try{ok=fn()===true}catch{}checks.push({id,ok,message});}
  check('privacy','Private runtime requires reviewed privacy information and retention policy.',()=>env.CAF_PRIVACY_REVIEWED==='true');
  check('enabled','Private runtime is disabled; configure it before enabling.',()=>env.CAF_PRIVATE_ENABLED==='true');
  check('node','Node >=22.13 with built-in SQLite is required.',()=>{const [major,minor]=process.versions.node.split('.').map(Number);return major>22||major===22&&minor>=13;});
- check('build','Build the public frontend first.',()=>fs.statSync(path.join(root,'dist','index.html')).isFile());
+ check('build','Build the public frontend first.',()=>fs.statSync(path.join(publicDirectory,'index.html')).isFile());
  check('private_directory','Configure a private directory outside the repository with an existing writable parent and no symlinks into source.',()=>{
   const value=env.CAF_PRIVATE_DIRECTORY;if(!value||!path.isAbsolute(value))return false;
   const canonical=path.resolve(value),realRoot=fs.realpathSync(root),parent=fs.realpathSync(path.dirname(canonical));

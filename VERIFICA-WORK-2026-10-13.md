@@ -23,7 +23,7 @@ Bari: agenda/cancellazione riservata supportate; spostamenti solo con orari priv
 
 ## Esito dei controlli
 
-`npm test` / `node deploy-build.cjs`: **109 test automatici superati** (107 di comportamento e 2 del bundle). Nessun test saltato.
+`npm test` / `node deploy-build.cjs`: **111 test automatici superati** (109 di comportamento e 2 del bundle). Nessun test saltato.
 
 Le prove includono:
 
@@ -47,6 +47,12 @@ Le prove includono:
 `npm run check:private` è stato eseguito sul workspace reale: esito **configurazione incompleta**, senza creare dati o usare provider. Node/build sono presenti; mancano configurazione privata, antivirus, policy approvate e credenziali del runtime. I nomi di variabili presenti nella dashboard Netlify non vengono esportati al workspace. Questo blocco è atteso e impedisce un avvio apparentemente riuscito ma non operativo.
 
 ## Operazioni necessarie sull'ambiente reale
+
+### Preparazione collaudo Windows
+
+L'utente dispone di un PC Windows. Sono disponibili [istruzioni](COLLAUDO-WINDOWS.md), `COLLAUDO-WINDOWS.cmd` e launcher locale con rimozione delle variabili private dei provider, moduli disattivati e blocco delle chiamate fetch reali esterne; HTTP loopback resta ammesso per i test locali. Non scaricano pacchetti, non avviano il runtime operativo, non modificano firewall o Netlify. Suite e build tramite il launcher sono passate anche da una copia pulita senza `dist` e senza `node_modules`, nell'ambiente Linux di questa sessione. Il controllo dei percorsi di test usa junction su Windows; non sono saltati test. **Esecuzione del file CMD su Windows e risultato sul PC dell'utente ancora da raccogliere.** Il solo possesso di un PC non certifica l'idoneità all'hosting pubblico o ai dati reali.
+
+### Configurazione operativa
 
 1. Accesso a un ambiente già disponibile senza nuovi costi: Node compatibile, HTTPS, filesystem privato persistente, ClamAV aggiornato e backup separati. Non sono state acquistate o attivate risorse. Questo runtime non conserva documenti su disco effimero di funzioni serverless.
 2. Autorizzazione Google dell'account scelto e configurazione privata di admin/operatori, client, calendari distinti e credenziali Calendar/Gmail. Configurazione del mittente email e degli orari Bari. Non inviare password/token in chat o GitHub.

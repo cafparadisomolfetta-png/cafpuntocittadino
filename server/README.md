@@ -1,12 +1,12 @@
 # Runtime privato CAF Punto Cittadino
 
-Implementazione verificata localmente con dati sintetici: **109 test superati**. Stato e limiti: [VERIFICA-WORK-2026-10-13.md](../VERIFICA-WORK-2026-10-13.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
+Implementazione verificata localmente con dati sintetici: **111 test superati**. Stato e limiti: [VERIFICA-WORK-2026-10-13.md](../VERIFICA-WORK-2026-10-13.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
 
 ## Ambiente
 
 Node >=22.13 con `node:sqlite`, HTTPS tramite reverse proxy, un singolo nodo scrittore, filesystem privato persistente, ClamAV con firme aggiornate e backup separati. Database e chiave devono stare fuori dal repository e dal bundle pubblico. Non usare disco effimero serverless per i documenti. Il servizio ascolta su loopback; hosting, TLS, accordi con i fornitori e procedure operative richiedono l'ambiente effettivo. Nessun host è stato acquistato/configurato.
 
-Comandi: `npm test` (suite e build), `npm run build` (`dist/`), `npm run start:private` (solo dopo configurazione privata approvata).
+Comandi: `npm test` (suite e build), `npm run build` (`dist/`), `npm run start:private` (solo dopo configurazione privata approvata). Per il PC Windows dell'utente: [COLLAUDO-WINDOWS.md](../COLLAUDO-WINDOWS.md) e `COLLAUDO-WINDOWS.cmd`; eseguono la suite con dati sintetici e senza credenziali dei provider. Il launcher è verificato su Linux, il file CMD e le prove sul PC Windows restano da verificare.
 
 Prima di avviare: `npm run check:private`. Restituisce un rapporto JSON con nomi dei controlli ed esito, senza valori delle variabili. Exit 1 indica configurazione incompleta/invalida; exit 0 indica solo il superamento delle verifiche offline. Non apre il vault, non crea directory/file, non avvia scanner, non chiama Google/OpenAI e non invia email. Verifica percorsi, origine, porta, chiave base64, provisioning, calendari distinti, durate e condizioni dei moduli opzionali. Lo stesso controllo blocca l'avvio prima di creare dati. L'origine deve essere canonica, per esempio `https://cafpuntocittadino.it`, senza slash finale, credenziali, path, query o fragment. Non caricare automaticamente `.env` dal repository: la configurazione va fornita privatamente dall'host.
 

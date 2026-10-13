@@ -9,9 +9,11 @@ function setup(t){
 }
 const failure=(env,id)=>inspectEnvironment(env).checks.find(row=>row.id===id)?.ok===false;
 test('Offline inspection reports every missing prerequisite without writes or provider calls',t=>{
- const {parent,env}=setup(t),before=fs.readdirSync(parent),oldFetch=global.fetch;
+ const {parent,env}=setup(t),publicDirectory=path.join(parent,'frontend');fs.mkdirSync(publicDirectory);fs.writeFileSync(path.join(publicDirectory,'index.html'),'synthetic frontend');
+ const before=fs.readdirSync(parent),oldFetch=global.fetch;
  global.fetch=()=>{throw Error('Provider call forbidden')};t.after(()=>{global.fetch=oldFetch});
- const result=inspectEnvironment(env);assert.equal(result.configured,true);assert.deepEqual(fs.readdirSync(parent),before);
+ const result=inspectEnvironment(env,{publicDirectory});assert.equal(result.configured,true);assert.deepEqual(fs.readdirSync(parent),before);
+ assert.equal(inspectEnvironment(env,{publicDirectory:path.join(parent,'missing-build')}).configured,false);
  assert.match(result.notice,/No provider/);assert.equal(inspectEnvironment({}).configured,false);
  const report=JSON.stringify(result);for(const secret of [env.CAF_VAULT_KEY,env.GOOGLE_CLIENT_SECRET,env.GOOGLE_REFRESH_TOKEN,env.GESTIONALE_ADMIN_EMAIL,env.CAF_PRIVATE_DIRECTORY])assert.equal(report.includes(secret),false);
 });
@@ -29,9 +31,9 @@ test('Origins, ports and vault keys reject ambiguous or credential-bearing confi
  for(const key of [env.CAF_VAULT_KEY+'ignored',' '+env.CAF_VAULT_KEY,Buffer.alloc(31).toString('base64')])assert.equal(failure({...env,CAF_VAULT_KEY:key},'vault_key'),true);
 });
 test('Private directory and scanner checks reject unsafe filesystem locations',t=>{
- const {parent,env}=setup(t),root=path.resolve(__dirname,'..'),link=path.join(parent,'source-link');fs.symlinkSync(root,link);
+ const {parent,env}=setup(t),root=path.resolve(__dirname,'..'),link=path.join(parent,'source-link');fs.symlinkSync(root,link,process.platform==='win32'?'junction':'dir');
  for(const directory of [path.join(root,'dist','private'),path.join(link,'private'),'relative'])assert.equal(failure({...env,CAF_PRIVATE_DIRECTORY:directory},'private_directory'),true);
- fs.symlinkSync(parent,env.CAF_PRIVATE_DIRECTORY);assert.equal(failure(env,'private_directory'),true);
+ fs.symlinkSync(parent,env.CAF_PRIVATE_DIRECTORY,process.platform==='win32'?'junction':'dir');assert.equal(failure(env,'private_directory'),true);
  assert.equal(failure({...env,CAF_CLAMSCAN_PATH:parent},'scanner'),true);
 });
 test('Operator provisioning and enabled features require explicit valid configuration',t=>{
