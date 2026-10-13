@@ -1,3 +1,23 @@
+## Proposta verificata nel browser: Netcup + backup Hetzner, 13 ottobre 2026
+
+Il confronto successivo ha individuato un candidato entro il limite di 15 euro/mese, mantenendo il deposito PDF nel portale:
+
+| Risorsa | Configurazione | Prezzo visualizzato, IVA italiana 22% inclusa |
+| --- | --- | --- |
+| Netcup VPS Lite 2 G12.5s iv 3M | 4 vCore x86, 8 GB RAM, 160 GB SSD, IPv4 + IPv6 | 9,74 euro/mese; setup 0 |
+| Hetzner Storage Box BX11 | 1 TB, localizzazione Germania/Finlandia, backup applicativi cifrati | 3,90 euro/mese; setup 0 |
+| Totale equivalente mensile | Server + archivio backup distinto | **13,64 euro/mese** |
+
+Netcup: localizzazione assegnata automaticamente tra Norimberga, Vienna e Amsterdam; non si sceglie una città specifica su questo piano. Interfaccia 750 Mbps; traffico medio oltre 100 Mbps nelle 24 ore può essere limitato a 100 Mbps. Snapshots del VPS non sostituiscono la copia applicativa separata. Si tratta di risorse virtuali: performance, scanner e capacità utenti restano da collaudare.
+
+Il carrello contiene un solo VPS e nessun dominio, VLAN o IP aggiuntivo. Mostra esplicitamente IVA Italia 22%, setup zero, minimo contrattuale tre mesi e fatturazione ogni tre mesi. Equivalente circa 29,22 euro per trimestre per il solo server; l’importo di fattura finale va verificato prima dell’accettazione. La periodicità trimestrale è diversa dalla precedente ipotesi mensile e richiede conferma specifica prima di assumere l’impegno. Nessun pulsante di ordine vincolante premuto, nessun account creato, nessuna risorsa attivata o pagamento eseguito.
+
+Hetzner: prezzo pubblico dinamico verificato con paese fiscale Italia e IVA 22%, 3,90 euro/mese e setup zero. Nessuna risorsa backup ancora selezionata/ordinata in un account: disponibilità e importo finale vanno confermati nella console. Non è un servizio di assistenza sistemistica o di gestione del sito.
+
+Il totale non comprende rinnovo dominio già esistente, PEC eventuale, chiamate AI, assistenza tecnica o revisione professionale privacy/sicurezza. AI e Netlify restano disattivati. La proposta non autorizza automaticamente contratto, nuovi account/credenziali o pubblicazione prima dei collaudi. Il lavoro locale resta verificato con 116 test; nessun test host/provider reale aggiunto da questo confronto.
+
+Fonti: [prodotto Netcup](https://www.netcup.com/en/server/vps/vps-lite-2-g12.5s-iv-3m), [termini Netcup](https://www.netcup.com/en/terms-and-conditions), [Hetzner BX11](https://www.hetzner.com/storage/storage-box/bx11/).
+
 > Decisione della direzione, 13 ottobre 2026: ripristinata la versione con deposito PDF nel portale, controllo antivirus obbligatorio, archivio privato cifrato e consultazione dello stato. La variante con invio documenti via email è stata annullata. Ricezione file automatica dopo scansione; verifica della completezza e aggiornamento dello stato restano operazioni della sede. Server esterno: obiettivo iniziale 8 GB, da collaudare; la proposta 4 GB non è approvata per questa versione. Limite autorizzato server + backup: 15 euro/mese. Nessun acquisto o deployment.
 
 # CAF Punto Cittadino — costi e condizioni di avvio
