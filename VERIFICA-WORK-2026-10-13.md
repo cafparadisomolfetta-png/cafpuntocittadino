@@ -48,6 +48,8 @@ Le prove includono:
 
 ## Operazioni necessarie sull'ambiente reale
 
+Stima dei servizi, fonti dei listini e costi esclusi: [COSTI-PROGETTO-2026-10-13.md](COSTI-PROGETTO-2026-10-13.md). Nessun contratto, risorsa o pagamento attivato durante questa verifica economica. La stima non certifica il dimensionamento o il prezzo effettivo nel riepilogo ordine.
+
 La sequenza aggiornata è in [COLLAUDO-OPERATIVO.md](COLLAUDO-OPERATIVO.md); la prova Windows viene lasciata all'ultimo passaggio locale. Sono state corrette e testate le operazioni di manutenzione: nessuna creazione implicita di archivi mancanti, verifica/anteprima in sola lettura, backup/restore protetti anche contro link nel repository, umask POSIX privato per lo snapshot temporaneo. Suite completa con launcher isolato: 114 test superati, nessuno saltato. Nessuna prova reale ulteriore dei provider o sul PC dell'utente.
 
 ### Preparazione collaudo Windows

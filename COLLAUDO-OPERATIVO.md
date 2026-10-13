@@ -2,6 +2,8 @@
 
 Il lavoro sul codice prosegue senza accendere il PC della sede. La prova locale Windows viene lasciata all'ultimo passaggio della preparazione. Questo non sposta automaticamente sul PC i servizi operativi: disponibilità del server, configurazione Google, antivirus, backup e prove reali restano requisiti distinti.
 
+Per la decisione economica è disponibile [COSTI-PROGETTO-2026-10-13.md](COSTI-PROGETTO-2026-10-13.md): listini pubblici, ipotesi, costi esclusi e condizioni da verificare prima di ordinare. La richiesta di un costo non ha attivato risorse o revocato il precedente divieto di spesa.
+
 ## Preparazione già eseguita
 
 - Codice e documentazione nel branch `codex/verifica-sicurezza-2026-10-12`; nessuna modifica pubblicata da questo branch.
