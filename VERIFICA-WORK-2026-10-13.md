@@ -50,6 +50,8 @@ Le prove includono:
 
 Stima dei servizi, fonti dei listini e costi esclusi: [COSTI-PROGETTO-2026-10-13.md](COSTI-PROGETTO-2026-10-13.md). Nessun contratto, risorsa o pagamento attivato durante questa verifica economica. La stima non certifica il dimensionamento o il prezzo effettivo nel riepilogo ordine.
 
+Successivamente autorizzato dall'utente un tetto di 15 €/mese per server e backup, con AI e Netlify ancora disattivati. Il configuratore OVH ha chiarito pagamento annuale anticipato dell'offerta iniziale e indisponibilità UE del piano da 8 GB. Preparato solo il riepilogo dell'alternativa da 4 GB in Germania a 5,48 €/mese IVA inclusa, senza impegno annuale; nessun pagamento effettuato. Conferma della variante, accesso/contratto del fornitore e collaudo reale restano da completare. Dettagli nel documento costi.
+
 La sequenza aggiornata è in [COLLAUDO-OPERATIVO.md](COLLAUDO-OPERATIVO.md); la prova Windows viene lasciata all'ultimo passaggio locale. Sono state corrette e testate le operazioni di manutenzione: nessuna creazione implicita di archivi mancanti, verifica/anteprima in sola lettura, backup/restore protetti anche contro link nel repository, umask POSIX privato per lo snapshot temporaneo. Suite completa con launcher isolato: 114 test superati, nessuno saltato. Nessuna prova reale ulteriore dei provider o sul PC dell'utente.
 
 ### Preparazione collaudo Windows

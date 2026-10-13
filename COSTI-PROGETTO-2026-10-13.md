@@ -2,6 +2,18 @@
 
 Verifica dei listini pubblici: 13 ottobre 2026. Stima di pianificazione, non preventivo vincolante né autorizzazione all'acquisto. Nessun prodotto attivato o acquistato. Il divieto di spesa, la sospensione Netlify e il blocco pubblicazione restano validi. La disponibilità e l'importo finale vanno verificati nel riepilogo ordine prima di qualsiasi attivazione.
 
+## Aggiornamento dopo il configuratore reale
+
+L'utente ha successivamente autorizzato **massimo 15 €/mese complessivi per server e backup**, mantenendo AI e Netlify disattivati. È stato preparato un riepilogo, ma non è stato premuto il pulsante di pagamento, creato un account o attivata una risorsa.
+
+- Il prezzo pubblico VPS-2 di 8,80 €/mese IVA inclusa corrisponde a impegno e pagamento anticipato per 12 mesi: 86,52 € + IVA/12 mesi nel configuratore. Non è un canone mensile senza impegno. Senza impegno annuale, VPS-2 mostra 8,49 € + IVA/mese (circa 10,36 € con IVA 22%).
+- Al momento della verifica, il configuratore VPS-2 mostra disponibile solo Regno Unito/Erith; le sedi UE elencate sono esaurite. Non è stato ordinato un server fuori dall'UE.
+- È stata preparata un'alternativa nello stesso fornitore: **VPS-1, Germania/Limburg, Debian 13, 2 vCore, 4 GB RAM, 40 GB NVMe, durata 1 mese**, nessuna opzione aggiuntiva a pagamento. Riepilogo: **4,49 € + 0,99 € IVA = 5,48 €/mese**; backup standard incluso nella promozione mostrata. Prezzo/durata della promozione e rinnovo restano da leggere prima di accettare il contratto.
+- Con backup separato indicativo 3,90 €/mese, l'alternativa sarebbe circa **9,38 €/mese**, entro il tetto di 15 €. Il backup separato non è stato ancora configurato nel relativo ordine: non è un totale finale fatturato.
+- Questo piano ha meno RAM del dimensionamento iniziale da 8 GB. È proposto per l'avvio del collaudo, con verifica reale di scanner, concorrenza, memoria e spazio prima dell'uso operativo. Non si dichiara adeguato alla produzione senza quelle prove; la variazione di configurazione viene sottoposta all'utente prima di acquistare.
+
+Le tabelle che seguono conservano la stima iniziale da listino per rendere esplicite le ipotesi. Il riepilogo reale e le condizioni contrattuali prevalgono sulla stima, che non autorizza impegni annuali, costi iniziali imprevisti o una diversa regione dei dati.
+
 ## Proposta economica per un avvio piccolo
 
 Un solo server Linux per sito pubblico, runtime Node privato, scanner e archivio; un ambiente persistente distinto per i backup cifrati. La RAM da 8 GB è un'ipotesi iniziale prudente per applicazione e ClamAV, non una capacità certificata: scanner, carico, tempi di risposta e spazio PDF devono essere provati. Non è necessario comprare un secondo dominio o una seconda applicazione per distinguere Molfetta/Bari: il codice già separa gli accessi per sede.
