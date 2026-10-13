@@ -23,3 +23,9 @@ test('All PWA manifests provide square PNG icons of the declared sizes',()=>{
  }
  }
 });
+
+test('CV frontend includes every referenced control and keeps token only in memory',()=>{
+ const script=fs.readFileSync('candidature/app.js','utf8'),html=fs.readFileSync('candidature/index.html','utf8');new vm.Script(script);
+ for(const ref of script.matchAll(/\$\('([^']+)'\)/g))assert.ok(html.includes('id="'+ref[1]+'"'),ref[1]);
+ assert.ok(!/localStorage|sessionStorage|indexedDB/.test(script));assert.match(html,/accept="\.pdf,application\/pdf"/);
+});

@@ -43,7 +43,7 @@ function careers(){
   const form=document.getElementById('cv-form');
   const select=form?.querySelector('select[name="tipo_candidatura"]');
   links.forEach((a,i)=>{
-    a.setAttribute('href','#form-candidatura');
+    a.setAttribute('href','/candidature/?tipo='+encodeURIComponent(i===0?'Ho già una struttura e voglio collaborare':'Voglio iniziare un percorso con voi'));
     a.addEventListener('click',()=>{
       if(select){
         select.value=i===0?'Ho già una struttura e voglio collaborare':'Voglio iniziare un percorso con voi';
@@ -56,8 +56,7 @@ function careers(){
  const section=document.createElement('section');section.id='cafpc-career-choices';
  section.innerHTML='<h1>Lavora con noi</h1><p>Seleziona il percorso più adatto a te: entra nella nostra rete con una struttura esistente oppure proponi una nuova collaborazione.</p><div class="cafpc-career-grid"><article><h2>Hai già una struttura?</h2><p>Hai un ufficio, uno sportello o una struttura già operativa? Contattaci per valutare un possibile percorso di collaborazione, secondo i requisiti previsti.</p><a href="#cafpc-career-form" data-cafpc-choice="Struttura esistente">Presenta la tua struttura →</a></article><article><h2>Vuoi iniziare/collaborare con noi?</h2><p>Vuoi avviare un nuovo punto di riferimento, collaborare oppure proporti per un tirocinio? Raccontaci il tuo progetto.</p><a href="#cafpc-career-form" data-cafpc-choice="Nuova collaborazione">Proponi la tua candidatura →</a></article></div>';
  const target=document.querySelector('main')||document.body;target.insertBefore(section,target.firstChild);
- const forms=[...document.querySelectorAll('form')];const form=forms.find(f=>f.querySelector('input[type=file]'))||forms[0];if(form){form.id='cafpc-career-form';section.querySelectorAll('[data-cafpc-choice]').forEach(a=>a.onclick=()=>{const sel=form.querySelector('select');if(sel){const choice=a.dataset.cafpcChoice;let option=[...sel.options].find(x=>/collabor|struttur/i.test(x.textContent));if(option)sel.value=option.value;}});
- }else{section.querySelectorAll('[data-cafpc-choice]').forEach(a=>a.href='mailto:molfetta@sindacatosilpa.it?subject=Collaborazione%20CAF%20Punto%20Cittadino')}
+ section.querySelectorAll('[data-cafpc-choice]').forEach(a=>a.href='/candidature/');
 }
 
 // Branded per-page introductory panels; existing service content and forms are retained.

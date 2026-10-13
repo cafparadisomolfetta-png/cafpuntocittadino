@@ -2,7 +2,7 @@
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const {failure}=require('./practices.cjs');
 const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png'};
-function createApp({practices,identity,publicDirectory,origin,providerHandlers={},retentionPolicy,booking}){
+function createApp({practices,identity,publicDirectory,origin,providerHandlers={},retentionPolicy,booking,candidatures,appointments,jobs}){
  const allowed=new URL(origin),limits=new Map();let uploads=0;
  const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','Permissions-Policy':'camera=(), microphone=(), geolocation=()'};
  function rate(req){const key=req.socket.remoteAddress||'unknown';const now=Date.now();for(const [k,v]of limits)if(now-v.start>60000)limits.delete(k);let row=limits.get(key);if(!row){if(limits.size>10000)failure(503,'RATE_LIMIT_CAPACITY');row={start:now,count:0};limits.set(key,row)}if(++row.count>120)failure(429,'RATE_LIMITED');}
@@ -12,10 +12,38 @@ function createApp({practices,identity,publicDirectory,origin,providerHandlers={
   try{
    rate(req);const url=new URL(req.url,allowed);if(url.origin!==allowed.origin)failure(400,'INVALID_URL');
    if(req.headers.origin&&req.headers.origin!==allowed.origin)failure(403,'ORIGIN_FORBIDDEN');
-   if(url.pathname==='/api/config'&&req.method==='GET')return json(200,{clientId:identity.clientId,privacyVersion:'2026-10-12',services:['730','isee'],sites:['molfetta','bari'],maxFileBytes:10*1024*1024});
+   if(url.pathname==='/api/config'&&req.method==='GET')return json(200,{clientId:identity.clientId,privacyVersion:'2026-10-12',services:practices.enabledServices||['730','isee'],sites:['molfetta','bari'],maxFileBytes:10*1024*1024,candidaturesEnabled:!!candidatures,candidatureTypes:require('./candidatures.cjs').TYPES});
    if(url.pathname.startsWith('/api/')){
     const actor=await identity.authenticate(req.headers,req.headers['x-caf-area']||'citizen');
     if(url.pathname==='/api/me'&&req.method==='GET')return json(200,{role:actor.role,sites:actor.sites,email:actor.email});
+    if(url.pathname==='/api/jobs'||url.pathname==='/api/news'){
+     if(!jobs)failure(503,'JOBS_NOT_CONFIGURED');
+     if(url.pathname==='/api/news'&&req.method==='POST')return json(200,jobs.approveNews(actor,await body(req)));
+     if(url.pathname==='/api/jobs'&&req.method==='GET')return json(200,jobs.status(actor));
+     if(url.pathname==='/api/jobs'&&req.method==='POST'){const input=await body(req);if(input.reset===true)return json(200,jobs.reset(actor,input.name));return json(200,await jobs.run(input.name,actor));}
+     failure(405,'METHOD_NOT_ALLOWED');
+    }
+    const appointment=/^\/api\/appointments\/([A-Za-z0-9_-]{5,160})$/.exec(url.pathname);
+    if(appointment){if(!appointments)failure(503,'APPOINTMENTS_NOT_CONFIGURED');const payload=await body(req);if(req.method==='POST')return json(200,await appointments.move(actor,appointment[1],payload));if(req.method==='DELETE')return json(200,await appointments.cancel(actor,appointment[1],payload));failure(405,'METHOD_NOT_ALLOWED');}
+    if(url.pathname.startsWith('/api/candidatures')){
+     if(!candidatures)failure(503,'CANDIDATURES_NOT_CONFIGURED');
+     if(url.pathname==='/api/candidatures'){
+      if(req.method==='GET')return json(200,{candidatures:candidatures.list(actor)});
+      if(req.method==='POST'){if(uploads>=2)failure(429,'UPLOAD_CAPACITY');uploads++;try{const payload=await body(req,7*1024*1024);if(typeof payload.content!=='string'||!/^[A-Za-z0-9+/]*={0,2}$/.test(payload.content))failure(400,'INVALID_ENCODING');return json(201,await candidatures.submit(actor,payload,Buffer.from(payload.content,'base64')))}finally{uploads--;}}
+      failure(405,'METHOD_NOT_ALLOWED');
+     }
+     if(url.pathname==='/api/candidatures/retention'){
+      if(actor.role!=='admin')failure(403,'ADMIN_REQUIRED');
+      if(req.method==='GET')return json(200,{expired:candidatures.expired(),retentionDays:candidatures.retentionDays});
+      if(req.method==='POST'){if((await body(req)).confirmPurge!==true)failure(400,'PURGE_CONFIRMATION_REQUIRED');return json(200,candidatures.purge(actor));}
+     }
+     const cv=/^\/api\/candidatures\/([a-f0-9-]{36})(?:\/(document|status))?$/.exec(url.pathname);
+     if(!cv)failure(404,'NOT_FOUND');
+     if(!cv[2]&&req.method==='DELETE')return json(200,candidatures.erase(actor,cv[1]));
+     if(cv[2]==='status'&&req.method==='POST')return json(200,candidatures.status(actor,cv[1],await body(req)));
+     if(cv[2]==='document'&&req.method==='GET'){const doc=candidatures.download(actor,cv[1]);res.writeHead(200,{...headers,'Content-Type':'application/pdf','Content-Disposition':"attachment; filename=\"curriculum.pdf\"; filename*=UTF-8''"+encodeURIComponent(doc.name)});return res.end(doc.bytes);}
+     failure(405,'METHOD_NOT_ALLOWED');
+    }
     if(url.pathname==='/api/booking-reservations'){
      if(!booking)failure(503,'BOOKING_NOT_CONFIGURED');
      if(req.method==='GET')return json(200,{reservations:booking.reservations(actor)});

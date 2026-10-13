@@ -1,24 +1,24 @@
 'use strict';
 const crypto=require('node:crypto');
-const {validateRequest,validateFileMetadata,hasPdfSignature,MAX_FILES}=require('../netlify/functions/pratiche-validation');
+const {validateRequest,validateFileMetadata,hasPdfSignature,MAX_FILES,SERVICES}=require('../netlify/functions/pratiche-validation');
 const {authorizeOperation}=require('../netlify/functions/pratiche-permissions');
 const {authorizePracticeQuery}=require('../netlify/functions/pratiche-query');
 const {projectPractice,projectDocument}=require('../netlify/functions/pratiche-projection');
 function failure(status,code){const error=Error(code);error.status=status;error.code=code;throw error;}
 class Practices {
- constructor({vault,scan,verifyAppointment,clock=()=>new Date().toISOString()}){
+ constructor({vault,scan,verifyAppointment,clock=()=>new Date().toISOString(),enabledServices=SERVICES}){
   if(typeof scan!=='function')throw Error('Malware scanner is required');
-  this.vault=vault;this.scan=scan;this.verifyAppointment=verifyAppointment;this.clock=clock;
+  this.vault=vault;this.scan=scan;this.verifyAppointment=verifyAppointment;this.clock=clock;this.enabledServices=[...enabledServices];
  }
  requireActor(actor){if(!actor?.authenticated||!actor.subject)failure(401,'UNAUTHORIZED');}
  record(actor,id,operation='view',options={}){this.requireActor(actor);const record=this.vault.get('practice',id);if(!record||!authorizeOperation(actor,record,operation,options).allowed)failure(404,'PRACTICE_NOT_FOUND');return record;}
  async create(actor,input){
   this.requireActor(actor);if(actor.role!=='citizen')failure(403,'CITIZEN_REQUIRED');
-  const valid=validateRequest(input);if(!valid.ok)failure(400,valid.error);
+  const valid=validateRequest(input);if(!valid.ok)failure(400,valid.error);if(!this.enabledServices.includes(valid.service))failure(503,'SERVICE_NOT_ACTIVE');if(valid.service==='richiamata'&&typeof actor.email!=='string')failure(401,'INVALID_IDENTITY');
   if(input.privacyVersion!=='2026-10-12'||input.privacyAcknowledged!==true)failure(400,'PRIVACY_ACKNOWLEDGEMENT_REQUIRED');
   if(input.mode==='appointment'&&(!this.verifyAppointment||!(await this.verifyAppointment(actor,input))))failure(400,'APPOINTMENT_NOT_VERIFIED');
   const now=this.clock(),id=crypto.randomUUID();
-  const record={id,ownerSubject:actor.subject,site:valid.site,service:valid.service,mode:valid.mode,status:'received',createdAt:now,updatedAt:now,version:1,documentCount:0,privacyVersion:input.privacyVersion,privacyAcknowledgedAt:now,...(input.mode==='appointment'?{appointmentId:input.appointmentId}:{})};
+  const record={id,ownerSubject:actor.subject,site:valid.site,service:valid.service,mode:valid.mode,status:'received',createdAt:now,updatedAt:now,version:1,documentCount:0,privacyVersion:input.privacyVersion,privacyAcknowledgedAt:now,...(valid.service==='richiamata'?{contactPhone:input.contactPhone.trim(),contactEmail:actor.email}:{}),...(input.mode==='appointment'?{appointmentId:input.appointmentId}:{})};
   this.vault.transaction(()=>{this.vault.put('practice',id,record);this.vault.audit(actor,'practice.create',id)});
   return {...projectPractice(actor,record),version:record.version};
  }

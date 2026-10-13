@@ -23,16 +23,17 @@ class Vault {
  remove(kind,id){this.db.prepare('DELETE FROM records WHERE kind=? AND id=?').run(kind,id);}
  transaction(fn){this.db.exec('BEGIN IMMEDIATE');try{const value=fn();if(value&&typeof value.then==='function')throw Error('Transactions must be synchronous');this.db.exec('COMMIT');return value}catch(e){this.db.exec('ROLLBACK');throw e}}
  audit(actor,action,recordId){
-  const prev=this.db.prepare('SELECT signature FROM audit ORDER BY seq DESC LIMIT 1').get()?.signature||'';
+  const prev=this.db.prepare('SELECT signature FROM audit ORDER BY seq DESC LIMIT 1').get()?.signature||this.get('metadata','audit-anchor')?.signature||'';
   const data={at:this.clock(),actor:actor.subject,role:actor.role,action,recordId,prev};
   const plain=JSON.stringify(data),signature=crypto.createHmac('sha256',this.key).update(plain).digest('hex');
   this.db.prepare('INSERT INTO audit(value,signature) VALUES(?,?)').run(this.seal(Buffer.from(plain),'audit:'+signature),signature);
  }
- verifyAudit(){let previous='';for(const row of this.db.prepare('SELECT value,signature FROM audit ORDER BY seq').all()){
+ verifyAudit(){let previous=this.get('metadata','audit-anchor')?.signature||'';for(const row of this.db.prepare('SELECT value,signature FROM audit ORDER BY seq').all()){
   const plain=this.open(row.value,'audit:'+row.signature).toString('utf8');
   const signature=crypto.createHmac('sha256',this.key).update(plain).digest('hex');
   if(signature!==row.signature||JSON.parse(plain).prev!==previous)return false;previous=row.signature;
  }return true;}
+ purgeAuditBefore(cutoff){if(typeof cutoff!=='string'||!Number.isFinite(Date.parse(cutoff)))throw Error('Valid audit cutoff required');return this.transaction(()=>{if(!this.verifyAudit())throw Error('Audit integrity invalid');let erased=0;for(const row of this.db.prepare('SELECT seq,value,signature FROM audit ORDER BY seq').all()){const entry=JSON.parse(this.open(row.value,'audit:'+row.signature).toString('utf8'));if(!Number.isFinite(Date.parse(entry.at))||Date.parse(entry.at)>=Date.parse(cutoff))break;this.put('metadata','audit-anchor',{signature:row.signature});this.db.prepare('DELETE FROM audit WHERE seq=?').run(row.seq);erased++;}return {erased};});}
  close(){this.db.close();this.key.fill(0);}
 }
 module.exports={Vault};

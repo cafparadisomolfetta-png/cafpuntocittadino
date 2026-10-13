@@ -61,4 +61,4 @@ for (const file of fs.readdirSync('netlify/functions').filter(x => /\.(js|mjs)$/
 }
 
 for(const file of fs.readdirSync('server').filter(x=>x.endsWith('.cjs')))require('node:child_process').execFileSync(process.execPath,['--check','server/'+file],{stdio:'inherit',timeout:5000});
-for(const file of ['assistiti/app.js','assistiti/service-worker.js'])new vm.Script(fs.readFileSync(file,'utf8'),{filename:file});
+for(const file of ['assistiti/app.js','assistiti/service-worker.js','candidature/app.js'])new vm.Script(fs.readFileSync(file,'utf8'),{filename:file});

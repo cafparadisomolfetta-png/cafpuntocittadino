@@ -2,7 +2,7 @@
 // Shared input validation for future document-intake endpoints.
 // No upload, storage, or external transmission is implemented here.
 const SITES=Object.freeze(['molfetta','bari']);
-const SERVICES=Object.freeze(['730','isee']);
+const SERVICES=Object.freeze(['730','isee','richiamata']);
 const MODES=Object.freeze(['appointment','direct']);
 const MAX_FILE_BYTES=10*1024*1024;
 const MAX_FILES=20;
@@ -12,6 +12,7 @@ function validateRequest(input){
  if(!isPlainObject(input))return {ok:false,error:'INVALID_REQUEST'};
  if(!SITES.includes(input.site))return {ok:false,error:'INVALID_SITE'};
  if(!SERVICES.includes(input.service))return {ok:false,error:'INVALID_SERVICE'};
+ if(input.service==='richiamata'&&(input.mode!=='direct'||typeof input.contactPhone!=='string'||(!/^[+0-9 ().-]{5,30}$/.test(input.contactPhone)||input.contactPhone.replace(/\D/g,'').length<5)))return {ok:false,error:'INVALID_CALLBACK_PHONE'};
  if(!MODES.includes(input.mode))return {ok:false,error:'INVALID_MODE'};
  if(input.mode==='appointment'&&(!Number.isSafeInteger(input.appointmentId?.length)||typeof input.appointmentId!=='string'||input.appointmentId.length<16||input.appointmentId.length>160||!/^[A-Za-z0-9_-]+$/.test(input.appointmentId)))return {ok:false,error:'INVALID_APPOINTMENT_REFERENCE'};
  if(input.mode==='direct'&&input.appointmentId!==undefined)return {ok:false,error:'UNEXPECTED_APPOINTMENT_REFERENCE'};

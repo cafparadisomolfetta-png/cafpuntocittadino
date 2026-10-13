@@ -9,6 +9,7 @@ function run(argv,env){
  const vault=new Vault({directory:outsideSource(env.CAF_PRIVATE_DIRECTORY),key});key.fill(0);
  try{
   if(command==='backup'){backupVault(vault,outsideSource(arg));return {backupCreated:true};}
+  if(command==='audit-purge'){const days=Number(env.CAF_AUDIT_RETENTION_DAYS);if(env.CAF_PRIVACY_REVIEWED!=='true'||!Number.isInteger(days)||days<1||days>36500)throw Error('Approved audit retention required');return vault.purgeAuditBefore(new Date(Date.now()-days*86400000).toISOString());}
   if(command==='verify')return {auditIntegrity:vault.verifyAudit()};
   const policy=JSON.parse(env.CAF_RETENTION_DAYS_JSON||'null');
   if(command==='retention-preview')return {expired:retentionPlan(vault,policy)};

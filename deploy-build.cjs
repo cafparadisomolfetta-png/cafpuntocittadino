@@ -13,6 +13,10 @@ for (const page of pages) {
   html=html.replace(/<\/body>\s*<\/html>/i,'').trim()+'\n</body>\n</html>\n';
   html=html.replace(/accept="\.pdf,\.doc,\.docx"/g,'accept=".pdf,application/pdf"')
     .replace(/Formati accettati: PDF, DOC, DOCX\./g,'Formato accettato: solo PDF.');
+  // CVs are accepted only by the authenticated, scanned private endpoint.
+  html=html.replace(/<form\b[^>]*id="cv-form"[\s\S]*?<\/form>/gi,'<div class="cafpc-private-cv"><p>Invia il curriculum PDF tramite la tua area personale. Il file viene verificato e conservato nell’archivio riservato.</p><a class="btn btn--primary" href="/candidature/">Accedi e invia candidatura</a></div>');
+  html=html.replace(/<form\b[^>]*name="richiamami"[\s\S]*?<\/form>/gi,'<p>Richiedi una richiamata tramite l’area personale oppure contatta la sede al numero 080 6455509.</p><a class="btn btn--primary" href="/assistiti/?richiamata=1">Accedi e richiedi richiamata</a>');
+  html=html.replace(/href="(?:\/servizi-online\.html)?#richiamami"/g,'href="/assistiti/?richiamata=1"');
   // Remove superseded consent block; the shared script owns the single dialog.
   html=html.replace(/<!-- COOKIE CONSENT -->[\s\S]*?<!-- \/COOKIE CONSENT -->/g,'');
   html=html.replace(/<script\b[^>]*id=["']cafpc-cookie-script["'][\s\S]*?<\/script>/gi,'');
@@ -38,6 +42,8 @@ const citizenFrontend=path.join(out,'assistiti');
 fs.mkdirSync(citizenFrontend,{recursive:true});
 for(const asset of ['index.html','app.css','app.js','manifest.webmanifest','service-worker.js'])
  fs.copyFileSync(path.join('assistiti',asset),path.join(citizenFrontend,asset));
+const candidatureFrontend=path.join(out,'candidature');fs.mkdirSync(candidatureFrontend,{recursive:true});
+for(const asset of ['index.html','app.js'])fs.copyFileSync(path.join('candidature',asset),path.join(candidatureFrontend,asset));
 console.log('Ready: '+pages.length+' pages, shared assets. Server functions stay outside public dist/.');
 
 require('node:child_process').execFileSync(process.execPath,['--test','tests/build-artifact.test.cjs'],{stdio:'inherit',timeout:15000});

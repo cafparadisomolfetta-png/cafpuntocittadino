@@ -18,3 +18,6 @@ test('Encrypted backups restore state with the right key and refuse tampering or
  assert.throws(()=>restoreVault({source,targetDirectory,key}));
  const data=fs.readFileSync(source);data[30]^=1;fs.writeFileSync(source,data);assert.throws(()=>restoreVault({source,targetDirectory:path.join(root,'tampered'),key}));
 });
+test('Approved audit prefix expiry retains a verifiable chain for remaining and future entries',t=>{
+ const {vault}=setup(t);vault.clock=()=> '2020-01-01T00:00:00Z';vault.audit(admin,'old.action','synthetic-old');vault.clock=()=> '2026-10-13T00:00:00Z';vault.audit(admin,'new.action','synthetic-new');assert.equal(vault.purgeAuditBefore('2025-01-01T00:00:00Z').erased,1);assert.ok(vault.verifyAudit());vault.audit(admin,'next.action','synthetic-next');assert.ok(vault.verifyAudit());assert.equal(vault.db.prepare('SELECT COUNT(*) AS count FROM audit').get().count,2);
+});

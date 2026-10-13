@@ -2,7 +2,7 @@
 
 Sito pubblico e gestionale SILPA per Molfetta e Bari, prenotazioni Google Calendar e area assistiti.
 
-**Sviluppo in collaudo; nessuna nuova pubblicazione.** Netlify rimane sospeso. Stato dettagliato: [VERIFICA-WORK-2026-10-12.md](VERIFICA-WORK-2026-10-12.md).
+**Sviluppo in collaudo; nessuna nuova pubblicazione.** Netlify rimane sospeso. Stato dettagliato: [VERIFICA-WORK-2026-10-13.md](VERIFICA-WORK-2026-10-13.md).
 
 - `npm test`: suite automatica e build, senza servizi reali o spese AI.
 - `npm run build`: prepara `dist/`, escludendo codice server e documentazione privata.

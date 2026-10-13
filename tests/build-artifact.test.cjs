@@ -9,6 +9,9 @@ test('Generated pages have one consent controller and PDF-only CV selection',()=
  assert.equal((text.match(/src="\/cookie-consent.js"/g)||[]).length,1,file);
  assert.ok(!/id="(?:cookieConsentOverlay|cafpcCookieBackdrop)"/.test(text),file);
  assert.ok(!text.includes('accept=".pdf,.doc,.docx"'),file);
+ assert.ok(!text.includes('<form id="cv-form"'),file);
+ assert.ok(!/<form\b[^>]*name="(?:candidatura-cv|richiamami)"[^>]*data-netlify/i.test(text),file);
+ assert.ok(!text.includes('href="/servizi-online.html#richiamami"'),file);
  assert.match(text,/<\/body>\s*<\/html>\s*$/i,file);
  assert.equal((text.match(/<\/html>/gi)||[]).length,1,file);
  }

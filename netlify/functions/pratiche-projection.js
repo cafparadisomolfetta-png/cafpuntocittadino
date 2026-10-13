@@ -13,6 +13,7 @@ function projectPractice(actor,record){
    createdAt:record.createdAt,
    updatedAt:record.updatedAt
  };
+ if(record.service==='richiamata'&&['admin','manager','operator'].includes(actor.role)){result.contactPhone=record.contactPhone;result.contactEmail=record.contactEmail;}
  if(actor.role==='citizen'){
    result.needsIntegration=record.status==='awaiting_documents';
  } else {
