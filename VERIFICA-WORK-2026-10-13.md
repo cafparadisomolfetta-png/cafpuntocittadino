@@ -52,3 +52,7 @@ Le prove includono:
 5. Dopo configurazione: prove reali OAuth/login/revoca, Google/Gmail/antivirus, accessibilità/grafica desktop e mobile, installazione PWA, backup/ripristino sul sistema scelto e gestione degli incidenti. Pubblicare solo dopo esito positivo.
 
 Guida: [server/README.md](server/README.md). Netlify resta bloccato con `ignore = "exit 0"`; `main` non è stato modificato né distribuito. Il nuovo runtime è distinto dall'endpoint Netlify `pratiche`, che resta disabilitato.
+
+## Verifica successiva dei collegamenti reali
+
+Gmail e Google Calendar risultano già collegati a Work; profili e lettura disponibilità sono stati verificati realmente, in sola lettura. Questo non sostituisce il collaudo OAuth degli endpoint del sito. Dettagli e accesso Netlify bloccato da errore di autenticazione del servizio: [VERIFICA-SERVIZI-2026-10-13.md](VERIFICA-SERVIZI-2026-10-13.md).
