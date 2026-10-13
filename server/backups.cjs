@@ -3,11 +3,12 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 function backupVault(vault,target){
  if(!path.isAbsolute(target)||fs.existsSync(target))throw Error('Backup target must be a new absolute path');
  const temp=path.join(path.dirname(target),'.caf-backup-'+crypto.randomUUID()+'.sqlite');
+ const previousMask=process.umask(0o077);
  try{
   vault.db.prepare('VACUUM INTO ?').run(temp);fs.chmodSync(temp,0o600);
   const encrypted=vault.seal(fs.readFileSync(temp),'caf-backup-v1');
   fs.writeFileSync(target,Buffer.concat([Buffer.from('CAFVAULT1'),encrypted]),{mode:0o600,flag:'wx'});
- }finally{fs.rmSync(temp,{force:true})}
+ }finally{try{fs.rmSync(temp,{force:true})}finally{process.umask(previousMask)}}
 }
 function restoreVault({source,targetDirectory,key}){
  if(!path.isAbsolute(targetDirectory)||fs.existsSync(targetDirectory))throw Error('Restore requires a new absolute directory');

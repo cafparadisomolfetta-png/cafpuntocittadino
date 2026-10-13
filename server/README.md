@@ -1,6 +1,6 @@
 # Runtime privato CAF Punto Cittadino
 
-Implementazione verificata localmente con dati sintetici: **111 test superati**. Stato e limiti: [VERIFICA-WORK-2026-10-13.md](../VERIFICA-WORK-2026-10-13.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
+Implementazione verificata localmente con dati sintetici: **114 test superati**. Stato e limiti: [VERIFICA-WORK-2026-10-13.md](../VERIFICA-WORK-2026-10-13.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
 
 ## Ambiente
 
@@ -79,6 +79,8 @@ Queste flag non sostituiscono la revisione o le autorizzazioni effettive. Non av
 
 ## Manutenzione sul solo host approvato
 
+I comandi richiedono un archivio già esistente e inizializzato. `verify` e `retention-preview` lo aprono in sola lettura, senza crearlo o modificarne i byte; un archivio mancante è un errore. Comandi/argomenti non validi sono rifiutati prima dell'apertura. Percorsi risolti tramite link nel repository sono respinti anche per backup/restore. Su POSIX lo snapshot temporaneo nasce con permessi privati tramite umask; su Windows occorre verificare le ACL reali.
+
 - `node server/maintenance.cjs verify`: integrità audit.
 - `node server/maintenance.cjs backup /percorso/privato/nuovo.cafbackup`: snapshot cifrato, senza sovrascritture.
 - `node server/maintenance.cjs restore /percorso/privato/backup.cafbackup /percorso/privato/directory-nuova`: restore; per uso operativo fermare il servizio e verificare prima dello scambio directory.
@@ -88,6 +90,8 @@ Queste flag non sostituiscono la revisione o le autorizzazioni effettive. Non av
 Conservazione/cancellazione backup, rotazione chiavi, monitoraggio, MFA, incidenti, controllo firme antivirus, TLS, accessi host e prova di recupero reale restano operazioni dell'ambiente. Nessuna automatizzazione di queste operazioni è stata attivata sull'account dell'utente.
 
 ## Collaudo e riferimenti
+
+Sequenza di preparazione, prerequisiti e prove reali: [COLLAUDO-OPERATIVO.md](../COLLAUDO-OPERATIVO.md). La prova sul PC Windows è lasciata per ultima tra le attività locali, senza presentarla come sostituto dell'ambiente operativo.
 
 `npm test` esegue API HTTP locali, provider simulati, cifratura, ruoli/versioni/concorrenza, PDF, CV, richiamate, AI disattivata/cap, scheduler/email/news, rollback/retention/backup, logout tardivo, frontend statico e bundle. Google, Gmail, ClamAV, fonti e AI reali, browser visuale, accessibilità, installazione PWA, carico e test di sicurezza indipendenti restano da eseguire. Il superamento dei test locali non certifica conformità GDPR.
 

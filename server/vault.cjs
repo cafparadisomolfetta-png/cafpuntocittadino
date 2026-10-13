@@ -4,16 +4,21 @@ const crypto=require('node:crypto');
 const fs=require('node:fs');
 const path=require('node:path');
 class Vault {
- constructor({directory,key,clock=()=>new Date().toISOString()}){
+ constructor({directory,key,clock=()=>new Date().toISOString(),readOnly=false,requireExisting=false}){
   if(!Buffer.isBuffer(key)||key.length!==32)throw Error('A 32-byte encryption key is required');
   if(!path.isAbsolute(directory))throw Error('Private directory must be absolute');
   if(fs.existsSync(directory)&&fs.lstatSync(directory).isSymbolicLink())throw Error('Private directory cannot be a symlink');
-  fs.mkdirSync(directory,{recursive:true,mode:0o700});fs.chmodSync(directory,0o700);
+  if((readOnly||requireExisting)&&(!fs.existsSync(directory)||!fs.statSync(directory).isDirectory()))throw Error('Existing private vault required');
+  if(!readOnly){fs.mkdirSync(directory,{recursive:true,mode:0o700});fs.chmodSync(directory,0o700);}
   const file=path.join(directory,'vault.sqlite');
   if(fs.existsSync(file)&&fs.lstatSync(file).isSymbolicLink())throw Error('Database cannot be a symlink');
-  this.key=Buffer.from(key);this.clock=clock;this.db=new DatabaseSync(file);fs.chmodSync(file,0o600);
-  this.db.exec('PRAGMA journal_mode=DELETE; PRAGMA secure_delete=ON; PRAGMA busy_timeout=5000; CREATE TABLE IF NOT EXISTS records(kind TEXT NOT NULL,id TEXT NOT NULL,value BLOB NOT NULL,PRIMARY KEY(kind,id)); CREATE TABLE IF NOT EXISTS audit(seq INTEGER PRIMARY KEY AUTOINCREMENT,value BLOB NOT NULL,signature TEXT NOT NULL);');
-  try { const check=this.get('metadata','key-check'); if(check&&check.valid!==true)throw Error('Invalid vault key'); if(!check)this.put('metadata','key-check',{valid:true}); } catch(e) { this.db.close(); this.key.fill(0); throw Error('Vault key or database integrity invalid'); }
+  if((readOnly||requireExisting)&&(!fs.existsSync(file)||!fs.statSync(file).isFile()))throw Error('Existing private vault required');
+  this.key=Buffer.from(key);this.clock=clock;this.db=new DatabaseSync(file,{readOnly});
+  try {
+   if(readOnly||requireExisting){const check=this.get('metadata','key-check');if(check?.valid!==true)throw Error('Existing initialized vault required');}
+   if(!readOnly){fs.chmodSync(file,0o600);this.db.exec('PRAGMA journal_mode=DELETE; PRAGMA secure_delete=ON; PRAGMA busy_timeout=5000; CREATE TABLE IF NOT EXISTS records(kind TEXT NOT NULL,id TEXT NOT NULL,value BLOB NOT NULL,PRIMARY KEY(kind,id)); CREATE TABLE IF NOT EXISTS audit(seq INTEGER PRIMARY KEY AUTOINCREMENT,value BLOB NOT NULL,signature TEXT NOT NULL);');}
+   const check=this.get('metadata','key-check'); if(check&&check.valid!==true||!check&&(readOnly||requireExisting))throw Error('Invalid vault key'); if(!check)this.put('metadata','key-check',{valid:true});
+  } catch(e) { this.db.close(); this.key.fill(0); throw Error('Vault key or database integrity invalid'); }
  }
  seal(bytes,aad){const iv=crypto.randomBytes(12),cipher=crypto.createCipheriv('aes-256-gcm',this.key,iv);cipher.setAAD(Buffer.from(aad));return Buffer.concat([iv,cipher.update(bytes),cipher.final(),cipher.getAuthTag()]);}
  open(value,aad){const bytes=Buffer.from(value),decipher=crypto.createDecipheriv('aes-256-gcm',this.key,bytes.subarray(0,12));decipher.setAAD(Buffer.from(aad));decipher.setAuthTag(bytes.subarray(-16));return Buffer.concat([decipher.update(bytes.subarray(12,-16)),decipher.final()]);}

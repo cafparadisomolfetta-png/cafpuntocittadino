@@ -23,7 +23,7 @@ Bari: agenda/cancellazione riservata supportate; spostamenti solo con orari priv
 
 ## Esito dei controlli
 
-`npm test` / `node deploy-build.cjs`: **111 test automatici superati** (109 di comportamento e 2 del bundle). Nessun test saltato.
+`npm test` / `node deploy-build.cjs`: **114 test automatici superati** (112 di comportamento e 2 del bundle). Nessun test saltato.
 
 Le prove includono:
 
@@ -47,6 +47,8 @@ Le prove includono:
 `npm run check:private` è stato eseguito sul workspace reale: esito **configurazione incompleta**, senza creare dati o usare provider. Node/build sono presenti; mancano configurazione privata, antivirus, policy approvate e credenziali del runtime. I nomi di variabili presenti nella dashboard Netlify non vengono esportati al workspace. Questo blocco è atteso e impedisce un avvio apparentemente riuscito ma non operativo.
 
 ## Operazioni necessarie sull'ambiente reale
+
+La sequenza aggiornata è in [COLLAUDO-OPERATIVO.md](COLLAUDO-OPERATIVO.md); la prova Windows viene lasciata all'ultimo passaggio locale. Sono state corrette e testate le operazioni di manutenzione: nessuna creazione implicita di archivi mancanti, verifica/anteprima in sola lettura, backup/restore protetti anche contro link nel repository, umask POSIX privato per lo snapshot temporaneo. Suite completa con launcher isolato: 114 test superati, nessuno saltato. Nessuna prova reale ulteriore dei provider o sul PC dell'utente.
 
 ### Preparazione collaudo Windows
 
