@@ -6,9 +6,9 @@ const {authorizePracticeQuery}=require('../netlify/functions/pratiche-query');
 const {projectPractice,projectDocument}=require('../netlify/functions/pratiche-projection');
 function failure(status,code){const error=Error(code);error.status=status;error.code=code;throw error;}
 class Practices {
- constructor({vault,scan,verifyAppointment,clock=()=>new Date().toISOString(),enabledServices=SERVICES,documentsEnabled=typeof scan==='function',documentMailboxes={}}){
-  if(documentsEnabled&&typeof scan!=='function')throw Error('Malware scanner is required');
-  this.documentsEnabled=documentsEnabled;this.documentMailboxes=documentMailboxes;this.vault=vault;this.scan=scan;this.verifyAppointment=verifyAppointment;this.clock=clock;this.enabledServices=[...enabledServices];
+ constructor({vault,scan,verifyAppointment,clock=()=>new Date().toISOString(),enabledServices=SERVICES}){
+  if(typeof scan!=='function')throw Error('Malware scanner is required');
+  this.vault=vault;this.scan=scan;this.verifyAppointment=verifyAppointment;this.clock=clock;this.enabledServices=[...enabledServices];
  }
  requireActor(actor){if(!actor?.authenticated||!actor.subject)failure(401,'UNAUTHORIZED');}
  record(actor,id,operation='view',options={}){this.requireActor(actor);const record=this.vault.get('practice',id);if(!record||!authorizeOperation(actor,record,operation,options).allowed)failure(404,'PRACTICE_NOT_FOUND');return record;}
@@ -28,9 +28,8 @@ class Practices {
   this.vault.transaction(()=>this.vault.audit(actor,'practice.list',site||'own'));
   return this.vault.list('practice').filter(record=>Object.entries(access.filter).every(([key,value])=>record[key]===value)).map(record=>({...projectPractice(actor,record),version:record.version}));
  }
- detail(actor,id){const record=this.record(actor,id);this.vault.transaction(()=>this.vault.audit(actor,'practice.view',id));return {...projectPractice(actor,record),version:record.version,integrationMessage:record.integrationMessage||'',documentDelivery:require('./document-mail.cjs').delivery(record,this.documentMailboxes),documents:(this.documentsEnabled?this.vault.list('document'):[]).filter(d=>d.practiceId===id).map(d=>projectDocument(actor,record,d))};}
+ detail(actor,id){const record=this.record(actor,id);this.vault.transaction(()=>this.vault.audit(actor,'practice.view',id));return {...projectPractice(actor,record),version:record.version,integrationMessage:record.integrationMessage||'',documents:this.vault.list('document').filter(d=>d.practiceId===id).map(d=>projectDocument(actor,record,d))};}
  async upload(actor,id,metadata,bytes){
-  if(!this.documentsEnabled)failure(410,'DOCUMENT_STORAGE_DISABLED');
   const record=this.record(actor,id,'upload'),valid=validateFileMetadata(metadata);
   if(!valid.ok)failure(400,valid.error);
   if(!Buffer.isBuffer(bytes)||bytes.length!==metadata.bytes||!hasPdfSignature(bytes)||!bytes.subarray(-1024).includes(Buffer.from('%%EOF')))failure(400,'INVALID_PDF_CONTENT');
@@ -49,7 +48,6 @@ class Practices {
   return projectDocument(actor,record,doc);
  }
  download(actor,id,documentId){
-  if(!this.documentsEnabled)failure(410,'DOCUMENT_STORAGE_DISABLED');
   const record=this.record(actor,id),doc=this.vault.get('document',documentId);
   if(!doc||doc.practiceId!==id||doc.site!==record.site||!authorizeOperation(actor,record,'download',{verifiedCleanFile:doc.scanStatus==='clean'}).allowed)failure(404,'DOCUMENT_NOT_FOUND');
   const bytes=Buffer.from(this.vault.get('content',documentId)?.content||'','base64');

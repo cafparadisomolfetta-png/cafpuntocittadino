@@ -6,7 +6,7 @@ test('Citizen and staff frontends contain every referenced static control and un
  for(const file of ['assistiti/index.html','gestionale/pratiche.html']){
  const html=fs.readFileSync(file,'utf8'),ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);
  assert.equal(new Set(ids).size,ids.length,file);for(const id of refs)assert.ok(ids.includes(id),file+': '+id);
- assert.ok(!html.includes('type="file"'));assert.ok(html.includes('id="document-email"'));assert.match(html,/<input id="privacy" type="checkbox" required>/);
+ assert.match(html,/accept="\.pdf,application\/pdf"/);assert.match(html,/<input id="privacy" type="checkbox" required>/);
  }
 });
 test('Tokens and private documents are not persisted in browser storage or service worker caches',()=>{

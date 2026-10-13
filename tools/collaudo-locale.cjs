@@ -12,7 +12,7 @@ function run(){
  console.log('Collaudo CAF con dati sintetici. Nessuna pubblicazione o avvio del servizio privato.');
  const result=spawnSync(process.execPath,['deploy-build.cjs'],{cwd:path.resolve(__dirname,'..'),env:testEnvironment(),stdio:'inherit',timeout:120000});
  if(result.error||result.signal||result.status!==0){console.error('COLLAUDO NON SUPERATO. Conserva il messaggio di errore.');return 1;}
- console.log('COLLAUDO LOCALE SUPERATO. Il sito non e online. Login Google, invio documenti dalla posta e installazione PWA restano da verificare.');return 0;
+ console.log('COLLAUDO LOCALE SUPERATO. Il sito non e online. Login Google, antivirus reale e installazione PWA restano da verificare.');return 0;
 }
 if(require.main===module)process.exitCode=run();
 module.exports={testEnvironment,run};

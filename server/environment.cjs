@@ -27,7 +27,9 @@ function inspectEnvironment(env=process.env,{publicDirectory=path.join(root,'dis
   const value=env.CAF_VAULT_KEY;if(typeof value!=='string'||!/^[A-Za-z0-9+/]{43}=$/.test(value))return false;
   const bytes=Buffer.from(value,'base64');try{return bytes.length===32&&bytes.toString('base64')===value}finally{bytes.fill(0)}
  });
- check('document_mailboxes','Configure valid document email destinations by site and practice type.',()=>{require('./document-mail.cjs').mailboxes(env);return true;});
+ check('scanner','A trusted executable malware scanner is required; real scanning and fresh signatures must still be tested.',()=>{
+  const scanner=env.CAF_CLAMSCAN_PATH||'/usr/bin/clamscan';if(!path.isAbsolute(scanner)||!fs.statSync(scanner).isFile())return false;fs.accessSync(scanner,fs.constants.X_OK);return true;
+ });
  check('origin','Configure a canonical HTTPS origin (HTTP only for localhost/127.0.0.1), without credentials, path, query or fragment.',()=>{
   const value=env.CAF_ORIGIN||'http://127.0.0.1:8080',url=new URL(value);
   return value===url.origin&&!url.username&&!url.password&&(url.protocol==='https:'||url.protocol==='http:'&&['localhost','127.0.0.1'].includes(url.hostname));

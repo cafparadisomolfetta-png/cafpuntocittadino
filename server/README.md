@@ -1,5 +1,3 @@
-> Aggiornamento 13 ottobre 2026: su richiesta della direzione il runtime di produzione non riceve, scansiona o conserva PDF/CV. Rimangono login, stato pratiche, integrazioni e autorizzazioni. I documenti si inviano dalla posta dell’assistito a destinazioni approvate per sede e servizio. Le precedenti istruzioni antivirus/deposito descrivono moduli legacy testati ma non attivati dal runtime. Nessuna cancellazione automatica di archivi o backup preesistenti.
-
 # Runtime privato CAF Punto Cittadino
 
 Implementazione verificata localmente con dati sintetici: **114 test superati**. Stato e limiti: [VERIFICA-WORK-2026-10-13.md](../VERIFICA-WORK-2026-10-13.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
@@ -98,13 +96,3 @@ Sequenza di preparazione, prerequisiti e prove reali: [COLLAUDO-OPERATIVO.md](..
 `npm test` esegue API HTTP locali, provider simulati, cifratura, ruoli/versioni/concorrenza, PDF, CV, richiamate, AI disattivata/cap, scheduler/email/news, rollback/retention/backup, logout tardivo, frontend statico e bundle. Google, Gmail, ClamAV, fonti e AI reali, browser visuale, accessibilità, installazione PWA, carico e test di sicurezza indipendenti restano da eseguire. Il superamento dei test locali non certifica conformità GDPR.
 
 Documentazione usata: [Google Calendar, versioni/If-Match](https://developers.google.com/workspace/calendar/api/guides/version-resources), [Calendar patch](https://developers.google.com/workspace/calendar/api/v3/reference/events/patch), [OpenAI Responses](https://developers.openai.com/api/docs/guides/migrate-to-responses).
-
-## Documenti via posta, senza deposito nel portale
-
-`CAF_DOCUMENT_EMAILS_JSON` configura una mappa privata per sede e servizio, ad esempio `{"molfetta":{"730":"tax@example.test","isee":"isee@example.test"},"bari":{"isee":"bari@example.test"}}`. Sono indirizzi sintetici da sostituire con caselle esistenti e approvate, non caselle da creare automaticamente. Una casella può essere riutilizzata per più servizi. Destinazioni mancanti: nessun pulsante di invio, contatto telefonico alla sede; nessun destinatario dedotto o scelto dall’utente. Oggetto e corpo riportano solo riferimento, sede e servizio, senza dati anagrafici o sanitari.
-
-Il collegamento `mailto:` apre una bozza nella posta dell’utente; non allega file, non invia email e non certifica ricezione. Il portale non può imporre PDF agli allegati inviati dalla posta: è un’istruzione operativa, non una validazione tecnica. L’operatore verifica l’arrivo e aggiorna lo stato manualmente. Nessun monitoraggio della casella, lettura automatica di allegati o instradamento Gmail è stato autorizzato/attivato.
-
-Nel runtime principale ClamAV non è un prerequisito, le API deposito/scaricamento pratiche rispondono 410 prima di leggere il payload e le candidature con CV sono disattivate. I moduli legacy di scansione rimangono nel repository per compatibilità e test; non vengono istanziati dal runtime di produzione. Gli eventuali dati storici non vengono cancellati da questa modifica: migrazione e cancellazione richiedono un inventario verificato. La cancellazione delle pratiche non cancella messaggi di posta o backup.
-
-Mancano le destinazioni approvate per 730/ISEE di ciascuna sede. Proteggere account di posta, accessi delegati e regole di conservazione; il cambiamento riduce il carico del server, non certifica la conformità GDPR né elimina i rischi degli allegati ricevuti. Il prezzo e la capacità del server vanno ricalcolati e collaudati per questa nuova configurazione. Nessun acquisto o deployment.

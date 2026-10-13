@@ -1,5 +1,3 @@
-> Aggiornamento 13 ottobre 2026: su richiesta della direzione il runtime di produzione non riceve, scansiona o conserva PDF/CV. Rimangono login, stato pratiche, integrazioni e autorizzazioni. I documenti si inviano dalla posta dell’assistito a destinazioni approvate per sede e servizio. Le precedenti istruzioni antivirus/deposito descrivono moduli legacy testati ma non attivati dal runtime. Nessuna cancellazione automatica di archivi o backup preesistenti.
-
 # Ordine delle prove prima dell'uso reale
 
 Il lavoro sul codice prosegue senza accendere il PC della sede. La prova locale Windows viene lasciata all'ultimo passaggio della preparazione. Questo non sposta automaticamente sul PC i servizi operativi: disponibilità del server, configurazione Google, antivirus, backup e prove reali restano requisiti distinti.

@@ -3,6 +3,7 @@ const fs=require('node:fs'),path=require('node:path');
 const {Vault}=require('./vault.cjs');
 const {Practices}=require('./practices.cjs');
 const {Identity}=require('./identity.cjs');
+const {clamScanner}=require('./scanner.cjs');
 const {createApp}=require('./app.cjs');
 function configuredServer(env=process.env){
  require('./environment.cjs').requireEnvironment(env);
@@ -19,6 +20,9 @@ function configuredServer(env=process.env){
  if(parent===root||parent.startsWith(root+path.sep))throw Error('Private data parent cannot resolve inside the repository');
  const key=Buffer.from(env.CAF_VAULT_KEY||'','base64');
  if(key.length!==32)throw Error('Configure a private 32-byte base64 vault key');
+ const scanner=env.CAF_CLAMSCAN_PATH||'/usr/bin/clamscan';
+ if(!path.isAbsolute(scanner)||!fs.existsSync(scanner))throw Error('A configured malware scanner is required');
+ fs.accessSync(scanner,fs.constants.X_OK);
  const origin=env.CAF_ORIGIN||'http://127.0.0.1:8080';
  const parsed=new URL(origin);
  if(parsed.protocol!=='https:'&&!(parsed.protocol==='http:'&&['127.0.0.1','localhost'].includes(parsed.hostname)))throw Error('Non-local origin must use HTTPS');
@@ -35,8 +39,8 @@ function configuredServer(env=process.env){
   if(mailEnabled&&(!Number.isInteger(mailRetentionDays)||mailRetentionDays<1||mailRetentionDays>36500))throw Error('Configure approved email/outbox retention duration');
   const jobs=new (require('./jobs.cjs').Jobs)({vault,calendar,enabled:env.CAF_JOBS_ENABLED==='true',mailEnabled,retentionDays:mailRetentionDays,sendMail:require('./google-mail.cjs').googleMail({env})});
   const appointments=new (require('./appointments.cjs').Appointments)({vault,calendar,slotsFor,notify:value=>jobs.enqueue(value)});
-  const candidatures=undefined; // No document storage, including CVs, in production.
-  const practices=new Practices({vault,documentsEnabled:false,documentMailboxes:require('./document-mail.cjs').mailboxes(env),verifyAppointment:calendar.verifyAppointment,enabledServices:env.CAF_CALLBACK_ENABLED==='true'?['730','isee','richiamata']:['730','isee']});
+  const candidatures=env.CAF_CV_RETENTION_DAYS?new (require('./candidatures.cjs').Candidatures)({vault,scan:clamScanner(scanner),retentionDays:Number(env.CAF_CV_RETENTION_DAYS)}):undefined;
+  const practices=new Practices({vault,scan:clamScanner(scanner),verifyAppointment:calendar.verifyAppointment,enabledServices:env.CAF_CALLBACK_ENABLED==='true'?['730','isee','richiamata']:['730','isee']});
   // Preserve existing public Google functions without enabling Netlify deployments.
   const providerHandlers={};
   for(const name of ['calendar-availability','calendar-book','calendar-cancel'])providerHandlers[name]=require('../netlify/functions/'+name+'.js').handler;

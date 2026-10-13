@@ -1,4 +1,4 @@
-> Aggiornamento 13 ottobre 2026: su richiesta della direzione il runtime di produzione non riceve, scansiona o conserva PDF/CV. Rimangono login, stato pratiche, integrazioni e autorizzazioni. I documenti si inviano dalla posta dell’assistito a destinazioni approvate per sede e servizio. Le precedenti istruzioni antivirus/deposito descrivono moduli legacy testati ma non attivati dal runtime. Nessuna cancellazione automatica di archivi o backup preesistenti.
+> Decisione della direzione, 13 ottobre 2026: ripristinata la versione con deposito PDF nel portale, controllo antivirus obbligatorio, archivio privato cifrato e consultazione dello stato. La variante con invio documenti via email è stata annullata. Ricezione file automatica dopo scansione; verifica della completezza e aggiornamento dello stato restano operazioni della sede. Server esterno: obiettivo iniziale 8 GB, da collaudare; la proposta 4 GB non è approvata per questa versione. Limite autorizzato server + backup: 15 euro/mese. Nessun acquisto o deployment.
 
 # CAF Punto Cittadino — costi e condizioni di avvio
 
