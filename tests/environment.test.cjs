@@ -30,11 +30,11 @@ test('Origins, ports and vault keys reject ambiguous or credential-bearing confi
  for(const port of ['80','65536','8080.5','8e3'])assert.equal(failure({...env,CAF_PORT:port},'port'),true);
  for(const key of [env.CAF_VAULT_KEY+'ignored',' '+env.CAF_VAULT_KEY,Buffer.alloc(31).toString('base64')])assert.equal(failure({...env,CAF_VAULT_KEY:key},'vault_key'),true);
 });
-test('Private directory and scanner checks reject unsafe filesystem locations',t=>{
+test('Private directory checks reject unsafe filesystem locations',t=>{
  const {parent,env}=setup(t),root=path.resolve(__dirname,'..'),link=path.join(parent,'source-link');fs.symlinkSync(root,link,process.platform==='win32'?'junction':'dir');
  for(const directory of [path.join(root,'dist','private'),path.join(link,'private'),'relative'])assert.equal(failure({...env,CAF_PRIVATE_DIRECTORY:directory},'private_directory'),true);
  fs.symlinkSync(parent,env.CAF_PRIVATE_DIRECTORY,process.platform==='win32'?'junction':'dir');assert.equal(failure(env,'private_directory'),true);
- assert.equal(failure({...env,CAF_CLAMSCAN_PATH:parent},'scanner'),true);
+ assert.equal(inspectEnvironment({...env,CAF_CLAMSCAN_PATH:'not-installed'}).checks.some(row=>row.id==='scanner'),false);
 });
 test('Operator provisioning and enabled features require explicit valid configuration',t=>{
  const {env}=setup(t),operator={email:'staff@example.test',enabled:true,role:'operator',sites:['molfetta']};

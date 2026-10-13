@@ -12,7 +12,7 @@ function createApp({practices,identity,publicDirectory,origin,providerHandlers={
   try{
    rate(req);const url=new URL(req.url,allowed);if(url.origin!==allowed.origin)failure(400,'INVALID_URL');
    if(req.headers.origin&&req.headers.origin!==allowed.origin)failure(403,'ORIGIN_FORBIDDEN');
-   if(url.pathname==='/api/config'&&req.method==='GET')return json(200,{clientId:identity.clientId,privacyVersion:'2026-10-12',services:practices.enabledServices||['730','isee'],sites:['molfetta','bari'],maxFileBytes:10*1024*1024,candidaturesEnabled:!!candidatures,candidatureTypes:require('./candidatures.cjs').TYPES});
+   if(url.pathname==='/api/config'&&req.method==='GET')return json(200,{clientId:identity.clientId,privacyVersion:'2026-10-12',services:practices.enabledServices||['730','isee'],sites:['molfetta','bari'],documentsEnabled:practices.documentsEnabled===true,maxFileBytes:practices.documentsEnabled===true?10*1024*1024:0,candidaturesEnabled:!!candidatures,candidatureTypes:require('./candidatures.cjs').TYPES});
    if(url.pathname.startsWith('/api/')){
     const actor=await identity.authenticate(req.headers,req.headers['x-caf-area']||'citizen');
     if(url.pathname==='/api/me'&&req.method==='GET')return json(200,{role:actor.role,sites:actor.sites,email:actor.email});
@@ -74,6 +74,7 @@ function createApp({practices,identity,publicDirectory,origin,providerHandlers={
     if(!action&&req.method==='GET')return json(200,practices.detail(actor,id));
     if(!action&&req.method==='DELETE')return json(200,practices.erase(actor,id));
     if(action==='status'&&!documentId&&req.method==='POST')return json(200,practices.changeStatus(actor,id,await body(req)));
+    if(action==='documents'&&practices.documentsEnabled===false)failure(410,'DOCUMENT_STORAGE_DISABLED');
     if(action==='documents'&&!documentId&&req.method==='POST'){
      if(!req.headers['content-type']?.startsWith('application/json'))failure(415,'JSON_REQUIRED');
      if(uploads>=2)failure(429,'UPLOAD_CAPACITY');uploads++;try{

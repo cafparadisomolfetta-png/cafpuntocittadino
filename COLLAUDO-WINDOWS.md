@@ -1,3 +1,5 @@
+> Aggiornamento 13 ottobre 2026: su richiesta della direzione il runtime di produzione non riceve, scansiona o conserva PDF/CV. Rimangono login, stato pratiche, integrazioni e autorizzazioni. I documenti si inviano dalla posta dell’assistito a destinazioni approvate per sede e servizio. Le precedenti istruzioni antivirus/deposito descrivono moduli legacy testati ma non attivati dal runtime. Nessuna cancellazione automatica di archivi o backup preesistenti.
+
 # Collaudo locale su Windows
 
 Questa procedura esegue i test automatici con dati sintetici e crea il frontend in `dist`. Non rende il sito disponibile agli assistiti, non avvia il servizio privato e non configura il PC come server pubblico. Netlify e DNS non vengono modificati. Non inserire documenti o dati degli assistiti durante queste prove.

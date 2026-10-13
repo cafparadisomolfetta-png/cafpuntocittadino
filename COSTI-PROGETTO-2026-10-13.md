@@ -1,3 +1,5 @@
+> Aggiornamento 13 ottobre 2026: su richiesta della direzione il runtime di produzione non riceve, scansiona o conserva PDF/CV. Rimangono login, stato pratiche, integrazioni e autorizzazioni. I documenti si inviano dalla posta dell’assistito a destinazioni approvate per sede e servizio. Le precedenti istruzioni antivirus/deposito descrivono moduli legacy testati ma non attivati dal runtime. Nessuna cancellazione automatica di archivi o backup preesistenti.
+
 # CAF Punto Cittadino — costi e condizioni di avvio
 
 Verifica dei listini pubblici: 13 ottobre 2026. Stima di pianificazione, non preventivo vincolante né autorizzazione all'acquisto. Nessun prodotto attivato o acquistato. Il divieto di spesa, la sospensione Netlify e il blocco pubblicazione restano validi. La disponibilità e l'importo finale vanno verificati nel riepilogo ordine prima di qualsiasi attivazione.

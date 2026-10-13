@@ -1,3 +1,7 @@
+> Verifica della modifica email: 117 test automatici superati (115 comportamentali e 2 sul bundle), nessuno saltato. Nessun invio email, account creato, acquisto, pubblicazione o collaudo reale delle nuove destinazioni.
+
+> Aggiornamento 13 ottobre 2026: su richiesta della direzione il runtime di produzione non riceve, scansiona o conserva PDF/CV. Rimangono login, stato pratiche, integrazioni e autorizzazioni. I documenti si inviano dalla posta dell’assistito a destinazioni approvate per sede e servizio. Le precedenti istruzioni antivirus/deposito descrivono moduli legacy testati ma non attivati dal runtime. Nessuna cancellazione automatica di archivi o backup preesistenti.
+
 # CAF Punto Cittadino — verifica del 13 ottobre 2026
 
 **Implementazione ampliata e collaudata localmente; rilascio operativo ancora bloccato dai collaudi e dalla configurazione dei servizi reali.** Nessuna spesa, chiamata AI a pagamento, nuova email a persone reali, pubblicazione o riattivazione Netlify.
