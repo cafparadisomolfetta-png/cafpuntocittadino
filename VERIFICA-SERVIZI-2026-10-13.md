@@ -13,10 +13,19 @@ Queste verifiche attestano i collegamenti di Work e la lettura dei servizi. **No
 
 Assenti le variabili OAuth Google, login gestionale, chiave/directory del vault e chiave AI. ClamAV non è presente. Nessuna chiave generata o richiesta in chat, nessuna risorsa attivata o acquistata.
 
-La ricerca delle integrazioni non ha restituito un connettore Netlify disponibile. È stato quindi aperto l'accesso alla dashboard tramite il browser, usando la procedura sicura di autenticazione. Il flusso Google è proseguito tramite autenticazione sicura, ma Netlify ha restituito **Authentication Error — Invalid state key**. Una nuova pagina Netlify ha confermato che la sessione non è autenticata. Non è stata ripetuta automaticamente l’autenticazione. È stato aperto il controllo manuale della scheda per l’utente. Nessuna configurazione Netlify letta o modificata e nessuna riattivazione effettuata.
+La ricerca delle integrazioni non ha restituito un connettore Netlify disponibile. Dopo l'errore iniziale **Invalid state key**, l'utente ha completato manualmente l'accesso. La dashboard autenticata è stata verificata e la configurazione è stata letta senza modificarla. Nessuna riattivazione effettuata.
+
+## Configurazione Netlify verificata dopo l'accesso
+
+- Il progetto corrisponde al repository richiesto ed è **disabilitato**. Il team ha superato il limite crediti; progetti e deploy risultano sospesi. Nessun acquisto o cambio piano effettuato.
+- Il deploy indicato dalla dashboard come attualmente pubblicato è `main@901bb799c254a3a4e6f83cbf012a2919dba7da2a`, del giorno 11 ottobre. Non contiene il lavoro sul branch `codex/verifica-sicurezza-2026-10-12`.
+- Il branch produzione è `main`; la pubblicazione automatica è attiva, i branch deploy sono limitati a `test-pagamento` e i Deploy Preview sono configurati per le pull request verso tali branch. Nessuna pull request aperta e nessun deploy avviato durante questa verifica.
+- La UI mostra base `/`, comando build e directory pubblicazione non impostati, funzioni `netlify/functions`, stato build attivo e log pubblici. Sono valori mostrati dalla UI: non sono una verifica della configurazione effettiva risultante da `netlify.toml` in un futuro deploy. Il blocco `ignore = "exit 0"` resta nel branch di lavoro.
+- Risultano presenti i nomi `GESTIONALE_ADMIN_EMAIL`, `GESTIONALE_GOOGLE_CLIENT_ID`, `GESTIONALE_OPERATORS_JSON`, `GESTIONALE_SITE_CALENDARS_JSON`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN` e `OPENAI_API_KEY`. I valori non sono stati aperti, copiati o esportati. La presenza non certifica validità, scope, ruoli o uso sicuro; la chiave AI non è stata utilizzata.
+- `cafpuntocittadino.it` è il dominio principale; `www.cafpuntocittadino.it` è configurato per il redirect. La dashboard indica Netlify DNS e HTTPS abilitato con Let's Encrypt per entrambi i domini. Non è stata eseguita una prova end-to-end del sito sospeso e nessun DNS/certificato è stato modificato.
 
 ## Passaggio necessario
 
-Completare manualmente l’accesso Netlify nella scheda condivisa permette di proseguire con la lettura della configurazione. Una nuova autorizzazione generale al lavoro non sostituisce l’autenticazione del servizio. Restano fermi il divieto di spesa, il blocco deploy e il requisito di collaudo prima del rilascio.
+L'accesso Netlify è ora risolto. Il blocco operativo resta l'assenza di un ambiente privato configurato per Node, disco persistente, antivirus e backup. Le variabili presenti su Netlify non sono disponibili nel workspace e non sono state trasferite al nuovo runtime; le funzioni serverless non sostituiscono tale ambiente. Serve indicare un sistema già disponibile senza nuovi costi e configurarne privatamente gli accessi. Restano necessari orari/recapiti Bari, decisioni del titolare sulle informative e sulle durate di conservazione, quindi collaudi dei provider reali e dei dispositivi. L'AI resta disattivata per il divieto di spesa. Non occorre ripetere l'autorizzazione generale al lavoro.
 
 Il codice verificato rimane sul branch `codex/verifica-sicurezza-2026-10-12`, con 103 test locali superati. Stato tecnico: [VERIFICA-WORK-2026-10-13.md](VERIFICA-WORK-2026-10-13.md).

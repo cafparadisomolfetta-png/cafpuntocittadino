@@ -55,4 +55,4 @@ Guida: [server/README.md](server/README.md). Netlify resta bloccato con `ignore 
 
 ## Verifica successiva dei collegamenti reali
 
-Gmail e Google Calendar risultano già collegati a Work; profili e lettura disponibilità sono stati verificati realmente, in sola lettura. Questo non sostituisce il collaudo OAuth degli endpoint del sito. Dettagli e accesso Netlify bloccato da errore di autenticazione del servizio: [VERIFICA-SERVIZI-2026-10-13.md](VERIFICA-SERVIZI-2026-10-13.md).
+Gmail e Google Calendar risultano già collegati a Work; profili e lettura disponibilità sono stati verificati realmente, in sola lettura. Dopo l'accesso manuale dell'utente, anche la dashboard Netlify è stata verificata: progetto disabilitato, limite crediti superato, dominio/HTTPS configurati e nomi delle variabili Google/gestionale/AI presenti. Nessun valore segreto letto e nessuna configurazione modificata. Questi controlli non sostituiscono il collaudo OAuth degli endpoint o l'ambiente persistente richiesto dal nuovo runtime. Dettagli: [VERIFICA-SERVIZI-2026-10-13.md](VERIFICA-SERVIZI-2026-10-13.md).
