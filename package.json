@@ -10,6 +10,7 @@
   "scripts": {
     "test": "node deploy-build.cjs",
     "build": "node deploy-build.cjs",
-    "start:private": "node server/main.cjs"
+    "start:private": "node server/main.cjs",
+    "check:private": "node server/environment.cjs"
   }
 }

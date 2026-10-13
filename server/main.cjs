@@ -6,6 +6,7 @@ const {Identity}=require('./identity.cjs');
 const {clamScanner}=require('./scanner.cjs');
 const {createApp}=require('./app.cjs');
 function configuredServer(env=process.env){
+ require('./environment.cjs').requireEnvironment(env);
  if(env.CAF_PRIVACY_REVIEWED!=='true')throw Error('Private runtime requires reviewed privacy information and retention policy.');
  if(env.CAF_PRIVATE_ENABLED!=='true')throw Error('Private runtime is disabled. Read server/README.md before enabling.');
  const root=path.resolve(__dirname,'..'),publicDirectory=path.join(root,'dist');

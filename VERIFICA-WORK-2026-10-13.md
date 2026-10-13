@@ -23,7 +23,7 @@ Bari: agenda/cancellazione riservata supportate; spostamenti solo con orari priv
 
 ## Esito dei controlli
 
-`npm test` / `node deploy-build.cjs`: **103 test automatici superati** (101 di comportamento e 2 del bundle). Nessun test saltato.
+`npm test` / `node deploy-build.cjs`: **109 test automatici superati** (107 di comportamento e 2 del bundle). Nessun test saltato.
 
 Le prove includono:
 
@@ -40,8 +40,11 @@ Le prove includono:
 - API HTTP locali, origini, download no-store e divieto di file privati nel bundle;
 - risposta agenda tardiva dopo logout: non può riaprire la dashboard né mostrare dati;
 - controlli statici DOM, sintassi e icone PWA; build e `git diff --check`.
+- configurazione offline senza valori segreti, nessuna scrittura/chiamata esterna; avvio bloccato prima del vault con calendari uguali o durate invalide; rifiuto di origini con credenziali/path/query, porte/chiavi ambigue, provisioning non valido e percorsi in source anche tramite symlink.
 
 **Limiti:** identità Google, Calendar, Gmail, antivirus, fonti e AI sono simulati. Non sono stati eseguiti browser visuale, installazione reale PWA, carico operativo, penetration test o revisione privacy professionale. I controlli locali non certificano il rilascio.
+
+`npm run check:private` è stato eseguito sul workspace reale: esito **configurazione incompleta**, senza creare dati o usare provider. Node/build sono presenti; mancano configurazione privata, antivirus, policy approvate e credenziali del runtime. I nomi di variabili presenti nella dashboard Netlify non vengono esportati al workspace. Questo blocco è atteso e impedisce un avvio apparentemente riuscito ma non operativo.
 
 ## Operazioni necessarie sull'ambiente reale
 
