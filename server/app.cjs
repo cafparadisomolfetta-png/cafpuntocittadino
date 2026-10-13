@@ -1,11 +1,11 @@
 'use strict';
-const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
+const http=require('node:http'),{isIP}=require('node:net'),fs=require('node:fs'),path=require('node:path');
 const {failure}=require('./practices.cjs');
 const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png'};
-function createApp({practices,identity,publicDirectory,origin,providerHandlers={},retentionPolicy,booking,candidatures,appointments,jobs}){
+function createApp({practices,identity,publicDirectory,origin,providerHandlers={},retentionPolicy,booking,candidatures,appointments,jobs,trustProxy=false}){
  const allowed=new URL(origin),limits=new Map();let uploads=0;
  const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','Permissions-Policy':'camera=(), microphone=(), geolocation=()'};
- function rate(req){const key=req.socket.remoteAddress||'unknown';const now=Date.now();for(const [k,v]of limits)if(now-v.start>60000)limits.delete(k);let row=limits.get(key);if(!row){if(limits.size>10000)failure(503,'RATE_LIMIT_CAPACITY');row={start:now,count:0};limits.set(key,row)}if(++row.count>120)failure(429,'RATE_LIMITED');}
+ function rate(req){const peer=req.socket.remoteAddress||'unknown',forwarded=req.headers['x-forwarded-for'];const key=trustProxy&&['127.0.0.1','::1','::ffff:127.0.0.1'].includes(peer)&&typeof forwarded==='string'&&isIP(forwarded)?forwarded:peer;const now=Date.now();for(const [k,v]of limits)if(now-v.start>60000)limits.delete(k);let row=limits.get(key);if(!row){if(limits.size>10000)failure(503,'RATE_LIMIT_CAPACITY');row={start:now,count:0};limits.set(key,row)}if(++row.count>120)failure(429,'RATE_LIMITED');}
  async function body(req,max=32768){const chunks=[];let bytes=0;for await(const chunk of req){bytes+=chunk.length;if(bytes>max)failure(413,'BODY_TOO_LARGE');chunks.push(chunk)}try{return JSON.parse(Buffer.concat(chunks).toString('utf8'))}catch{failure(400,'INVALID_JSON')}}
  const server=http.createServer(async(req,res)=>{
   function json(code,value){res.writeHead(code,{...headers,'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value))}

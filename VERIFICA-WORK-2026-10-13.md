@@ -25,7 +25,7 @@ Bari: agenda/cancellazione riservata supportate; spostamenti solo con orari priv
 
 ## Esito dei controlli
 
-`npm test` / `node deploy-build.cjs`: **114 test automatici superati** (112 di comportamento e 2 del bundle). Nessun test saltato.
+`npm test` / `node deploy-build.cjs`: **116 test automatici superati** (114 di comportamento e 2 del bundle). Nessun test saltato.
 
 Le prove includono:
 
@@ -73,3 +73,11 @@ Guida: [server/README.md](server/README.md). Netlify resta bloccato con `ignore 
 ## Verifica successiva dei collegamenti reali
 
 Gmail e Google Calendar risultano già collegati a Work; profili e lettura disponibilità sono stati verificati realmente, in sola lettura. Dopo l'accesso manuale dell'utente, anche la dashboard Netlify è stata verificata: progetto disabilitato, limite crediti superato, dominio/HTTPS configurati e nomi delle variabili Google/gestionale/AI presenti. Nessun valore segreto letto e nessuna configurazione modificata. Questi controlli non sostituiscono il collaudo OAuth degli endpoint o l'ambiente persistente richiesto dal nuovo runtime. Dettagli: [VERIFICA-SERVIZI-2026-10-13.md](VERIFICA-SERVIZI-2026-10-13.md).
+
+## Preparazione host e limiti proxy, 13 ottobre 2026
+
+Corretto il rate limit dietro proxy: `CAF_TRUST_PROXY=true` consente quote distinte per IP solo per header singolo valido proveniente da loopback. Il proxy deve sovrascrivere l’header del visitatore. Test di saturazione confermano quote indipendenti, rifiuto di header ambigui e assenza di bypass senza fiducia esplicita. Suite e build complete: 116 test superati, nessuno saltato.
+
+Aggiunti modelli systemd, nginx di staging solo loopback e nginx HTTPS, configurazione d’esempio senza segreti e flag disabilitate, istruzioni in `deployment/README.md`. La unit systemd supera il controllo in copia temporanea con il percorso Node locale; la versione definitiva va verificata sul server. nginx non presente: nessun `nginx -t` eseguito, modello non certificato né pubblicato. Nessun test di carico sul server reale.
+
+Nuova verifica del configuratore OVH: 8 GB / 4 vCore / 75 GB, pagamento mensile senza impegno annuale, 8,49 euro + IVA; disponibile solo Erith/Regno Unito, sedi UE mostrate esaurite. Nessun ordine, account, pagamento o trasferimento dati. Un’alternativa Contabo presenta listino pubblico, ma il sito non è accessibile dal browser della sessione: nessun checkout finale o contratto verificato. Occorre un host disponibile/attivato prima delle prove reali.

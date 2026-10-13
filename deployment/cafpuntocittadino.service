@@ -1,0 +1,34 @@
+[Unit]
+Description=CAF Punto Cittadino private runtime
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=cafpuntocittadino
+Group=cafpuntocittadino
+WorkingDirectory=/opt/cafpuntocittadino
+EnvironmentFile=/etc/cafpuntocittadino/runtime.env
+ExecStartPre=/usr/bin/node /opt/cafpuntocittadino/server/environment.cjs
+ExecStart=/usr/bin/node /opt/cafpuntocittadino/server/main.cjs
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=90
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+ReadWritePaths=/var/lib/cafpuntocittadino
+
+[Install]
+WantedBy=multi-user.target

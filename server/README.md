@@ -1,6 +1,6 @@
 # Runtime privato CAF Punto Cittadino
 
-Implementazione verificata localmente con dati sintetici: **114 test superati**. Stato e limiti: [VERIFICA-WORK-2026-10-13.md](../VERIFICA-WORK-2026-10-13.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
+Implementazione verificata localmente con dati sintetici: **116 test superati**. Stato e limiti: [VERIFICA-WORK-2026-10-13.md](../VERIFICA-WORK-2026-10-13.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
 
 ## Ambiente
 
@@ -96,3 +96,7 @@ Sequenza di preparazione, prerequisiti e prove reali: [COLLAUDO-OPERATIVO.md](..
 `npm test` esegue API HTTP locali, provider simulati, cifratura, ruoli/versioni/concorrenza, PDF, CV, richiamate, AI disattivata/cap, scheduler/email/news, rollback/retention/backup, logout tardivo, frontend statico e bundle. Google, Gmail, ClamAV, fonti e AI reali, browser visuale, accessibilità, installazione PWA, carico e test di sicurezza indipendenti restano da eseguire. Il superamento dei test locali non certifica conformità GDPR.
 
 Documentazione usata: [Google Calendar, versioni/If-Match](https://developers.google.com/workspace/calendar/api/guides/version-resources), [Calendar patch](https://developers.google.com/workspace/calendar/api/v3/reference/events/patch), [OpenAI Responses](https://developers.openai.com/api/docs/guides/migrate-to-responses).
+
+## Installazione su host esterno
+
+Modelli e sequenza di staging/rilascio: [deployment/README.md](../deployment/README.md). `CAF_TRUST_PROXY` è false per default. Abilitarla solo con proxy locale che sovrascrive `X-Forwarded-For` con l’IP effettivo: quote distinte per IP invece di un unico limite condiviso sul loopback. Nessuna fiducia verso header inoltrati da connessioni non locali o valori multipli/non validi. La quota per IP può comunque essere condivisa da persone nella stessa rete. Modelli non installati, nginx/TLS da validare sull’host effettivo.

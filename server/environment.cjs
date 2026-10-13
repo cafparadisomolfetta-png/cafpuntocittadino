@@ -34,6 +34,7 @@ function inspectEnvironment(env=process.env,{publicDirectory=path.join(root,'dis
   const value=env.CAF_ORIGIN||'http://127.0.0.1:8080',url=new URL(value);
   return value===url.origin&&!url.username&&!url.password&&(url.protocol==='https:'||url.protocol==='http:'&&['localhost','127.0.0.1'].includes(url.hostname));
  });
+ check('proxy','Configure proxy trust as true or false; only a local proxy overwriting client IP headers is trusted.',()=>!env.CAF_TRUST_PROXY||['true','false'].includes(env.CAF_TRUST_PROXY));
  check('port','Configure a port from 1024 to 65535.',()=>/^\d+$/.test(env.CAF_PORT||'8080')&&Number(env.CAF_PORT||8080)>=1024&&Number(env.CAF_PORT||8080)<=65535);
  check('login','Configure the Google login client privately.',()=>present(env.GESTIONALE_GOOGLE_CLIENT_ID));
  check('administrator','Configure a valid administrator email privately.',()=>email(env.GESTIONALE_ADMIN_EMAIL));

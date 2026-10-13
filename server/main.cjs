@@ -51,7 +51,7 @@ function configuredServer(env=process.env){
   const wrapped=require('./booking.cjs').bookingHandlers({vault,book:providerHandlers['calendar-book'],cancel:providerHandlers['calendar-cancel'],verifyFree:calendar.verifyFree});
   providerHandlers['calendar-book']=wrapped.book;providerHandlers['calendar-cancel']=wrapped.cancel;
   if(!vault.verifyAudit())throw Error('Audit integrity verification failed');
-  const server=createApp({practices,identity,publicDirectory,origin,providerHandlers,retentionPolicy,booking:wrapped,candidatures,appointments,jobs});
+  const server=createApp({practices,identity,publicDirectory,origin,providerHandlers,retentionPolicy,booking:wrapped,candidatures,appointments,jobs,trustProxy:env.CAF_TRUST_PROXY==='true'});
   let timer;server.on('listening',()=>{if(jobs.enabled){timer=setInterval(()=>jobs.tick(),60000);timer.unref();jobs.tick();}});
   server.on('close',()=>{if(timer)clearInterval(timer);jobs.stop().finally(()=>vault.close());});return {server,vault};
  }catch(e){vault.close();throw e}

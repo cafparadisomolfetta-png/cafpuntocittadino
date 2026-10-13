@@ -2,7 +2,7 @@
 
 Il lavoro sul codice prosegue senza accendere il PC della sede. La prova locale Windows viene lasciata all'ultimo passaggio della preparazione. Questo non sposta automaticamente sul PC i servizi operativi: disponibilità del server, configurazione Google, antivirus, backup e prove reali restano requisiti distinti.
 
-Per la decisione economica è disponibile [COSTI-PROGETTO-2026-10-13.md](COSTI-PROGETTO-2026-10-13.md): listini pubblici, ipotesi, costi esclusi e condizioni da verificare prima di ordinare. La richiesta di un costo non ha attivato risorse o revocato il precedente divieto di spesa.
+Per la decisione economica è disponibile [COSTI-PROGETTO-2026-10-13.md](COSTI-PROGETTO-2026-10-13.md): listini pubblici, ipotesi, costi esclusi e condizioni da verificare prima di ordinare. La direzione ha autorizzato massimo 15 euro/mese per server e backup, mantenendo AI e Netlify disattivati. Nessuna risorsa acquistata.
 
 ## Preparazione già eseguita
 
@@ -19,7 +19,7 @@ Per la decisione economica è disponibile [COSTI-PROGETTO-2026-10-13.md](COSTI-P
 
 | Condizione | Evidenza richiesta | Stato |
 | --- | --- | --- |
-| Ambiente senza nuovi costi | Sistema effettivamente disponibile con Node compatibile, HTTPS, disco persistente privato, accessi e backup separati | Non individuato/configurato |
+| Server e backup entro 15 euro/mese | Sistema effettivamente disponibile con Node compatibile, HTTPS, disco persistente privato, accessi e backup separati | Non individuato/configurato |
 | Configurazione Google del sito | Client/origini corrette, calendario distinto per sede, scope effettivi Calendar/Gmail, ruoli e revoca | Credenziali presenti per nome su Netlify, valori non esportati; runtime da configurare |
 | Antivirus | ClamAV reale, firme aggiornate, PDF pulito accettato, file di test infetto rifiutato e scanner indisponibile bloccante | Solo scanner simulato |
 | Sede Bari | Indirizzo/recapiti/orari approvati e messaggi di conferma verificati | Conferme mancanti; prenotazione pubblica disattivata |
@@ -57,4 +57,4 @@ Scaricare il branch aggiornato, estrarre il ZIP ed eseguire `COLLAUDO-WINDOWS.cm
 
 ## Decisione di rilascio
 
-Il progetto resta non pubblicato finché mancano ambiente o prove reali dei moduli da esporre. Con il divieto di spesa, le chiamate AI restano disattivate. Non togliere `ignore = "exit 0"`, non cambiare il branch produzione, non attivare Netlify e non trasferire il dominio come parte del collaudo. Nessuna approvazione generale al lavoro sostituisce i risultati dei controlli.
+Il progetto resta non pubblicato finché mancano ambiente o prove reali dei moduli da esporre. Modelli di installazione disponibili in deployment/README.md; non ancora installati o validati sul server finale. Con il divieto di spesa, le chiamate AI restano disattivate. Non togliere `ignore = "exit 0"`, non cambiare il branch produzione, non attivare Netlify e non trasferire il dominio come parte del collaudo. Nessuna approvazione generale al lavoro sostituisce i risultati dei controlli.
