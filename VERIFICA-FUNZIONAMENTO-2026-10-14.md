@@ -4,7 +4,7 @@ Verifica eseguita sul ramo corrente con grafica approvata e avvio con sola Molfe
 
 ## Esiti verificati
 
-- `node tools/collaudo-locale.cjs`: 136 test di comportamento e 4 test della build, tutti superati. Il controllo della build verifica collegamenti HTML statici, risorse locali e destinazioni PWA; esclude il contenuto degli script inline, che richiede prove JavaScript/browser distinte. I sei test WhatsApp verificano un adattatore opzionale con provider simulato, non la consegna reale o il collegamento alle prenotazioni. Quattro prove aggiuntive verificano la soppressione degli avvisi email superati, la sospensione durante indisponibilità Calendar e l'avviso di cancellazione dopo eliminazione dell'evento; vedi PROMEMORIA-COERENZA.md.
+- `node tools/collaudo-locale.cjs`: 138 test di comportamento e 4 test della build, tutti superati. Il controllo della build verifica collegamenti HTML statici, risorse locali e destinazioni PWA; esclude il contenuto degli script inline, che richiede prove JavaScript/browser distinte. I sei test WhatsApp verificano un adattatore opzionale con provider simulato, non la consegna reale o il collegamento alle prenotazioni. Quattro prove aggiuntive verificano la soppressione degli avvisi email superati, la sospensione durante indisponibilità Calendar e l'avviso di cancellazione dopo eliminazione dell'evento; vedi PROMEMORIA-COERENZA.md.
 - Analisi dei collegamenti locali della build: 14 pagine HTML, nessun file locale mancante e nessun frammento interno non risolto; il riferimento `cafpc-servizi` è riconosciuto come sezione generata dalla navigazione condivisa.
 - Prova HTTP sul server locale reale `createApp`, con identità e configurazione sintetiche: 22 pagine/risorse servite con risposta 200, contenuto presente, `nosniff` e `Cache-Control: no-store`.
 - Configurazione HTTP: sola Molfetta esposta alle applicazioni.
@@ -38,3 +38,5 @@ Conclusione: verifiche automatiche e prova HTTP locale superate. Il progetto res
 Aggiunti parser RSS limitato, raccolta INPS/INAIL e sezione pubblica dedicata, senza API AI. Cinque nuove prove coprono deduplica, date e link, input non validi, errori/redirect e integrazione job-catalogo con fonti simulate. La build verifica che il nuovo script pubblico sia incluso. L’attivazione nel server finale e la resa browser restano da verificare; vedere AGGIORNAMENTI-AUTONOMI.md.
 
 Prova di lettura pubblica del 14 ottobre: entrambi i feed hanno risposto HTTP 200 application/xml; le copie lette dal parser producono 20 titoli recenti INPS e 20 INAIL. Gestita la variante ufficiale pubdate in minuscolo con data gg/mm/aaaa. Questa prova non ha pubblicato dati sul dominio né modificato calendari.
+
+Due prove aggiuntive del provider prenotazioni verificano le tre modalità (in sede, telefonico, WhatsApp), categoria INAIL, istruzioni email coerenti e rifiuto delle modalità non previste prima di contattare i provider. Solo provider simulati, nessun appuntamento reale creato.

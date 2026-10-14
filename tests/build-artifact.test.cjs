@@ -65,6 +65,8 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.match(text,/src="\/assets\/caf-brand.svg"/,file);
   assert.match(text,/src="\/assets\/caf-(?:consulenza|previdenza).svg"/,file);
   assert.match(text,/href="\/approved-design.css"/,file);
+  assert.match(text,/<option value="WhatsApp">WhatsApp — ti contatta un operatore<\/option>/,file);
+  assert.match(text,/Assistenza a distanza in tutta Italia/,file);
  }
  for(const file of ['assistiti/index.html','gestionale/index.html','gestionale/pratiche.html','candidature/index.html']){
   const text=fs.readFileSync(path.join('dist',file),'utf8');

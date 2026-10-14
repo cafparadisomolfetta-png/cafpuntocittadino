@@ -22,4 +22,5 @@ const groups=[
 ];
 const categories=new Map(groups.flatMap(group=>group.services.map(service=>[service,group.category])));
 function categoryFor(service){return categories.get(service)||null;}
-module.exports={groups,categoryFor};
+const modes=['In sede','Telefonico','WhatsApp'];
+module.exports={groups,categoryFor,modes};

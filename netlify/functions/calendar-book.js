@@ -221,6 +221,7 @@ exports.handler = async (event) => {
     if ([servizio,nome,telefono,email,modalita].some(v => v.length > 254 || /[\r\n\x00]/.test(v))) {
       return json(400, {error:"Dati non validi o troppo lunghi"});
     }
+    if(!require('./booking-services').modes.includes(modalita))return json(400,{error:'Modalità appuntamento non valida'});
     const missing = [];
 
     if (!servizio) missing.push("servizio");
@@ -339,7 +340,7 @@ exports.handler = async (event) => {
     const icon =
       /telefon/i.test(modalita)
         ? "📞"
-        : "🏢";
+        : modalita==='WhatsApp' ? "💬" : "🏢";
 
     const description = [
       `Area: ${categoriaServizio}`,
@@ -440,7 +441,7 @@ exports.handler = async (event) => {
               indicato nella prenotazione.
             </p>
           `
-          : `
+          : modalita==='WhatsApp' ? '<p><strong>Appuntamento tramite WhatsApp:</strong><br>un operatore della sede ti contatterà al numero indicato nella prenotazione. Il numero deve essere attivo su WhatsApp. Non inviare documenti personali in chat: la sede ti indicherà il canale riservato.</p>' : `
             <p>
               Ti aspettiamo presso la sede di
               <strong>Via Paradiso 34 – Molfetta</strong>.

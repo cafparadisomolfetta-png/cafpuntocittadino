@@ -1,7 +1,7 @@
 'use strict';
 // Static design layer: real forms, IDs and authentication scripts remain in place.
 const pages={
- 'index.html':['home','ASSISTENZA, CONSULENZA, OPPORTUNITÀ','Al tuo fianco,<br><em>ogni giorno</em>','Servizi fiscali, previdenziali e per il lavoro. Più semplici, più vicini, per persone e imprese.'],
+ 'index.html':['home','ASSISTENZA, CONSULENZA, OPPORTUNITÀ','Il tuo CAF, vicino a te.<br><em>In tutta Italia.</em>','Assistenza fiscale, previdenziale e per il lavoro, anche a distanza. Prenota in sede a Molfetta, per telefono o tramite WhatsApp.'],
  'caf.html':['caf','CAF E FISCALE','Più semplici i tuoi<br><em>adempimenti fiscali</em>','Consulenza e assistenza per privati, famiglie e imprese.'],
  'patronato.html':['patronato','PATRONATO / INPS','I tuoi diritti,<br><em>il nostro supporto</em>','Assistenza su pensioni, prestazioni previdenziali e servizi di welfare.'],
  'lavoro-sindacato.html':['lavoro','LAVORO / SINDACATO','Più tutela.<br><em>Più chiarezza.</em>','Contratti, buste paga, TFR, ferie, permessi e consulenza del lavoro.'],
@@ -15,6 +15,7 @@ function approvedPublic(html,file){
  const escape=value=>value.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
  const options='<option value="">Seleziona il servizio</option>'+require('./netlify/functions/booking-services.js').groups.map(group=>'<optgroup label="'+escape(group.label)+'">'+group.services.map(service=>'<option>'+escape(service)+'</option>').join('')+'</optgroup>').join('');
  html=html.replace(/(<select\b[^>]*\bid="bkServizio"[^>]*>)[\s\S]*?(<\/select>)/g,(_match,start,end)=>start+options+end);
+ html=html.replace(/(<select\b[^>]*\bid="bkModalita"[^>]*>)[\s\S]*?(<\/select>)/g,(_match,start,end)=>start+'<option value="In sede">In presenza — sede di Molfetta</option><option value="Telefonico">Telefonico — ti chiamiamo noi</option><option value="WhatsApp">WhatsApp — ti contatta un operatore</option>'+end+'<p class="cafpc-remote-note">Assistenza a distanza in tutta Italia. Per telefono o WhatsApp ti contatta la sede al numero indicato, che per WhatsApp deve essere attivo sul servizio. La modalità riguarda l’appuntamento; eventuali firme, identificazione o adempimenti in presenza saranno concordati con la sede. Non inviare documenti personali in chat: usa l’area assistiti quando disponibile.</p>');
  html=themeLink(html).replace(/<body\b([^>]*)>/i,'<body$1 data-cafpc-design="public">');
  const cfg=pages[file];if(!cfg)return html;
  const [style,label,heading,description]=cfg;
