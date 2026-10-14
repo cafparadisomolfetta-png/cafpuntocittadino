@@ -12,15 +12,26 @@ class Jobs{
   const marker=kind==='reminder'?start:(event.etag||start),id=crypto.createHash('sha256').update(kind+':'+site+':'+event.id+':'+marker).digest('hex');if(this.vault.get('outbox',id))return id;
   const label={reminder:'Promemoria appuntamento','appointment-moved':'Appuntamento spostato','appointment-cancelled':'Appuntamento annullato'}[kind];if(!label)return null;
   const time=new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',dateStyle:'short',timeStyle:'short'}).format(new Date(start));
-  this.vault.put('outbox',id,{id,state:'pending',kind,site,to:email,subject:label+' — CAF Punto Cittadino',text:label+'.\nSede: '+(site==='bari'?'Bari':'Molfetta')+'\nData e ora: '+time+'\nPer assistenza contatta la sede.\nNon rispondere allegando documenti personali.',createdAt:new Date(this.clock()).toISOString(),attempts:0});return id;
+  this.vault.put('outbox',id,{id,state:'pending',kind,site,eventId:event.id,start,to:email,subject:label+' — CAF Punto Cittadino',text:label+'.\nSede: '+(site==='bari'?'Bari':'Molfetta')+'\nData e ora: '+time+'\nPer assistenza contatta la sede.\nNon rispondere allegando documenti personali.',createdAt:new Date(this.clock()).toISOString(),attempts:0});return id;
  }
  status(actor){if(!actor?.authenticated||actor.role!=='admin')failure(403,'ADMIN_REQUIRED');const counts={};for(const row of this.vault.list('outbox'))counts[row.state]=(counts[row.state]||0)+1;return {enabled:this.enabled,mailEnabled:this.mailEnabled,jobs:this.vault.list('job'),outbox:counts};}
  async reminders(){const events=await this.calendar.upcomingReminders(this.clock());this.vault.transaction(()=>{for(const {event,site}of events)this.enqueue({kind:'reminder',event,site})});return {examined:events.length};}
- async deliver(){if(!this.mailEnabled)return {sent:0,disabled:true};let sent=0;for(const row of this.vault.list('outbox').filter(x=>x.state==='pending'&&x.attempts<3).slice(0,50)){
-  const claimed=this.vault.transaction(()=>{const fresh=this.vault.get('outbox',row.id);if(fresh.state!=='pending')return false;this.vault.put('outbox',row.id,{...fresh,state:'sending',attempts:fresh.attempts+1,attemptedAt:new Date(this.clock()).toISOString()});this.vault.audit(system,'mail.send_requested',row.id);return true});if(!claimed)continue;
+ async currentNotification(row){
+  if(row.kind==='appointment-cancelled')return true;
+  if(!['reminder','appointment-moved'].includes(row.kind)||typeof row.eventId!=='string'||!row.eventId||!Number.isFinite(Date.parse(row.start))||Date.parse(row.start)<=this.clock())return false;
+  // Query the authoritative event before claiming a send. Provider failures defer
+  // the message without consuming an attempt or contacting the mail provider.
+  if(typeof this.calendar?.getEvent!=='function')throw Error('Calendar verification unavailable');
+  const current=await this.calendar.getEvent(row.site,row.eventId),email=current?.extendedProperties?.private?.email;
+  return current?.id===row.eventId&&current.status!=='cancelled'&&Date.parse(current.start?.dateTime)===Date.parse(row.start)&&typeof email==='string'&&email.toLowerCase()===row.to.toLowerCase()&&!!current.extendedProperties?.private?.cancelCode;
+ }
+ async deliver(){if(!this.mailEnabled)return {sent:0,disabled:true};let sent=0,deferred=0,obsolete=0;for(const row of this.vault.list('outbox').filter(x=>x.state==='pending'&&x.attempts<3).slice(0,50)){
+  let valid;try{valid=await this.currentNotification(row)}catch{deferred++;continue;}
+  if(!valid){this.vault.transaction(()=>{const fresh=this.vault.get('outbox',row.id);if(fresh?.state==='pending'){this.vault.put('outbox',row.id,{...fresh,state:'obsolete',checkedAt:new Date(this.clock()).toISOString()});this.vault.audit(system,'mail.obsolete',row.id);obsolete++;}});continue;}
+  const claimed=this.vault.transaction(()=>{const fresh=this.vault.get('outbox',row.id);if(fresh?.state!=='pending')return false;this.vault.put('outbox',row.id,{...fresh,state:'sending',attempts:fresh.attempts+1,attemptedAt:new Date(this.clock()).toISOString()});this.vault.audit(system,'mail.send_requested',row.id);return true});if(!claimed)continue;
   try{const response=await this.sendMail(row);this.vault.transaction(()=>{const current=this.vault.get('outbox',row.id);this.vault.put('outbox',row.id,{...current,state:'sent',providerId:response.id,sentAt:new Date(this.clock()).toISOString()});this.vault.audit(system,'mail.sent',row.id)});sent++;}
   catch(error){this.vault.transaction(()=>{const current=this.vault.get('outbox',row.id);this.vault.put('outbox',row.id,{...current,state:error.definitive&&(current.attempts<3)?'pending':(error.definitive?'failed':'uncertain')});this.vault.audit(system,'mail.delivery_failed',row.id)})}
- }return {sent};}
+ }return {sent,deferred,obsolete};}
  async news(){const statuses=[];for(const source of SOURCES){try{
   const r=await this.fetcher(source.url,{signal:AbortSignal.timeout(15000),headers:{'User-Agent':'CAF-Punto-Cittadino-Monitor/3.0'}});if(!r.ok)throw Error('Source unavailable');if(r.url){const host=new URL(r.url).hostname,expected=new URL(source.url).hostname;if(host!==expected)throw Error('Unexpected source redirect')}
   let text;if(r.body?.getReader){const reader=r.body.getReader();let size=0,chunks=[];for(;;){const part=await reader.read();if(part.done)break;size+=part.value.length;if(size>512*1024){await reader.cancel();throw Error('Source too large')}chunks.push(Buffer.from(part.value))}text=Buffer.concat(chunks).toString('utf8')}else{text=await r.text();if(Buffer.byteLength(text)>512*1024)throw Error('Source too large')}
