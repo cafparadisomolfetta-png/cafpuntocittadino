@@ -1,0 +1,67 @@
+/* Approved blue/turquoise identity. No hidden auth/data controls are overridden. */
+:root{--cafpc-navy:#073873;--cafpc-blue:#075bc7;--cafpc-turquoise:#009cbf;--cafpc-paper:#fff;--cafpc-soft:#e8f7ff;--cafpc-line:#dceaf5;--cafpc-muted:#4b6380;--font-display:Arial,system-ui,sans-serif;--font-body:Arial,system-ui,sans-serif;--ink:#073873;--ink-soft:#4b6380;--paper:#f5fbff;--gold:#075bc7}
+body[data-cafpc-design]{font-family:Arial,system-ui,sans-serif;color:var(--cafpc-navy);background:#f5fbff;line-height:1.6}
+body[data-cafpc-design] [hidden]{display:none!important}
+body[data-cafpc-design] a:focus-visible,body[data-cafpc-design] button:focus-visible{outline:3px solid #009cbf;outline-offset:4px}
+.cafpc-brand{display:inline-flex;align-items:center;flex:0 0 auto;max-width:100%;color:var(--cafpc-navy);text-decoration:none}
+.cafpc-brand img{display:block;width:250px;max-width:100%;height:auto}
+body[data-cafpc-design=public] .pro-home{min-height:0;background:#fff!important}
+body[data-cafpc-design=public] .pro-home>.container{max-width:1180px!important;padding:0 20px!important}
+body[data-cafpc-design=public] .pro-top{display:flex;justify-content:space-between;background:white;padding:20px 0;gap:20px;align-items:center;flex-wrap:wrap}
+body[data-cafpc-design=public] .pro-info{color:var(--cafpc-muted);font-size:12px}
+body[data-cafpc-design=public] .pro-book{background:var(--cafpc-blue);border-radius:12px;padding:13px 18px;font-size:13px;box-shadow:none}
+body[data-cafpc-design=public] .cafpc-page-nav{background:white;box-shadow:none;gap:5px;justify-content:flex-start;flex-wrap:wrap!important;overflow:visible!important;padding:8px 0 14px;border-bottom:1px solid var(--cafpc-line)}
+body[data-cafpc-design=public] .cafpc-page-nav a{padding:9px 10px;font-size:12px;border-radius:8px;color:var(--cafpc-navy);white-space:normal}
+body[data-cafpc-design=public] .cafpc-page-nav a[aria-current=page]{background:var(--cafpc-soft);color:var(--cafpc-blue);box-shadow:none}
+body[data-cafpc-design=public] .pro-hero,body[data-cafpc-design=public] .thematic-page-head{display:none!important}
+body[data-cafpc-page=home] .photo-services,body[data-cafpc-page=home] .home-sections-note{display:none!important}
+body[data-cafpc-design=public] .cafpc-design-hero{max-width:1180px;margin:0 auto 22px;padding:0;border-radius:18px;background:var(--cafpc-soft);box-shadow:none;overflow:hidden;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;align-items:stretch}
+.cafpc-hero-copy{padding:clamp(24px,4vw,45px);align-self:center}
+body[data-cafpc-design=public] .cafpc-design-hero h1{font-size:clamp(30px,4.3vw,49px);line-height:1.08;letter-spacing:-.035em;font-family:Arial,system-ui,sans-serif;font-weight:800}
+body[data-cafpc-design=public] .cafpc-design-hero h1 em{color:var(--cafpc-turquoise)}
+body[data-cafpc-design=public] .cafpc-design-hero p{font-size:16px;line-height:1.6}
+body[data-cafpc-design=public] .cafpc-design-eyebrow{font-size:11px!important;letter-spacing:.12em;color:#087da2!important}
+.cafpc-hero-photo{width:100%;height:100%;min-height:280px;object-fit:cover;object-position:center}
+body[data-cafpc-design=public] .cafpc-hero-actions a{border-radius:11px;box-shadow:0 4px 12px #17447715;font-size:13px;padding:12px 16px;background:var(--cafpc-blue)}
+body[data-cafpc-design=public] .cafpc-hero-actions a:last-child{background:#fff;color:var(--cafpc-blue)!important}
+.cafpc-home-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.cafpc-home-card{border-radius:16px;background:#e6f5ff;padding:20px;text-decoration:none;display:flex;flex-direction:column;gap:9px;color:var(--cafpc-navy);border:1px solid #dceaf5}
+.cafpc-home-card:nth-child(2){background:#e5faf3}.cafpc-home-card:nth-child(3){background:#fff3e2}.cafpc-home-card:nth-child(4){background:#f1ebff}
+.cafpc-home-card strong{font-size:16px}.cafpc-home-card>span:not(.cafpc-service-icon){font-size:13px;color:var(--cafpc-muted)}
+.cafpc-home-card .cafpc-service-icon{background:white}
+.cafpc-home-panels{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:22px}
+.cafpc-home-panels article{background:white;border:1px solid var(--cafpc-line);border-radius:16px;padding:23px}
+.cafpc-home-panels h2{font-size:22px;margin:0 0 13px}.cafpc-home-panels p{margin:14px 0}
+body[data-cafpc-design=public] .cafpc-service-card,body[data-cafpc-design=public] .cafpc-feature-card{box-shadow:0 5px 15px #17447709;border-color:var(--cafpc-line);border-radius:16px}
+body[data-cafpc-design=public] .dossier__frame,body[data-cafpc-design=public] .contatti__card,body[data-cafpc-design=public] .prenota-card{border-radius:18px}
+body[data-cafpc-design=public] .btn{border-radius:11px;font-family:Arial,system-ui,sans-serif;font-size:14px}
+body[data-cafpc-design=public] .btn--primary{background:var(--cafpc-blue);color:#fff}
+body[data-cafpc-design=public] .site-footer,body[data-cafpc-design=public] #cafpc-legal-links{background:#073873;color:white;border-radius:0}
+body[data-cafpc-design=public] #cafpc-consent section{border-radius:18px;border-top-color:var(--cafpc-turquoise)}
+body[data-cafpc-design=public] #cafpc-consent button{border-radius:10px}
+/* Reserved applications retain their real Google sign-in and existing forms. */
+body[data-cafpc-design=private] header{background:white;color:var(--cafpc-navy);padding:18px max(20px,calc((100vw - 1180px)/2));box-shadow:none;border-bottom:1px solid var(--cafpc-line)}
+body[data-cafpc-design=private] header a,body[data-cafpc-design=private] header span{color:var(--cafpc-navy)}
+.cafpc-app-layout{display:grid;grid-template-columns:195px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.cafpc-app-nav{background:#073873;color:white;padding:23px 12px;align-self:start;border-radius:0 0 16px 16px;position:sticky;top:12px}
+.cafpc-app-nav strong{display:block;padding:0 10px 15px}.cafpc-app-nav a{display:block;color:#e4f3ff!important;text-decoration:none;border-radius:10px;padding:11px 13px;margin:3px 0;font-size:14px}.cafpc-app-nav a[aria-current=page]{background:#22659d;color:white!important}.cafpc-app-nav a:hover{background:#22659d}
+body[data-cafpc-design=private] .cafpc-app-layout>main{width:100%;padding:25px 24px;margin:0;min-width:0}
+body[data-cafpc-design=private] .intro,body[data-cafpc-design=private] .welcome{background:#e8f7ff;border:1px solid #d6ebf6;border-radius:18px;padding:27px;color:var(--cafpc-navy);max-width:none;box-shadow:none}
+body[data-cafpc-design=private] .welcome::after{display:none}
+body[data-cafpc-design=private] .eyebrow{color:#087da2;font-size:11px;letter-spacing:.12em}
+body[data-cafpc-design=private] .intro p,body[data-cafpc-design=private] .welcome p{color:var(--cafpc-muted)}
+body[data-cafpc-design=private] h1{font-size:clamp(27px,3vw,38px);letter-spacing:-.025em;line-height:1.15}
+body[data-cafpc-design=private] .card,body[data-cafpc-design=private] .lock,body[data-cafpc-design=private] .tiles article{background:white;border:1px solid var(--cafpc-line);border-radius:16px;box-shadow:0 5px 18px #17447709;padding:24px}
+body[data-cafpc-design=private] button,body[data-cafpc-design=private] .actions a{background:var(--cafpc-blue);color:white;border-color:var(--cafpc-blue);border-radius:10px;min-height:44px}
+body[data-cafpc-design=private] button.danger{background:#fff;color:#a52e2e;border-color:#a52e2e}
+body[data-cafpc-design=private] .case-link{background:#e8f7ff;color:var(--cafpc-navy);border-color:var(--cafpc-line)}
+body[data-cafpc-design=private] input,body[data-cafpc-design=private] select,body[data-cafpc-design=private] textarea{border-radius:10px;border-color:#b7ccdf;color:var(--cafpc-navy);background:white}
+body[data-cafpc-design=private] .notice,body[data-cafpc-design=private] #message{background:#e5faf3;color:#1b564d;border-radius:12px}
+body[data-cafpc-design=private] .muted{color:var(--cafpc-muted)}
+body[data-cafpc-design=private] #agenda-panel{background:#f5fbff;border-color:var(--cafpc-line)}
+body[data-cafpc-design=private] .install-guide,body[data-cafpc-design=private] .install{background:#e8f7ff;border-color:var(--cafpc-line);border-radius:16px}
+body[data-cafpc-design=private] .tiles article:nth-child(2){background:#e5faf3}body[data-cafpc-design=private] .tiles article:nth-child(3){background:#fff3e2}body[data-cafpc-design=private] .tiles article:nth-child(4){background:#f1ebff}
+@media(max-width:850px){.cafpc-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cafpc-app-layout{grid-template-columns:165px minmax(0,1fr)}body[data-cafpc-design=public] .pro-info{display:none}}
+@media(max-width:700px){body[data-cafpc-design=public] .cafpc-design-hero{grid-template-columns:1fr;margin:12px 0 20px;padding:0}.cafpc-hero-photo{height:230px;min-height:0;object-fit:cover}.cafpc-app-layout{display:block}.cafpc-app-nav{position:static;border-radius:0;padding:14px;display:flex;gap:5px;flex-wrap:wrap}.cafpc-app-nav strong{width:100%;padding:0 7px 5px}.cafpc-app-nav a{display:inline-block;padding:9px 11px;min-height:44px;font-size:13px;margin:0}body[data-cafpc-design=private] .cafpc-app-layout>main{padding:20px 15px}body[data-cafpc-design=private] .card{padding:20px}body[data-cafpc-design=private] .intro{padding:22px}.cafpc-brand img{width:225px}body[data-cafpc-design] input,body[data-cafpc-design] select,body[data-cafpc-design] textarea{font-size:16px}body[data-cafpc-design=public] .pro-home>.container{padding:0 14px!important}.cafpc-home-panels{grid-template-columns:1fr}body[data-cafpc-design=public] .cafpc-page-nav a{min-height:44px;display:flex;align-items:center}}
+@media(max-width:440px){.cafpc-home-grid{grid-template-columns:1fr}.cafpc-hero-copy{padding:24px 20px}.cafpc-home-card{padding:18px}body[data-cafpc-design=public] .pro-top{justify-content:flex-start}body[data-cafpc-design=public] .pro-book{width:100%;text-align:center}body[data-cafpc-design=private] header{align-items:flex-start;gap:10px;padding:18px}body[data-cafpc-design=private] .grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){body[data-cafpc-design] *,body[data-cafpc-design] *::before,body[data-cafpc-design] *::after{scroll-behavior:auto!important;transition:none!important}}

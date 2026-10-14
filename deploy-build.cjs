@@ -2,6 +2,7 @@
 require('./preflight.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
+const {approvedPublic}=require('./approved-design.cjs');
 const out = path.join(process.cwd(), 'dist');
 // A previous build must not leave obsolete public files or private data behind.
 fs.rmSync(out, {recursive:true, force:true});
@@ -28,11 +29,14 @@ for (const page of pages) {
   if(!html.includes('src="/cookie-consent.js"')) html=html.replace('</body>','<script src="/cookie-consent.js" defer></script>\n</body>');
   if(!html.includes('src="/site-enhancements.js"'))
     html=html.replace(/<\/body>/i,'<script src="/site-enhancements.js" defer></script>\n</body>');
+  html=approvedPublic(html,page);
   fs.writeFileSync(path.join(out,page),html);
 }
-for (const asset of ['site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js','icon-192.png','icon-512.png']) {
+for (const asset of ['approved-design.css','app-navigation.js','site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js','icon-192.png','icon-512.png']) {
   fs.copyFileSync(asset,path.join(out,asset));
 }
+fs.mkdirSync(path.join(out,'assets'),{recursive:true});
+for(const asset of ['caf-brand.svg','caf-consulenza.svg','caf-previdenza.svg'])fs.copyFileSync(path.join('assets',asset),path.join(out,'assets',asset));
 // Publish only the frontend of the management app, never its internal documentation.
 const privateFrontend=path.join(out,'gestionale');
 fs.mkdirSync(privateFrontend,{recursive:true});

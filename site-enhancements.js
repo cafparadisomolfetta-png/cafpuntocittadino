@@ -95,8 +95,8 @@ function serviceCards(){
  '/area-aziende.html':[['Consulenza aziende','Supporto organizzativo'],['Paghe e contributi','Elaborazioni e adempimenti'],['Assunzioni','Contratti e procedure'],['Pratiche INPS','Gestione previdenziale'],['Supporto HR','Gestione personale'],['Sportello imprese','Assistenza dedicata']]
  };
  const services=catalog[path];if(!services)return;
- const main=document.querySelector('main'),hero=main?.querySelector('.cafpc-design-hero');if(!hero||main.querySelector('.cafpc-services-showcase'))return;
- const section=document.createElement('section');section.className='cafpc-services-showcase';
+ const main=document.querySelector('main')||document.body,hero=main.querySelector('.cafpc-design-hero');if(!hero||main.querySelector('.cafpc-services-showcase'))return;
+ const section=document.createElement('section');section.className='cafpc-services-showcase';section.id='cafpc-servizi';
  const h=document.createElement('h2');h.textContent='I nostri servizi';section.append(h);
  const grid=document.createElement('div');grid.className='cafpc-services-grid';
  services.forEach(([name,desc],i)=>{
@@ -127,9 +127,9 @@ function featureNavigation(){
   ['Vuoi iniziare con noi?','Presenta la tua candidatura','#form-candidatura']]
  };
  const items=catalog[path];if(!items)return;
- const hero=document.querySelector('.cafpc-design-hero'),main=document.querySelector('main');
+ const hero=document.querySelector('.cafpc-design-hero'),main=document.querySelector('main')||document.body;
  if(!hero||!main||main.querySelector('.cafpc-feature-nav'))return;
- const section=document.createElement('section');section.className='cafpc-feature-nav';
+ const section=document.createElement('section');section.className='cafpc-feature-nav';section.id='cafpc-servizi';
  const title=document.createElement('h2');title.textContent=path.includes('news-')?'Esplora gli argomenti':path.includes('lavora')?'Scegli il tuo percorso':'Come possiamo aiutarti?';
  const grid=document.createElement('div');grid.className='cafpc-feature-grid';
  items.forEach(([label,desc,href],i)=>{
