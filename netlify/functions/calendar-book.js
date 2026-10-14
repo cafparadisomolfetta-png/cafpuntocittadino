@@ -45,6 +45,8 @@ async function getAccessToken() {
 }
 
 function serviceCategory(servizio) {
+  const category=require('./booking-services').categoryFor(String(servizio||'').trim());
+  if(category)return category;
   const s = String(servizio || "")
     .toLowerCase()
     .normalize("NFD")
