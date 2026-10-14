@@ -1,30 +1,31 @@
-> Aggiornamento sviluppo Work: esiste ora un runtime privato separato da Netlify, con area assistiti e gestione pratiche collaudate localmente. Nessun servizio è stato pubblicato. Stato corrente e limitazioni: [VERIFICA-WORK-2026-10-13.md](VERIFICA-WORK-2026-10-13.md). La checklist storica sottostante non equivale a collaudo reale.
+# CAF Punto Cittadino — preparazione al collaudo
 
-# CAF Punto Cittadino — consegna per collaudo, NON per la messa live
-Data preparazione: 12 ottobre 2026
+Aggiornamento: 14 ottobre 2026. Il progetto non è pronto per l'uso reale finché non sono completate le prove sull'ambiente finale.
 
-## Stato
-Il sito e la PWA gestionale sono salvati in GitHub, branch main. La grafica di riferimento è approvata, ma la realizzazione non è ancora perfettamente identica ai mockup. Il deploy automatico è bloccato in netlify.toml con `ignore = "exit 0"`. Non rimuoverlo prima del via libera al rilascio.
+## Versione da verificare
 
-## Controllo tecnico senza pubblicazione
-Il workflow GitHub Actions `.github/workflows/preflight.yml` è configurato per eseguire `npm install` e `node deploy-build.cjs` a ogni push e su avvio manuale. Controllare che il workflow termini in verde. Il workflow non distribuisce né pubblica il sito.
+Il codice corrente è nel branch `codex/verifica-sicurezza-2026-10-12`, con grafica approvata, sito pubblico, area assistiti, PDF riservati, gestione pratiche, agenda e PWA. L'avvio è configurato con sola Molfetta; ulteriori sedi sono descritte in [SEDI-ATTIVE.md](SEDI-ATTIVE.md).
 
-## Configurazione privata da eseguire su Netlify (mai inserire password o segreti in GitHub)
-- OAuth Google: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, verificando i permessi Calendar e Gmail.
-- Calendari: `GOOGLE_CALENDAR_ID` per la compatibilità Molfetta e `GESTIONALE_SITE_CALENDARS_JSON` con due calendari distinti `molfetta` e `bari`; assicurarsi che quello di Molfetta sia coerente col calendario della prenotazione pubblica.
-- Login gestionale: `GESTIONALE_GOOGLE_CLIENT_ID`, `GESTIONALE_ADMIN_EMAIL`, `GESTIONALE_OPERATORS_JSON`. L'amministratrice deve avere accesso a entrambe le sedi, ciascun operatore solo alle sedi autorizzate.
-- Non impostare nella documentazione email personali, password, token, refresh token o dati di appuntamenti reali.
+Il server Linux finale ospiterà sito e gestionale. Netlify rimane disattivato: non occorrono crediti Netlify per questa architettura e non va rimosso il blocco di deploy. Il trasferimento del dominio non è stato eseguito.
 
-## Bloccanti che richiedono collaudo
-1. Verificare build completa e integrità di tutte le pagine sul sito di test, compresa l'esatta resa della grafica.
-2. Provare il login con admin e operatore; confermare divieto di lettura di Bari per operatore assegnato solo a Molfetta.
-3. Provare orari, date, sovrapposizioni, prenotazioni contemporanee e disdette almeno 48 ore prima.
-4. Provare consegna email di conferma e cancellazione, funzionamento Google Calendar, Gmail e aggiornamento dell'agenda.
-5. Provare storico disdette e politiche di conservazione/cancellazione Netlify Blobs.
-6. Verificare modulo CV, gestione dei consensi cookie, privacy GDPR e responsabili del trattamento.
-7. Verificare accesso e installazione delle PWA su smartphone e computer con HTTPS.
-8. Le prenotazioni online per Bari rimangono intenzionalmente disabilitate fino alla definizione di orari, indirizzo e contenuti di conferma distinti.
-9. La gestione modifiche degli appuntamenti e degli operatori in interfaccia non è ancora implementata; l'agenda resta prevalentemente in lettura.
+## Controlli ripetibili senza pubblicazione
+
+Eseguire `node tools/collaudo-locale.cjs` dalla radice del repository con Node >=22.13. Il comando compila il sito ed esegue i test con dati sintetici, credenziali rimosse e traffico ai provider bloccato. Non avvia il servizio operativo né pubblica la build.
+
+Il controllo comprende collegamenti HTML locali, frammenti interni statici, risorse e destinazioni dei manifest PWA. Non sostituisce una prova delle interazioni JavaScript in browser o l'installazione su smartphone. Il workflow GitHub storico si attiva su main o manualmente: non presumere che ogni commit del branch di sviluppo abbia un esito CI.
+
+## Preparazione dell'ambiente finale
+
+Seguire [deployment/README.md](deployment/README.md) per server, HTTPS, archivio privato cifrato, ClamAV, credenziali Google, ruoli, backup separato e ripristino. I modelli non sono ancora installati sul server finale. Segreti e chiavi vanno esclusivamente nella configurazione privata, mai in chat o GitHub.
+
+L'organizzazione OpenAI “CAF Punto Cittadino” e il progetto “Segretaria AI” sono visibili nella schermata fornita dall'amministratrice. Il connettore continua a rifiutare l'accesso ai progetti: nessuna chiave è stata acquisita o salvata. AI, telefono e WhatsApp non sono operativi; non acquistare crediti o abilitare spese per superare questa condizione.
+
+## Prove necessarie prima del rilascio
+
+La checklist corrente è [COLLAUDO-OPERATIVO.md](COLLAUDO-OPERATIVO.md). Richiede login reale, isolamento degli assistiti e ruoli, antivirus reale, calendario e consegna email, PDF, workflow, backup/ripristino, carico, browser mobile/desktop, PWA e informative definitive. Gli esiti sintetici sono riportati in [VERIFICA-FUNZIONAMENTO-2026-10-14.md](VERIFICA-FUNZIONAMENTO-2026-10-14.md).
+
+I promemoria email hanno un modulo server collaudato con provider simulato. I promemoria WhatsApp e la segretaria telefonica hanno soltanto simulazioni grafiche: trasporto, consenso effettivo, template, integrazione telefonica e prove reali restano da implementare/configurare. Gli SMS sono esclusi dal progetto.
 
 ## Rilascio
-Solo dopo esito positivo dei controlli, autorizzazione dell'amministratrice e disponibilità dei crediti Netlify: riattivare il deploy togliendo l'ignore, pubblicare e ripetere i test di fumo in produzione. Se un punto fallisce, mantenere il sito sospeso.
+
+Solo dopo esiti positivi sull'ambiente finale: configurare DNS e HTTPS per il server verificato, conservare i record precedenti e un rollback, poi ripetere i controlli sul dominio. Non pubblicare moduli opzionali non collaudati. Il PC Windows serve per il collaudo locale descritto in [COLLAUDO-WINDOWS.md](COLLAUDO-WINDOWS.md), non come server operativo.

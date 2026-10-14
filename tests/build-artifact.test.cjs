@@ -3,6 +3,39 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+test('Built navigation, local assets and PWA destinations resolve inside the artifact',()=>{
+ const root=path.resolve('dist');
+ const anchors=new Map();
+ const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)]);
+ const resolve=(value,file)=>{
+  const url=new URL(value,'https://artifact.test/'+path.relative(root,file).split(path.sep).join('/'));
+  if(url.origin!=='https://artifact.test')return null;
+  let target=path.resolve(root,'.'+decodeURIComponent(url.pathname));
+  assert.ok(target===root||target.startsWith(root+path.sep),value);
+  if(fs.existsSync(target)&&fs.statSync(target).isDirectory())target=path.join(target,'index.html');
+  assert.ok(fs.existsSync(target),path.relative(root,file)+' -> '+value);
+  return {target,hash:decodeURIComponent(url.hash.slice(1))};
+ };
+ for(const file of walk(root)){
+  if(file.endsWith('.html')){
+   const html=fs.readFileSync(file,'utf8').replace(/<!--[\s\S]*?-->/g,'');
+   const markup=html.replace(/(<script\b[^>]*>)[\s\S]*?<\/script>/gi,'$1</script>');
+   for(const tag of markup.matchAll(/<(?:a|link|script|img|iframe|source)\b[^>]*>/gi)){
+    for(const attr of tag[0].matchAll(/\b(?:href|src)\s*=\s*(["'])(.*?)\1/gi)){
+     const result=resolve(attr[2].replace(/&amp;/g,'&'),file);
+     if(!result||!result.hash||!result.target.endsWith('.html'))continue;
+     // This shared section is created after load by site-enhancements.js.
+     if(result.hash==='cafpc-servizi'&&html.includes('/site-enhancements.js'))continue;
+     if(!anchors.has(result.target))anchors.set(result.target,new Set([...fs.readFileSync(result.target,'utf8').matchAll(/\bid\s*=\s*(["'])(.*?)\1/gi)].map(x=>x[2])));
+     assert.ok(anchors.get(result.target).has(result.hash),path.relative(root,file)+' -> '+attr[2]);
+    }
+   }
+  }else if(file.endsWith('.webmanifest')){
+   const manifest=JSON.parse(fs.readFileSync(file,'utf8'));
+   for(const value of [manifest.start_url,...(manifest.icons||[]).map(icon=>icon.src)])if(value)resolve(value,file);
+  }
+ }
+});
 test('Generated pages have one consent controller and PDF-only CV selection',()=>{
  for(const file of fs.readdirSync('dist').filter(x=>x.endsWith('.html'))){
  const text=fs.readFileSync(path.join('dist',file),'utf8');
