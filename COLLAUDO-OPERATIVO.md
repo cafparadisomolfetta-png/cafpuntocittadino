@@ -25,7 +25,7 @@ Per la decisione economica è disponibile [COSTI-PROGETTO-2026-10-13.md](COSTI-P
 | Sedi | Avvio con sola Molfetta; ulteriori sedi dopo configurazione e collaudo | Bari esclusa dall’avvio, vedi SEDI-ATTIVE.md |
 | Privacy e conservazione | Conferme del titolare per informative, fornitori e durate effettive di pratiche/CV/notifiche/audit/backup | Da confermare sull'ambiente scelto |
 | AI | Decisione su provider/modello/budget e condizioni effettive, poi qualità e costi verificati | Disattivata per il divieto di spesa |
-| Telefono e WhatsApp | Provider, numero, consenso, template, errori e costi; prove senza duplicare prenotazioni o messaggi | Solo simulazione grafica; trasporti non implementati. SMS esclusi |
+| Telefono e WhatsApp | Provider, numero, consenso, template, errori e costi; prove senza duplicare prenotazioni o messaggi | Adattatore promemoria WhatsApp con provider simulato, non collegato alle prenotazioni; segretarie voce/chat solo simulate. Vedi WHATSAPP-PROMEMORIA.md. SMS esclusi |
 
 Non attivare le flag di revisione/abilitazione per far superare un controllo: devono descrivere una condizione realmente soddisfatta. Non incollare chiavi, password, token, codici trasferimento dominio o documenti personali in chat/GitHub.
 

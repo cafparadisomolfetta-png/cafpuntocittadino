@@ -4,7 +4,7 @@ Verifica eseguita sul ramo corrente con grafica approvata e avvio con sola Molfe
 
 ## Esiti verificati
 
-- `node tools/collaudo-locale.cjs`: 119 test di comportamento e 4 test della build, tutti superati. Il nuovo controllo verifica collegamenti HTML statici, risorse locali e destinazioni PWA; esclude il contenuto degli script inline, che richiede prove JavaScript/browser distinte.
+- `node tools/collaudo-locale.cjs`: 125 test di comportamento e 4 test della build, tutti superati. Il controllo della build verifica collegamenti HTML statici, risorse locali e destinazioni PWA; esclude il contenuto degli script inline, che richiede prove JavaScript/browser distinte. I sei test WhatsApp verificano un adattatore opzionale con provider simulato, non la consegna reale o il collegamento alle prenotazioni.
 - Analisi dei collegamenti locali della build: 14 pagine HTML, nessun file locale mancante e nessun frammento interno non risolto; il riferimento `cafpc-servizi` è riconosciuto come sezione generata dalla navigazione condivisa.
 - Prova HTTP sul server locale reale `createApp`, con identità e configurazione sintetiche: 22 pagine/risorse servite con risposta 200, contenuto presente, `nosniff` e `Cache-Control: no-store`.
 - Configurazione HTTP: sola Molfetta esposta alle applicazioni.
@@ -29,6 +29,6 @@ Il controllo offline `node server/environment.cjs` restituisce configurazione in
 - Installazione e aggiornamento PWA su iPhone/Android/Windows.
 - Conferme legali e informative definitive sull'ambiente scelto.
 - Qualità e costi della segretaria AI: rimane disattivata.
-- Integrazione telefonica e trasporto dei promemoria WhatsApp: non implementati; le schermate disponibili sono simulazioni. SMS esclusi.
+- Integrazione telefonica e risposte AI WhatsApp: non implementate. Adattatore promemoria WhatsApp testato solo con provider simulato; coda, consenso nel portale, verifica del numero, callback e collegamento prenotazioni non implementati. SMS esclusi.
 
 Conclusione: verifiche automatiche e prova HTTP locale superate. Il progetto resta non pubblicato e richiede i collaudi operativi prima di essere usato dagli assistiti. Netlify rimane disattivato.

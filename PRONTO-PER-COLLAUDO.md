@@ -24,7 +24,7 @@ L'organizzazione OpenAI “CAF Punto Cittadino” e il progetto “Segretaria AI
 
 La checklist corrente è [COLLAUDO-OPERATIVO.md](COLLAUDO-OPERATIVO.md). Richiede login reale, isolamento degli assistiti e ruoli, antivirus reale, calendario e consegna email, PDF, workflow, backup/ripristino, carico, browser mobile/desktop, PWA e informative definitive. Gli esiti sintetici sono riportati in [VERIFICA-FUNZIONAMENTO-2026-10-14.md](VERIFICA-FUNZIONAMENTO-2026-10-14.md).
 
-I promemoria email hanno un modulo server collaudato con provider simulato. I promemoria WhatsApp e la segretaria telefonica hanno soltanto simulazioni grafiche: trasporto, consenso effettivo, template, integrazione telefonica e prove reali restano da implementare/configurare. Gli SMS sono esclusi dal progetto.
+I promemoria email hanno un modulo server collaudato con provider simulato. Per WhatsApp esiste ora un adattatore di invio testato con provider simulato, descritto in [WHATSAPP-PROMEMORIA.md](WHATSAPP-PROMEMORIA.md): non è ancora collegato alle prenotazioni. Consenso effettivo, verifica del numero, coda, callback, template e prove reali restano da completare/configurare. La segretaria telefonica e le risposte AI WhatsApp hanno soltanto simulazioni grafiche. Gli SMS sono esclusi dal progetto.
 
 ## Rilascio
 
