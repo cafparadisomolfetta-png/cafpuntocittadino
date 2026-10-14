@@ -12,6 +12,9 @@ const pages={
 };
 function themeLink(html){return html.replace(/<\/head>/i,'<link rel="stylesheet" href="/approved-design.css">\n</head>');}
 function approvedPublic(html,file){
+ html=html.replace(/(<select\b[^>]*\bid="bkServizio"[^>]*>)([\s\S]*?)(<\/select>)/g,(_match,start,options,end)=>start+options
+  .replace('<option>Modello 730</option>','<option>Dichiarazione dei redditi (730 o Unico PF)</option>')
+  .replace('<option>Altro</option>','<option>Altro (bonus sociali, libri di testo, ecc.)</option>')+end);
  html=themeLink(html).replace(/<body\b([^>]*)>/i,'<body$1 data-cafpc-design="public">');
  const cfg=pages[file];if(!cfg)return html;
  const [style,label,heading,description]=cfg;
