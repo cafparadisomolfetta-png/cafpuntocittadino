@@ -4,18 +4,18 @@ const {failure}=require('./practices.cjs'),{scanPdf}=require('./pdf.cjs');
 const TYPES=['Tirocinio curriculare','Tirocinio extracurriculare','Collaborazione','Ho già una struttura e voglio collaborare','Voglio iniziare un percorso con voi'];
 const TRANSITIONS={received:['in_review','archived'],in_review:['contacted','archived'],contacted:['archived'],archived:[]};
 class Candidatures{
- constructor({vault,scan,retentionDays,clock=()=>new Date().toISOString()}){
+ constructor({vault,scan,retentionDays,activeSites=['molfetta','bari'],clock=()=>new Date().toISOString()}){
   if(typeof scan!=='function'||!Number.isInteger(retentionDays)||retentionDays<1||retentionDays>36500)throw Error('Scanner and approved CV retention duration required');
-  this.vault=vault;this.scan=scan;this.retentionDays=retentionDays;this.clock=clock;
+  this.activeSites=[...activeSites];this.vault=vault;this.scan=scan;this.retentionDays=retentionDays;this.clock=clock;
  }
  actor(actor){if(!actor?.authenticated||!actor.subject)failure(401,'UNAUTHORIZED');}
- allowed(actor,row){return actor?.authenticated&&(actor.role==='admin'||(actor.role==='citizen'&&actor.subject===row.ownerSubject));}
+ allowed(actor,row){return this.activeSites.includes(row.site)&&actor?.authenticated&&(actor.role==='admin'||(actor.role==='citizen'&&actor.subject===row.ownerSubject));}
  projection(actor,row){const result={id:row.id,site:row.site,type:row.type,status:row.status,createdAt:row.createdAt,updatedAt:row.updatedAt,version:row.version,fileName:row.fileName};if(actor.role==='admin')Object.assign(result,{name:row.name,surname:row.surname,email:row.email,phone:row.phone,presentation:row.presentation});return result;}
  get(actor,id){this.actor(actor);const row=this.vault.get('candidature',id);if(!row||!this.allowed(actor,row))failure(404,'CANDIDATURE_NOT_FOUND');return row;}
  list(actor){this.actor(actor);if(!['admin','citizen'].includes(actor.role))failure(403,'ADMIN_REQUIRED');this.vault.transaction(()=>this.vault.audit(actor,'candidature.list','list'));return this.vault.list('candidature').filter(row=>this.allowed(actor,row)).map(row=>this.projection(actor,row));}
  async submit(actor,input,bytes){
   this.actor(actor);if(actor.role!=='citizen')failure(403,'CITIZEN_REQUIRED');
-  if(!input||!['molfetta','bari'].includes(input.site)||!TYPES.includes(input.type))failure(400,'INVALID_CANDIDATURE');
+  if(!input||!this.activeSites.includes(input.site)||!TYPES.includes(input.type))failure(400,'INVALID_CANDIDATURE');
   for(const [field,max] of [['name',100],['surname',100],['phone',30],['presentation',2000]])if(typeof input[field]!=='string'||input[field].length>max||/[\x00-\x08\x0b-\x1f\x7f]/.test(input[field]))failure(400,'INVALID_CANDIDATURE');
   if(!input.name.trim()||!input.surname.trim()||(!/^[+0-9 ().-]{5,30}$/.test(input.phone)||input.phone.replace(/\D/g,'').length<5)||typeof actor.email!=='string')failure(400,'INVALID_CANDIDATURE');
   if(input.privacyVersion!=='2026-10-12'||input.privacyAcknowledged!==true)failure(400,'PRIVACY_ACKNOWLEDGEMENT_REQUIRED');

@@ -43,8 +43,9 @@ function inspectEnvironment(env=process.env,{publicDirectory=path.join(root,'dis
   return rows.every(row=>{if(!row||!email(row.email)||!['manager','operator','viewer'].includes(row.role)||typeof row.enabled!=='boolean'||!Array.isArray(row.sites)||!row.sites.length||row.sites.some(site=>!['molfetta','bari'].includes(site))||new Set(row.sites).size!==row.sites.length)return false;
    const normalized=row.email.toLowerCase();if(normalized!==row.email.trim().toLowerCase()||seen.has(normalized)||normalized===env.GESTIONALE_ADMIN_EMAIL?.trim().toLowerCase())return false;seen.add(normalized);return true;});
  });
- check('calendars','Configure distinct Molfetta and Bari calendars privately.',()=>{
-  const map=JSON.parse(env.GESTIONALE_SITE_CALENDARS_JSON||'null');return !!map&&!Array.isArray(map)&&typeof map==='object'&&['molfetta','bari'].every(site=>present(map[site])&&map[site]===map[site].trim())&&map.molfetta!==map.bari;
+ check('enabled_sites','Configure valid enabled sites; default is Molfetta only.',()=>{require('./sites.cjs').enabledSites(env);return true;});
+ check('calendars','Configure a calendar for each enabled site; different sites require distinct calendars.',()=>{
+  const map=JSON.parse(env.GESTIONALE_SITE_CALENDARS_JSON||'null');return !!map&&!Array.isArray(map)&&typeof map==='object'&&require('./sites.cjs').enabledSites(env).every(site=>present(map[site])&&map[site]===map[site].trim())&&map.molfetta!==map.bari;
  });
  check('google_credentials','Configure Google OAuth client, secret and refresh token privately; validity and scopes require real testing.',()=>['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN'].every(name=>present(env[name])));
  check('retention','Configure approved retention durations for 730 and ISEE.',()=>{retentionPlan({list:()=>[]},JSON.parse(env.CAF_RETENTION_DAYS_JSON||'null'));return true;});

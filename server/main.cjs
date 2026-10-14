@@ -7,6 +7,7 @@ const {clamScanner}=require('./scanner.cjs');
 const {createApp}=require('./app.cjs');
 function configuredServer(env=process.env){
  require('./environment.cjs').requireEnvironment(env);
+ const activeSites=require('./sites.cjs').enabledSites(env);
  if(env.CAF_PRIVACY_REVIEWED!=='true')throw Error('Private runtime requires reviewed privacy information and retention policy.');
  if(env.CAF_PRIVATE_ENABLED!=='true')throw Error('Private runtime is disabled. Read server/README.md before enabling.');
  const root=path.resolve(__dirname,'..'),publicDirectory=path.join(root,'dist');
@@ -32,15 +33,15 @@ function configuredServer(env=process.env){
  if(env.CAF_CALLBACK_ENABLED==='true'&&!Number.isInteger(retentionPolicy.richiamata))throw Error('Configure approved callback retention duration');
  const vault=new Vault({directory:canonical,key});key.fill(0);
  try{
-  const identity=new Identity({vault,clientId:env.GESTIONALE_GOOGLE_CLIENT_ID,adminEmail:env.GESTIONALE_ADMIN_EMAIL,operators});
+  const identity=new Identity({vault,clientId:env.GESTIONALE_GOOGLE_CLIENT_ID,adminEmail:env.GESTIONALE_ADMIN_EMAIL,operators,activeSites});
   const slotsFor=require('./site-slots.cjs').siteSlots(env);
-  const calendar=require('./calendar.cjs').calendars({identity,vault,env});
+  const calendar=require('./calendar.cjs').calendars({identity,vault,env,activeSites});
   const mailEnabled=env.CAF_MAIL_ENABLED==='true',mailRetentionDays=env.CAF_MAIL_RETENTION_DAYS?Number(env.CAF_MAIL_RETENTION_DAYS):null;
   if(mailEnabled&&(!Number.isInteger(mailRetentionDays)||mailRetentionDays<1||mailRetentionDays>36500))throw Error('Configure approved email/outbox retention duration');
   const jobs=new (require('./jobs.cjs').Jobs)({vault,calendar,enabled:env.CAF_JOBS_ENABLED==='true',mailEnabled,retentionDays:mailRetentionDays,sendMail:require('./google-mail.cjs').googleMail({env})});
   const appointments=new (require('./appointments.cjs').Appointments)({vault,calendar,slotsFor,notify:value=>jobs.enqueue(value)});
-  const candidatures=env.CAF_CV_RETENTION_DAYS?new (require('./candidatures.cjs').Candidatures)({vault,scan:clamScanner(scanner),retentionDays:Number(env.CAF_CV_RETENTION_DAYS)}):undefined;
-  const practices=new Practices({vault,scan:clamScanner(scanner),verifyAppointment:calendar.verifyAppointment,enabledServices:env.CAF_CALLBACK_ENABLED==='true'?['730','isee','richiamata']:['730','isee']});
+  const candidatures=env.CAF_CV_RETENTION_DAYS?new (require('./candidatures.cjs').Candidatures)({vault,scan:clamScanner(scanner),retentionDays:Number(env.CAF_CV_RETENTION_DAYS),activeSites}):undefined;
+  const practices=new Practices({vault,scan:clamScanner(scanner),verifyAppointment:calendar.verifyAppointment,activeSites,enabledServices:env.CAF_CALLBACK_ENABLED==='true'?['730','isee','richiamata']:['730','isee']});
   // Preserve existing public Google functions without enabling Netlify deployments.
   const providerHandlers={};
   for(const name of ['calendar-availability','calendar-book','calendar-cancel'])providerHandlers[name]=require('../netlify/functions/'+name+'.js').handler;

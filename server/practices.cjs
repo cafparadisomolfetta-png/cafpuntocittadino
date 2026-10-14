@@ -6,15 +6,15 @@ const {authorizePracticeQuery}=require('../netlify/functions/pratiche-query');
 const {projectPractice,projectDocument}=require('../netlify/functions/pratiche-projection');
 function failure(status,code){const error=Error(code);error.status=status;error.code=code;throw error;}
 class Practices {
- constructor({vault,scan,verifyAppointment,clock=()=>new Date().toISOString(),enabledServices=SERVICES}){
+ constructor({vault,scan,verifyAppointment,clock=()=>new Date().toISOString(),enabledServices=SERVICES,activeSites=['molfetta','bari']}){
   if(typeof scan!=='function')throw Error('Malware scanner is required');
-  this.vault=vault;this.scan=scan;this.verifyAppointment=verifyAppointment;this.clock=clock;this.enabledServices=[...enabledServices];
+  this.activeSites=[...activeSites];this.vault=vault;this.scan=scan;this.verifyAppointment=verifyAppointment;this.clock=clock;this.enabledServices=[...enabledServices];
  }
  requireActor(actor){if(!actor?.authenticated||!actor.subject)failure(401,'UNAUTHORIZED');}
- record(actor,id,operation='view',options={}){this.requireActor(actor);const record=this.vault.get('practice',id);if(!record||!authorizeOperation(actor,record,operation,options).allowed)failure(404,'PRACTICE_NOT_FOUND');return record;}
+ record(actor,id,operation='view',options={}){this.requireActor(actor);const record=this.vault.get('practice',id);if(!record||!this.activeSites.includes(record.site)||!authorizeOperation(actor,record,operation,options).allowed)failure(404,'PRACTICE_NOT_FOUND');return record;}
  async create(actor,input){
   this.requireActor(actor);if(actor.role!=='citizen')failure(403,'CITIZEN_REQUIRED');
-  const valid=validateRequest(input);if(!valid.ok)failure(400,valid.error);if(!this.enabledServices.includes(valid.service))failure(503,'SERVICE_NOT_ACTIVE');if(valid.service==='richiamata'&&typeof actor.email!=='string')failure(401,'INVALID_IDENTITY');
+  const valid=validateRequest(input);if(!valid.ok)failure(400,valid.error);if(!this.activeSites.includes(valid.site))failure(400,'SITE_NOT_ACTIVE');if(!this.enabledServices.includes(valid.service))failure(503,'SERVICE_NOT_ACTIVE');if(valid.service==='richiamata'&&typeof actor.email!=='string')failure(401,'INVALID_IDENTITY');
   if(input.privacyVersion!=='2026-10-12'||input.privacyAcknowledged!==true)failure(400,'PRIVACY_ACKNOWLEDGEMENT_REQUIRED');
   if(input.mode==='appointment'&&(!this.verifyAppointment||!(await this.verifyAppointment(actor,input))))failure(400,'APPOINTMENT_NOT_VERIFIED');
   const now=this.clock(),id=crypto.randomUUID();
@@ -23,10 +23,10 @@ class Practices {
   return {...projectPractice(actor,record),version:record.version};
  }
  list(actor,site){
-  this.requireActor(actor);const query={...(site?{site}:{}),...(actor.role==='citizen'?{ownerSubject:actor.subject}:{})};
+  this.requireActor(actor);if(site&&!this.activeSites.includes(site))failure(403,'SITE_FORBIDDEN');const query={...(site?{site}:{}),...(actor.role==='citizen'?{ownerSubject:actor.subject}:{})};
   const access=authorizePracticeQuery(actor,query);if(!access.allowed)failure(403,'SITE_FORBIDDEN');
   this.vault.transaction(()=>this.vault.audit(actor,'practice.list',site||'own'));
-  return this.vault.list('practice').filter(record=>Object.entries(access.filter).every(([key,value])=>record[key]===value)).map(record=>({...projectPractice(actor,record),version:record.version}));
+  return this.vault.list('practice').filter(record=>this.activeSites.includes(record.site)&&Object.entries(access.filter).every(([key,value])=>record[key]===value)).map(record=>({...projectPractice(actor,record),version:record.version}));
  }
  detail(actor,id){const record=this.record(actor,id);this.vault.transaction(()=>this.vault.audit(actor,'practice.view',id));return {...projectPractice(actor,record),version:record.version,integrationMessage:record.integrationMessage||'',documents:this.vault.list('document').filter(d=>d.practiceId===id).map(d=>projectDocument(actor,record,d))};}
  async upload(actor,id,metadata,bytes){

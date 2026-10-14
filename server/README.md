@@ -62,7 +62,8 @@ Mai inserire valori segreti o documenti personali in chat, GitHub o bundle.
 | `GESTIONALE_GOOGLE_CLIENT_ID` | Audience Google Identity Services; origine autorizzata in Google Cloud |
 | `GESTIONALE_ADMIN_EMAIL` | Unico account admin, Molfetta/Bari |
 | `GESTIONALE_OPERATORS_JSON` | Provisioning iniziale; default `[]`; revoche del database prevalgono |
-| `GESTIONALE_SITE_CALENDARS_JSON` | Calendari distinti Molfetta/Bari |
+| `CAF_ENABLED_SITES_JSON` | Sedi attive; default `["molfetta"]`; Bari resta disattivata |
+| `GESTIONALE_SITE_CALENDARS_JSON` | Un calendario per ogni sede attiva; distinti se si attivano più sedi |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID` | Integrazione storica Calendar/Gmail |
 | `CAF_RETENTION_DAYS_JSON` | Giorni approvati per `730`, `isee` e, se abilitata, `richiamata` |
 | `CAF_CALLBACK_ENABLED=true` | Richiamate personali; richiede policy `richiamata` |

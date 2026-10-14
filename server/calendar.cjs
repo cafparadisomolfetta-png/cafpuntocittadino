@@ -2,10 +2,10 @@
 const {validDate}=require('../netlify/functions/gestionale-date');
 const {failure}=require('./practices.cjs');
 const json=(statusCode,value)=>({statusCode,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'},body:JSON.stringify(value)});
-function calendars({identity,vault,env,fetcher=fetch}){
+function calendars({identity,vault,env,activeSites=['molfetta','bari'],fetcher=fetch}){
  function mapping(site){let map;try{map=JSON.parse(env.GESTIONALE_SITE_CALENDARS_JSON||'{}')}catch{failure(503,'CALENDAR_CONFIGURATION_INVALID')}
-  if(!map||Array.isArray(map)||typeof map!=='object'||!['molfetta','bari'].every(s=>typeof map[s]==='string'&&map[s].trim())||map.molfetta===map.bari)failure(503,'SITE_CALENDAR_ISOLATION_REQUIRED');
-  if(!['molfetta','bari'].includes(site))failure(400,'INVALID_SITE');return map[site];
+  if(!map||Array.isArray(map)||typeof map!=='object'||!activeSites.every(s=>typeof map[s]==='string'&&map[s].trim())||map.molfetta===map.bari)failure(503,'SITE_CALENDAR_ISOLATION_REQUIRED');
+  if(!activeSites.includes(site))failure(400,'INVALID_SITE');return map[site];
  }
  async function token(){
   if(!env.GOOGLE_CLIENT_ID||!env.GOOGLE_CLIENT_SECRET||!env.GOOGLE_REFRESH_TOKEN)failure(503,'CALENDAR_NOT_CONFIGURED');
@@ -21,7 +21,7 @@ function calendars({identity,vault,env,fetcher=fetch}){
   if(!r.ok){const error=Object.assign(Error('Calendar mutation failed'),{status:r.status===412?409:503,code:r.status===412?'APPOINTMENT_VERSION_CONFLICT':'CALENDAR_UNAVAILABLE',definitive:[400,401,403,404,409,412,429].includes(r.status)});throw error;}return method==='DELETE'?{}:r.json();
  }
  return {
-  upcomingReminders:async now=>{const result=[];const access=await token();for(const site of ['molfetta','bari']){const url=new URL('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(mapping(site))+'/events');url.searchParams.set('timeMin',new Date(now+23*3600000).toISOString());url.searchParams.set('timeMax',new Date(now+25*3600000).toISOString());url.searchParams.set('singleEvents','true');url.searchParams.set('showDeleted','false');url.searchParams.set('maxResults','250');const page=await request(url,access);if(page.nextPageToken)failure(503,'CALENDAR_PAGINATION_LIMIT');for(const event of page.items||[]){const p=event.extendedProperties?.private;if(event.status!=='cancelled'&&p?.cancelCode&&p.reminder24hSent!=='true')result.push({site,event});}}return result;},
+  upcomingReminders:async now=>{const result=[];const access=await token();for(const site of activeSites){const url=new URL('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(mapping(site))+'/events');url.searchParams.set('timeMin',new Date(now+23*3600000).toISOString());url.searchParams.set('timeMax',new Date(now+25*3600000).toISOString());url.searchParams.set('singleEvents','true');url.searchParams.set('showDeleted','false');url.searchParams.set('maxResults','250');const page=await request(url,access);if(page.nextPageToken)failure(503,'CALENDAR_PAGINATION_LIMIT');for(const event of page.items||[]){const p=event.extendedProperties?.private;if(event.status!=='cancelled'&&p?.cancelCode&&p.reminder24hSent!=='true')result.push({site,event});}}return result;},
   getEvent:async(site,id)=>request('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(mapping(site))+'/events/'+encodeURIComponent(id),await token()),
   patchEvent:(site,id,etag,payload)=>mutate(site,id,etag,'PATCH',payload),
   deleteEvent:(site,id,etag)=>mutate(site,id,etag,'DELETE'),

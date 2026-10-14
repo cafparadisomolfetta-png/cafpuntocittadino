@@ -12,7 +12,7 @@ function createApp({practices,identity,publicDirectory,origin,providerHandlers={
   try{
    rate(req);const url=new URL(req.url,allowed);if(url.origin!==allowed.origin)failure(400,'INVALID_URL');
    if(req.headers.origin&&req.headers.origin!==allowed.origin)failure(403,'ORIGIN_FORBIDDEN');
-   if(url.pathname==='/api/config'&&req.method==='GET')return json(200,{clientId:identity.clientId,privacyVersion:'2026-10-12',services:practices.enabledServices||['730','isee'],sites:['molfetta','bari'],maxFileBytes:10*1024*1024,candidaturesEnabled:!!candidatures,candidatureTypes:require('./candidatures.cjs').TYPES});
+   if(url.pathname==='/api/config'&&req.method==='GET')return json(200,{clientId:identity.clientId,privacyVersion:'2026-10-12',services:practices.enabledServices||['730','isee'],sites:identity.activeSites||['molfetta','bari'],maxFileBytes:10*1024*1024,candidaturesEnabled:!!candidatures,candidatureTypes:require('./candidatures.cjs').TYPES});
    if(url.pathname.startsWith('/api/')){
     const actor=await identity.authenticate(req.headers,req.headers['x-caf-area']||'citizen');
     if(url.pathname==='/api/me'&&req.method==='GET')return json(200,{role:actor.role,sites:actor.sites,email:actor.email});

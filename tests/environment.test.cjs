@@ -19,7 +19,7 @@ test('Offline inspection reports every missing prerequisite without writes or pr
 });
 test('Invalid calendar and optional settings block startup before creating a vault',t=>{
  const {env}=setup(t);env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'same',bari:'same'});
- assert.throws(()=>configuredServer(env),/distinct Molfetta and Bari/);assert.equal(fs.existsSync(env.CAF_PRIVATE_DIRECTORY),false);
+ assert.throws(()=>configuredServer(env),/distinct calendars/);assert.equal(fs.existsSync(env.CAF_PRIVATE_DIRECTORY),false);
  env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'m',bari:'b'});env.CAF_MAIL_RETENTION_DAYS='-1';
  assert.throws(()=>configuredServer(env),/email\/outbox/);assert.equal(fs.existsSync(env.CAF_PRIVATE_DIRECTORY),false);
 });

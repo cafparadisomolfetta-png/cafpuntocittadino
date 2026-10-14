@@ -22,7 +22,7 @@ Per la decisione economica è disponibile [COSTI-PROGETTO-2026-10-13.md](COSTI-P
 | Server e backup entro 15 euro/mese | Sistema effettivamente disponibile con Node compatibile, HTTPS, disco persistente privato, accessi e backup separati | Non individuato/configurato |
 | Configurazione Google del sito | Client/origini corrette, calendario distinto per sede, scope effettivi Calendar/Gmail, ruoli e revoca | Credenziali presenti per nome su Netlify, valori non esportati; runtime da configurare |
 | Antivirus | ClamAV reale, firme aggiornate, PDF pulito accettato, file di test infetto rifiutato e scanner indisponibile bloccante | Solo scanner simulato |
-| Sede Bari | Indirizzo/recapiti/orari approvati e messaggi di conferma verificati | Conferme mancanti; prenotazione pubblica disattivata |
+| Sedi | Avvio con sola Molfetta; ulteriori sedi dopo configurazione e collaudo | Bari esclusa dall’avvio, vedi SEDI-ATTIVE.md |
 | Privacy e conservazione | Conferme del titolare per informative, fornitori e durate effettive di pratiche/CV/notifiche/audit/backup | Da confermare sull'ambiente scelto |
 | AI | Decisione su provider/modello/budget e condizioni effettive, poi qualità e costi verificati | Disattivata per il divieto di spesa |
 
