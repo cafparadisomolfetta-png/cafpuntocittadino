@@ -1,19 +1,19 @@
-# Aggiornamenti del sito — frequenza e stato
+# Aggiornamenti autonomi del sito
 
-Decisione del 14 ottobre 2026: l'obiettivo resta un aggiornamento autonomo quotidiano. In alternativa, se emerge un costo aggiuntivo rilevante, valutare una cadenza settimanale il venerdì sera, fuso Europe/Rome. Non è un'autorizzazione ad acquistare servizi o consumare API a pagamento.
+14 ottobre 2026. La frequenza concordata è quotidiana; il venerdì sera rimane un'alternativa da valutare se emergono costi aggiuntivi. Nessun servizio a pagamento è stato attivato.
 
-## Già implementato
+## Implementato
 
-Il runtime include il job news: quando lo scheduler è esplicitamente abilitato e il server è in funzione, controlla fonti istituzionali ogni 24 ore, conserva hash/esito/ora del controllo e rende disponibile lo stato delle fonti. Il monitoraggio non usa OpenAI o altri servizi AI a pagamento. Le richieste e il processo utilizzano comunque le risorse del server; non costituiscono una garanzia che l'intero progetto sia gratuito. La frequenza attuale è relativa all'ultimo controllo, non a un'ora fissa italiana.
+Il job news del server raccoglie ora anche i feed RSS pubblici INPS e INAIL. La pagina News e Bonus contiene una sezione separata “Notizie dalle fonti ufficiali”, con titolo, data, attribuzione e collegamento alla notizia originale. Non vengono generate spiegazioni AI, importi, requisiti, scadenze o diritti a prestazioni. Non viene ripubblicato il corpo degli articoli.
 
-Nella configurazione attuale lo scheduler è disattivato e non c'è un server finale in funzione: nessun aggiornamento quotidiano reale è stato attivato da questa sessione.
+I feed sono quelli indicati dai portali istituzionali: https://www.inps.it/it/it/rss.html e https://www.inail.it/portale/it/rss.html. Il modulo dedicato è server/headlines.cjs; la visualizzazione è official-headlines.js. Feed e link sono vincolati ai domini ufficiali HTTPS, senza credenziali o porte alternative; i redirect sono rifiutati. Dimensione, profondità, numero di nodi e quantità di notizie sono limitati. DTD ed entità esterne sono rifiutati.
 
-## Da completare prima di dichiarare pubblicazione autonoma
+Si pubblicano fino a 20 titoli per fonte, riferiti agli ultimi 30 giorni, ordinati per data e deduplicati per URL. Se una fonte fallisce il controllo, i suoi titoli non sono esposti come aggiornati; in pagina viene segnalata l'indisponibilità. Il browser nasconde inoltre raccolte non controllate da almeno 48 ore. L'assenza di notizie non significa assenza di novità normative.
 
-Il catalogo pubblica ancora soltanto testi approvati dall'amministratrice. Un hash diverso della pagina istituzionale non prova l'esistenza di un nuovo bonus o di una nuova norma. Prima della pubblicazione automatica occorre collaudare notizie, date e collegamenti alle fonti.
+Il precedente monitoraggio di Regione Puglia, ARPAL, Ministero Interno, Entrate e altre fonti resta separato e segnala variazioni da verificare; non estrae automaticamente articoli. Il catalogo delle spiegazioni editoriali resta soggetto all'approvazione amministrativa e non è sostituito dai titoli RSS.
 
-Occorre realizzare e provare l'acquisizione delle singole notizie ufficiali, la deduplica, i collegamenti alle fonti, le date e i casi di fonte indisponibile. Un primo formato automatico può essere un elenco di titoli/link ufficiali con data e provenienza; spiegazioni fiscali o previdenziali generate richiedono controlli distinti e l'eventuale budget AI. Non è ancora implementato.
+## Costi e attivazione
 
-La variante venerdì sera deve usare una pianificazione di calendario Europe/Rome, comprese ora legale e riavvii; non basta impostare un intervallo di sette giorni. L'ora precisa non è stata concordata. I promemoria appuntamenti devono mantenere la propria frequenza indipendente dal monitoraggio news.
+Questa raccolta non usa chiavi API o chiamate AI a pagamento. Consuma le normali risorse del server e della connessione; non rende gratuito il server. La frequenza resta ogni 24 ore dall'ultimo job, non a un'ora italiana fissa. I promemoria appuntamenti mantengono frequenze indipendenti.
 
-L'attivazione finale richiede prove delle fonti reali, del server e della resa pubblica. Nessuna modifica Netlify, DNS, abbonamento o pubblicazione eseguita.
+Lo scheduler CAF_JOBS_ENABLED rimane false nell'esempio: manca il server finale configurato e collaudato. Non è stata attivata una pubblicazione sul dominio. Prima del rilascio: provare recupero dopo indisponibilità, correttezza di date/link, resa mobile e cronologia del job nel server effettivo. Una futura pianificazione del venerdì dovrà usare Europe/Rome e gestire ora legale e riavvii; l'ora non è ancora concordata.

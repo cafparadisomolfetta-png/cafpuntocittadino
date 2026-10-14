@@ -72,5 +72,7 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.match(text,/src="\/app-navigation.js"/,file);
   assert.match(text,/href="\/approved-design.css"/,file);
  }
+ assert.match(fs.readFileSync('dist/news-bonus.html','utf8'),/src="\/official-headlines.js"/);
+ assert.ok(fs.existsSync('dist/official-headlines.js'));
  for(const name of ['caf-brand','caf-consulenza','caf-previdenza'])assert.ok(fs.existsSync(path.join('dist','assets',name+'.svg')),name);
 });

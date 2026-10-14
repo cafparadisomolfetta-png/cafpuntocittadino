@@ -29,10 +29,11 @@ for (const page of pages) {
   if(!html.includes('src="/cookie-consent.js"')) html=html.replace('</body>','<script src="/cookie-consent.js" defer></script>\n</body>');
   if(!html.includes('src="/site-enhancements.js"'))
     html=html.replace(/<\/body>/i,'<script src="/site-enhancements.js" defer></script>\n</body>');
+  if(page==='news-bonus.html')html=html.replace('</body>','<script src="/official-headlines.js" defer></script>\n</body>');
   html=approvedPublic(html,page);
   fs.writeFileSync(path.join(out,page),html);
 }
-for (const asset of ['approved-design.css','app-navigation.js','site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js','icon-192.png','icon-512.png']) {
+for (const asset of ['official-headlines.js','approved-design.css','app-navigation.js','site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js','icon-192.png','icon-512.png']) {
   fs.copyFileSync(asset,path.join(out,asset));
 }
 fs.mkdirSync(path.join(out,'assets'),{recursive:true});

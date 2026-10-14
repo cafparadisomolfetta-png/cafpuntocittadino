@@ -7,7 +7,7 @@ for(const file of required){
  const html=fs.readFileSync(file,'utf8');
  if(!/<html\b/i.test(html)||!/<\/html>/i.test(html))errors.push('Invalid HTML document: '+file);
 }
-for(const file of ['site-enhancements.js','cookie-consent.js','deploy-build.cjs']){
+for(const file of ['official-headlines.js','site-enhancements.js','cookie-consent.js','deploy-build.cjs']){
  if(!fs.existsSync(file))errors.push('Missing script: '+file);
  else try{new vm.Script(fs.readFileSync(file,'utf8'),{filename:file})}catch(e){errors.push('Syntax error: '+file+' '+e.message)}
 }

@@ -45,7 +45,7 @@ Scheduler opt-in: fonti giornaliere, ricerca promemoria oraria nella finestra 23
 
 Notifiche/promemoria deduplicati e cifrati; oggetto/corpo generici senza dettagli sanitari, mittente configurato e destinatari validati, subject/corpo MIME. Coda solo con durata approvata; senza policy non vengono archiviate notifiche con indirizzi. Invio opt-in; esiti incerti non ritentati automaticamente. Nessuna garanzia exactly-once del provider. Le email pubbliche storiche di prenotazione/disdetta restano nel codice originario Google e richiedono il proprio collaudo.
 
-Monitoraggio news senza AI, tramite fonti istituzionali fisse, hashing e segnalazioni da verificare: una variazione del sito non prova una novità normativa. Testo integrale non archiviato. Il catalogo contiene solo testi approvati dall'admin con fonte HTTPS ammessa, massimo 120. Le bozze non sono pubbliche. Le schede storiche del sito richiedono controllo editoriale prima del rilascio.
+Monitoraggio news senza AI, tramite fonti istituzionali fisse, hashing e segnalazioni da verificare: una variazione del sito non prova una novità normativa. Testo integrale non archiviato. Il catalogo contiene solo testi approvati dall'admin con fonte HTTPS ammessa, massimo 120. Le bozze non sono pubbliche. Separatamente, i titoli/link dai feed RSS INPS e INAIL vengono raccolti automaticamente senza AI, con data e attribuzione; vedere AGGIORNAMENTI-AUTONOMI.md per limiti e attivazione. Le schede storiche del sito richiedono controllo editoriale prima del rilascio.
 
 ## Configurazione privata
 

@@ -38,3 +38,15 @@ test('An expired reminder or legacy unverifiable entry never sends',async t=>{
  jobs.enqueue({kind:'reminder',event,site:'molfetta'});vault.put('outbox','legacy',{id:'legacy',state:'pending',kind:'reminder',site:'molfetta',to:'test@example.invalid',attempts:0,createdAt:'2026-10-14T12:00:00Z'});
  assert.equal((await jobs.deliver()).obsolete,2);assert.equal(calls,0);
 });
+
+test('Daily news job publishes official headlines independently of editorial approval and hides failed feeds',async t=>{
+ let unavailable=false;
+ const {jobs}=setup(t,{enabled:true,clock:()=>Date.parse('2026-10-14T12:00:00Z'),fetcher:async url=>{
+  if(unavailable)throw Error('offline');
+  const isFeed=url.endsWith('.rss.news.xml');const host=url.includes('inail')?'www.inail.it':'www.inps.it';
+  return {ok:true,url,text:async()=>isFeed?'<rss><channel><item><title>Notizia sintetica</title><link>https://'+host+'/test-news.html</link><pubDate>Wed, 14 Oct 2026 09:00:00 GMT</pubDate></item></channel></rss>':'Synthetic official source'};
+ }});
+ await jobs.run('news',admin);let result=jobs.publicNews();assert.equal(result.headlines.length,2);assert.equal(result.catalog.length,0);assert.ok(result.headlineSources.every(x=>x.ok));
+ await jobs.run('news',admin);assert.equal(jobs.publicNews().headlines.length,2);
+ unavailable=true;await jobs.run('news',admin);result=jobs.publicNews();assert.equal(result.headlines.length,0);assert.ok(result.headlineSources.every(x=>!x.ok));
+});
