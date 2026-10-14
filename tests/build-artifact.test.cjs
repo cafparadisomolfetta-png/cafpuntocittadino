@@ -67,6 +67,11 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.match(text,/href="\/approved-design.css"/,file);
   assert.match(text,/<option value="WhatsApp">WhatsApp — ti contatta un operatore<\/option>/,file);
   assert.match(text,/Assistenza a distanza in tutta Italia/,file);
+  assert.ok(!text.includes('Via Paradiso'),file);
+  assert.ok(!text.includes('Sede di Molfetta'),file);
+  assert.ok(!text.includes('In presenza — sede di Molfetta'),file);
+  assert.match(text,/<option value="Telefonico">Telefonico — ti chiamiamo noi<\/option><option value="WhatsApp">/,file);
+  assert.ok(!text.includes('Servizi gratuiti e servizi su tessera'),file);
  }
  for(const file of ['assistiti/index.html','gestionale/index.html','gestionale/pratiche.html','candidature/index.html']){
   const text=fs.readFileSync(path.join('dist',file),'utf8');

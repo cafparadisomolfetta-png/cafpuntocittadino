@@ -15,3 +15,7 @@ Fonti consultate per la proposta: [CAAF CGIL Puglia](https://caafcgilpuglia.it/)
 Tutti i motivi di appuntamento possono essere selezionati nelle tre modalità: In sede (Molfetta), Telefonico e WhatsApp. Il motivo è distinto dalla modalità: non occorre un catalogo separato per utenti fuori Molfetta. L'evento Calendar e l'email di conferma conservano la modalità scelta; per telefono e WhatsApp la sede contatta il numero fornito. Il numero WhatsApp deve essere attivo sul servizio. Si tratta del contatto di un operatore, non del centralino o chatbot AI.
 
 La home presenta assistenza a distanza in tutta Italia. La disponibilità dell'appuntamento remoto non promette che ogni adempimento si possa concludere senza firme, identificazione o presenza: le istruzioni del modulo rendono esplicito che gli eventuali passaggi vengono concordati con la sede. Non si invita a inviare PDF o dati sanitari in WhatsApp. I documenti restano nel canale riservato quando attivo. Nessuna integrazione WhatsApp API, chiamata o email reale è stata attivata con questa modifica.
+
+## Presentazione online nazionale
+
+Il sito pubblico privilegia telefono e WhatsApp (telefono predefinito), senza listino o indirizzo della sede nei blocchi promozionali. L’opzione in presenza resta disponibile su appuntamento senza località nel selettore. Assegnazioni interne, calendario, condizioni comunicate prima del servizio e informative legali restano invariate. Non viene promessa la gestione integralmente remota di ogni adempimento.
