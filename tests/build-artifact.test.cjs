@@ -67,6 +67,9 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.match(text,/href="\/approved-design.css"/,file);
   assert.match(text,/<option value="WhatsApp">WhatsApp — ti contatta un operatore<\/option>/,file);
   assert.match(text,/Assistenza a distanza in tutta Italia/,file);
+  assert.match(text,/id="cafpc-explorer"/,file);
+  assert.match(text,/src="\/service-explorer.js"/,file);
+  assert.ok(!text.includes('id="screeningCard"'),file);
   assert.ok(!text.includes('Via Paradiso'),file);
   assert.ok(!text.includes('Sede di Molfetta'),file);
   assert.ok(!text.includes('In presenza — sede di Molfetta'),file);

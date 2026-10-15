@@ -18,6 +18,10 @@ function approvedPublic(html,file){
  html=html.replace(/(<select\b[^>]*\bid="bkModalita"[^>]*>)[\s\S]*?(<\/select>)/g,(_match,start,end)=>start+'<option value="Telefonico">Telefonico — ti chiamiamo noi</option><option value="WhatsApp">WhatsApp — ti contatta un operatore</option><option value="In sede">In presenza — su appuntamento</option>'+end+'<p class="cafpc-remote-note">Assistenza a distanza in tutta Italia. Per telefono o WhatsApp ti contatta un operatore al numero indicato, che per WhatsApp deve essere attivo sul servizio. La modalità riguarda l’appuntamento; eventuali firme, identificazione o adempimenti in presenza saranno concordati con l’operatore. Non inviare documenti personali in chat: usa l’area assistiti quando disponibile.</p>');
  // Public positioning only: preserve legal notices and private office assignments.
  if(pages[file]){
+  const serviceData=JSON.stringify(require('./netlify/functions/booking-services.js').groups).replace(/</g,'\\u003c');
+  html=html.replace(/<section class="screening" id="scopri">[\s\S]*?<\/section>/,'<section id="scopri" class="cafpc-services-showcase"><div id="cafpc-explorer"><h2>Servizi e percorsi guidati</h2><p>Per usare i percorsi guidati abilita JavaScript. Puoi anche <a href="/servizi-online.html#prenotazione-online">prenotare una consulenza</a>.</p></div><script type="application/json" id="cafpc-service-data">'+serviceData+'</script></section>');
+  html=html.replace('</body>','<script src="/service-explorer.js" defer></script>\n</body>');
+  html=html.replace(/(<nav class="pro-nav">[\s\S]*?)(<\/nav>)/,'$1<a href="#scopri">Servizi e percorsi guidati</a>$2');
   html=html.replace(/<div class="pro-info"><i class="fa-solid fa-location-dot"><\/i><div>[\s\S]*?<\/div><\/div>/g,'<div class="pro-info"><i class="fa-solid fa-globe"></i><div><strong>Online in tutta Italia</strong><br>Telefono · WhatsApp · Area personale</div></div>');
   html=html.replace(/<div><strong>📍 Sede<\/strong><p>Via Paradiso 34 · Molfetta<\/p><\/div>/g,'<div><strong>Assistenza online</strong><p>In tutta Italia</p></div>');
   html=html.replace(/Via Paradiso 34 · Molfetta<br>/g,'Assistenza online in tutta Italia<br>');
