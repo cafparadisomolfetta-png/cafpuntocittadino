@@ -63,6 +63,13 @@ let groups;try{groups=JSON.parse(data.textContent);}catch{return;}
 const catalog=groups.flatMap(g=>g.services.map(name=>({name,group:g.label})));
 const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(label,key,value)=>'<button type="button" data-'+key+'="'+safe(value)+'">'+safe(label)+'</button>';
+// Category identity stays stable in catalog, recommendations and detail views.
+const appearance=label=>/INAIL/.test(label)?['inail','shield-halved']:/INPS/.test(label)?['previdenza','landmark']:/Famiglia/.test(label)?['famiglia','heart']:/Lavoro/.test(label)?['lavoro','users']:/Associazione/.test(label)?['associazione','id-card']:/Orientamento/.test(label)?['orientamento','compass']:['fiscale','calculator'];
+const badge=label=>'<span class="cafpc-service-icon" aria-hidden="true"><i class="fa-solid fa-'+appearance(label)[1]+'"></i></span>';
+function serviceCard(name,description){
+ const group=catalog.find(x=>x.name===name).group;
+ return '<article class="cafpc-catalog-card" data-cafpc-theme="'+appearance(group)[0]+'">'+badge(group)+'<p class="cafpc-card-category">'+safe(group)+'</p><h4>'+safe(name)+'</h4><p class="cafpc-card-description">'+safe(description)+'</p>'+btn('Scopri il servizio →','service',name)+'</article>';
+}
 const book=name=>'<a class="btn btn--primary" href="/servizi-online.html?servizio='+encodeURIComponent(name)+'#prenotazione-online">Prenota per questo servizio</a>';
 let kind='bonus',step=0,done=false,answers={},detail=null,mode='catalog';
 function render(){
@@ -70,17 +77,17 @@ function render(){
  let body='';
  if(mode==='detail'){
   const info=serviceInfo(detail.name);
-  body='<p class="cafpc-design-eyebrow">'+safe(detail.group)+'</p><h2>'+safe(detail.name)+'</h2><div class="cafpc-explorer-grid"><article><h3>Come ti aiutiamo</h3><p>'+safe(info[0])+'</p><p>Puoi iniziare online, da tutta Italia, per telefono o con un contatto WhatsApp.</p>'+book(detail.name)+'</article><article><h3>Da preparare per il primo confronto</h3><p>'+safe(info[1])+'</p><p>Elenco orientativo: l’operatore confermerà documenti, identificazione, firme ed eventuali passaggi in presenza.</p><a href="/assistiti/">Area assistiti per documenti PDF e stato delle pratiche</a></article></div>';
+  body='<header class="cafpc-service-heading" data-cafpc-theme="'+appearance(detail.group)[0]+'">'+badge(detail.group)+'<div><p class="cafpc-design-eyebrow">'+safe(detail.group)+'</p><h2>'+safe(detail.name)+'</h2></div></header><div class="cafpc-explorer-grid"><article><h3>Come ti aiutiamo</h3><p>'+safe(info[0])+'</p><p>Puoi iniziare online, da tutta Italia, per telefono o con un contatto WhatsApp.</p>'+book(detail.name)+'</article><article><h3>Da preparare per il primo confronto</h3><p>'+safe(info[1])+'</p><p>Elenco orientativo: l’operatore confermerà documenti, identificazione, firme ed eventuali passaggi in presenza.</p><a href="/assistiti/">Area assistiti per documenti PDF e stato delle pratiche</a></article></div>';
  }else if(mode==='guide'){
   const qs=guideQuestions[kind],heading=kind==='bonus'?'Bonus e agevolazioni':'Orientamento pensioni';
-  if(done){body='<h2>'+heading+': servizi da approfondire</h2><p>Questo percorso orienta verso un servizio. Non attesta il diritto a una prestazione e non calcola importi o date di pensionamento.</p><div class="cafpc-explorer-grid">'+guidedRoutes(kind,answers).map(x=>'<article><h3>'+safe(x.name)+'</h3><p>'+safe(x.why)+'</p>'+btn('Apri la scheda','service',x.name)+'</article>').join('')+'</div><details><summary>Rivedi le risposte</summary>'+qs.map((q,i)=>'<p><strong>'+safe(q[0])+'</strong><br>'+safe((Array.isArray(answers[i])?answers[i].map(n=>q[1][n]):[q[1][answers[i]]]).join(', '))+'</p>').join('')+'</details>'+btn('Modifica risposte','back','yes')+btn('Ricomincia','restart',kind);
+  if(done){body='<h2>'+heading+': servizi da approfondire</h2><p>Questo percorso orienta verso un servizio. Non attesta il diritto a una prestazione e non calcola importi o date di pensionamento.</p><div class="cafpc-explorer-grid">'+guidedRoutes(kind,answers).map(x=>serviceCard(x.name,x.why)).join('')+'</div><details><summary>Rivedi le risposte</summary>'+qs.map((q,i)=>'<p><strong>'+safe(q[0])+'</strong><br>'+safe((Array.isArray(answers[i])?answers[i].map(n=>q[1][n]):[q[1][answers[i]]]).join(', '))+'</p>').join('')+'</details>'+btn('Modifica risposte','back','yes')+btn('Ricomincia','restart',kind);
   }else{
    const q=qs[step],multi=kind==='bonus'&&step===4,selected=answers[step],ready=multi?Array.isArray(selected)&&selected.length>0:Number.isInteger(selected);
    body='<p class="cafpc-design-eyebrow">'+heading+' · Domanda '+(step+1)+' di '+qs.length+'</p><h2>'+safe(q[0])+'</h2>'+(multi?'<p>Puoi selezionare più esigenze.</p>':'')+'<div class="cafpc-explorer-options">'+q[1].map((label,i)=>'<button type="button" data-answer="'+i+'" aria-pressed="'+(multi?(selected||[]).includes(i):selected===i)+'">'+safe(label)+'</button>').join('')+'</div><div class="cafpc-explorer-actions">'+(step?btn('Indietro','back','yes'):'')+'<button type="button" data-next="yes" '+(!ready?'disabled':'')+'>'+(step===qs.length-1?'Mostra i servizi consigliati':'Avanti')+'</button></div>';
   }
   body+='<p class="cafpc-explorer-note">Le risposte restano in questa pagina e si cancellano ricaricandola. Non inserire dati identificativi o documenti sanitari.</p>';
  }else{
-  body='<h2>Servizi e percorsi guidati</h2><p>Apri una scheda oppure rispondi alle domande per individuare il servizio da approfondire. Assistenza online in tutta Italia.</p>'+groups.map(g=>'<section><h3>'+safe(g.label)+'</h3><div class="cafpc-explorer-grid">'+g.services.map(name=>'<article><h4>'+safe(name)+'</h4><p>'+safe(serviceInfo(name)[0])+'</p>'+btn('Apri scheda','service',name)+'</article>').join('')+'</div></section>').join('');
+  body='<h2>Servizi e percorsi guidati</h2><p>Apri una scheda oppure rispondi alle domande per individuare il servizio da approfondire. Assistenza online in tutta Italia.</p>'+groups.map(g=>'<section><h3>'+safe(g.label)+'</h3><div class="cafpc-explorer-grid">'+g.services.map(name=>serviceCard(name,serviceInfo(name)[0])).join('')+'</div></section>').join('');
  }
  root.innerHTML=nav+'<div class="cafpc-explorer-content" aria-live="polite">'+body+'</div>';
 }
