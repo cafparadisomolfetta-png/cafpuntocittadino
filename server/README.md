@@ -1,6 +1,6 @@
 # Runtime privato CAF Punto Cittadino Italia
 
-Implementazione verificata localmente con dati sintetici: **148 test superati nella revisione del 17 ottobre 2026**. Stato e limiti: [VERIFICA-CHIUSURA-2026-10-17.md](../VERIFICA-CHIUSURA-2026-10-17.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
+Implementazione verificata localmente con dati sintetici: **154 test superati nella revisione del 17 ottobre 2026**. Stato e limiti: [VERIFICA-CHIUSURA-2026-10-17.md](../VERIFICA-CHIUSURA-2026-10-17.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
 
 ## Ambiente
 
@@ -102,3 +102,9 @@ Documentazione usata: [Google Calendar, versioni/If-Match](https://developers.go
 ## Installazione su host esterno
 
 Modelli e sequenza di staging/rilascio: [deployment/README.md](../deployment/README.md). `CAF_TRUST_PROXY` è false per default. Abilitarla solo con proxy locale che sovrascrive `X-Forwarded-For` con l’IP effettivo: quote distinte per IP invece di un unico limite condiviso sul loopback. Nessuna fiducia verso header inoltrati da connessioni non locali o valori multipli/non validi. La quota per IP può comunque essere condivisa da persone nella stessa rete. Modelli non installati, nginx/TLS da validare sull’host effettivo.
+
+## Approvazione, importi e notifiche
+
+Vedere [APPROVAZIONE-QUOTE-NOTIFICHE.md](../APPROVAZIONE-QUOTE-NOTIFICHE.md). Le nuove richieste documentali del runtime di produzione richiedono approvazione di un operatore della sede e accettazione dell’importo (anche zero) prima di caricare PDF o iniziare la lavorazione. Nessun pagamento è eseguito dal sistema. I record precedenti senza il nuovo campo conservano il comportamento storico; non vengono migrati o associati a condizioni economiche inventate.
+
+Gli avvisi generici per nuove richieste e nuovi PDF sono accodati all’email amministratrice configurata; gli aggiornamenti all’email dell’assistito verificata all’accesso. Archivio/coda e audit sono transazionali. Il mancato invio non viene nascosto come consegna riuscita; esiti incerti restano senza reinvio automatico. Con invio o scheduler disattivati gli avvisi non partono; con conservazione mail mancante non si accodano recapiti. Da attivare e collaudare sul server finale insieme a Google/Gmail.

@@ -6,9 +6,9 @@ const {authorizePracticeQuery}=require('../netlify/functions/pratiche-query');
 const {projectPractice,projectDocument}=require('../netlify/functions/pratiche-projection');
 function failure(status,code){const error=Error(code);error.status=status;error.code=code;throw error;}
 class Practices {
- constructor({vault,scan,verifyAppointment,clock=()=>new Date().toISOString(),enabledServices=SERVICES,activeSites=['molfetta','bari']}){
+ constructor({vault,scan,verifyAppointment,clock=()=>new Date().toISOString(),enabledServices=SERVICES,activeSites=['molfetta','bari'],requireApproval=true,notify=()=>{}}){
   if(typeof scan!=='function')throw Error('Malware scanner is required');
-  this.activeSites=[...activeSites];this.vault=vault;this.scan=scan;this.verifyAppointment=verifyAppointment;this.clock=clock;this.enabledServices=[...enabledServices];
+  this.requireApproval=requireApproval;this.notify=notify;this.activeSites=[...activeSites];this.vault=vault;this.scan=scan;this.verifyAppointment=verifyAppointment;this.clock=clock;this.enabledServices=[...enabledServices];
  }
  requireActor(actor){if(!actor?.authenticated||!actor.subject)failure(401,'UNAUTHORIZED');}
  record(actor,id,operation='view',options={}){this.requireActor(actor);const record=this.vault.get('practice',id);if(!record||!this.activeSites.includes(record.site)||!authorizeOperation(actor,record,operation,options).allowed)failure(404,'PRACTICE_NOT_FOUND');return record;}
@@ -18,8 +18,8 @@ class Practices {
   if(input.privacyVersion!=='2026-10-12'||input.privacyAcknowledged!==true)failure(400,'PRIVACY_ACKNOWLEDGEMENT_REQUIRED');
   if(input.mode==='appointment'&&(!this.verifyAppointment||!(await this.verifyAppointment(actor,input))))failure(400,'APPOINTMENT_NOT_VERIFIED');
   const now=this.clock(),id=crypto.randomUUID();
-  const record={id,ownerSubject:actor.subject,site:valid.site,service:valid.service,mode:valid.mode,status:'received',createdAt:now,updatedAt:now,version:1,documentCount:0,privacyVersion:input.privacyVersion,privacyAcknowledgedAt:now,...(valid.service==='richiamata'?{contactPhone:input.contactPhone.trim(),contactEmail:actor.email}:{}),...(input.mode==='appointment'?{appointmentId:input.appointmentId}:{})};
-  this.vault.transaction(()=>{this.vault.put('practice',id,record);this.vault.audit(actor,'practice.create',id)});
+  const record={id,ownerSubject:actor.subject,site:valid.site,service:valid.service,mode:valid.mode,status:'received',createdAt:now,updatedAt:now,version:1,documentCount:0,...(this.requireApproval&&valid.service!=='richiamata'?{approvalRequired:true,approvalStatus:'pending'}:{}),...(typeof actor.email==='string'?{ownerEmail:actor.email}:{}),privacyVersion:input.privacyVersion,privacyAcknowledgedAt:now,...(valid.service==='richiamata'?{contactPhone:input.contactPhone.trim(),contactEmail:actor.email}:{}),...(input.mode==='appointment'?{appointmentId:input.appointmentId}:{})};
+  this.vault.transaction(()=>{this.vault.put('practice',id,record);this.vault.audit(actor,'practice.create',id);this.notify({kind:'practice-received',record})});
   return {...projectPractice(actor,record),version:record.version};
  }
  list(actor,site){
@@ -43,7 +43,7 @@ class Practices {
    const current=this.record(actor,id,'upload');
    if(current.documentCount>=MAX_FILES)failure(409,'DOCUMENT_LIMIT');
    if(this.vault.list('document').some(d=>d.practiceId===id&&d.sha256===digest))failure(409,'DUPLICATE_DOCUMENT');
-   this.vault.put('content',documentId,{content:bytes.toString('base64')});this.vault.put('document',documentId,doc);this.vault.put('practice',id,{...current,documentCount:current.documentCount+1,updatedAt:now,version:current.version+1});this.vault.audit(actor,'document.upload',id);
+   this.vault.put('content',documentId,{content:bytes.toString('base64')});this.vault.put('document',documentId,doc);this.vault.put('practice',id,{...current,documentCount:current.documentCount+1,updatedAt:now,version:current.version+1});this.vault.audit(actor,'document.upload',id);this.notify({kind:'practice-document',record:this.vault.get('practice',id)});
   });
   return projectDocument(actor,record,doc);
  }
@@ -62,9 +62,32 @@ class Practices {
   if(input.status==='awaiting_documents'&&!message.trim())failure(400,'INTEGRATION_MESSAGE_REQUIRED');
   return this.vault.transaction(()=>{
    const record=this.record(actor,id,'change_status',{nextStatus:input.status});
+   if(record.approvalRequired&&input.status!=='rejected'&&(record.approvalStatus!=='approved'||!record.feeOffer?.acceptedAt))failure(409,'APPROVAL_REQUIRED');
    if(record.version!==input.version)failure(409,'VERSION_CONFLICT');
    const updated={...record,status:input.status,integrationMessage:input.status==='awaiting_documents'?message.trim():'',updatedAt:this.clock(),version:record.version+1};
-   this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.status.'+input.status,id);return {...projectPractice(actor,updated),version:updated.version};
+   this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.status.'+input.status,id);this.notify({kind:'practice-update',record:updated});return {...projectPractice(actor,updated),version:updated.version};
+  });
+ }
+ approve(actor,id,input){
+  if(!actor?.authenticated||!['admin','manager','operator'].includes(actor.role))failure(403,'STAFF_REQUIRED');
+  if(!input||!Number.isSafeInteger(input.version)||!Number.isSafeInteger(input.amountCents)||input.amountCents<0||input.amountCents>100000000||typeof input.description!=='string'||!input.description.trim()||input.description.length>500||/[\x00-\x1f]/.test(input.description))failure(400,'INVALID_FEE_OFFER');
+  return this.vault.transaction(()=>{
+   const record=this.record(actor,id);
+   if(record.version!==input.version)failure(409,'VERSION_CONFLICT');
+   if(!record.approvalRequired||record.status!=='received'||record.documentCount>0||record.feeOffer?.acceptedAt)failure(409,'APPROVAL_NOT_AVAILABLE');
+   const now=this.clock(),updated={...record,approvalStatus:'approved',feeOffer:{amountCents:input.amountCents,currency:'EUR',description:input.description.trim(),offeredAt:now,acceptedAt:null},updatedAt:now,version:record.version+1};
+   this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.approve_offer',id);this.notify({kind:'practice-update',record:updated});return {...projectPractice(actor,updated),version:updated.version};
+  });
+ }
+ acceptOffer(actor,id,input){
+  if(!actor?.authenticated||actor.role!=='citizen')failure(403,'CITIZEN_REQUIRED');
+  if(!input||!Number.isSafeInteger(input.version)||input.accept!==true)failure(400,'FEE_ACCEPTANCE_REQUIRED');
+  return this.vault.transaction(()=>{
+   const record=this.record(actor,id);
+   if(record.version!==input.version)failure(409,'VERSION_CONFLICT');
+   if(record.status!=='received'||!record.approvalRequired||record.approvalStatus!=='approved'||!record.feeOffer||record.feeOffer.acceptedAt)failure(409,'FEE_OFFER_NOT_AVAILABLE');
+   const now=this.clock(),updated={...record,feeOffer:{...record.feeOffer,acceptedAt:now},updatedAt:now,version:record.version+1};
+   this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.fee_accepted',id);this.notify({kind:'practice-update',record:updated});return {...projectPractice(actor,updated),version:updated.version};
   });
  }
  erase(actor,id){

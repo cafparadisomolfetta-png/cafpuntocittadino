@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {catalog,ids,enabledServices,serviceCatalog}=require('../netlify/functions/practice-services.js');
 const {groups}=require('../netlify/functions/booking-services.js');
 const {Vault}=require('../server/vault.cjs'),{Practices}=require('../server/practices.cjs'),{retentionPlan}=require('../server/retention.cjs'),{inspectEnvironment}=require('../server/environment.cjs'),{createApp}=require('../server/app.cjs');
-function fixture(t,services=ids){const directory=fs.mkdtempSync(path.join(os.tmpdir(),'caf-intake-')),vault=new Vault({directory,key:crypto.randomBytes(32)});t.after(()=>{vault.close();fs.rmSync(directory,{recursive:true,force:true})});return {vault,practices:new Practices({vault,scan:async()=> 'clean',activeSites:['molfetta'],enabledServices:services})};}
+function fixture(t,services=ids){const directory=fs.mkdtempSync(path.join(os.tmpdir(),'caf-intake-')),vault=new Vault({directory,key:crypto.randomBytes(32)});t.after(()=>{vault.close();fs.rmSync(directory,{recursive:true,force:true})});return {vault,practices:new Practices({requireApproval:false,vault,scan:async()=> 'clean',activeSites:['molfetta'],enabledServices:services})};}
 const citizen={authenticated:true,role:'citizen',subject:'synthetic-owner'},other={...citizen,subject:'synthetic-other'},operator={authenticated:true,role:'operator',subject:'synthetic-staff',sites:['molfetta']};
 test('Private catalog covers exactly the 30 public booking services with stable unique identifiers',()=>{
  assert.equal(catalog.length,30);assert.equal(new Set(ids).size,30);assert.deepEqual(catalog.map(x=>x.label).sort(),groups.flatMap(x=>x.services).sort());

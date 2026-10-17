@@ -38,10 +38,10 @@ function configuredServer(env=process.env){
   const calendar=require('./calendar.cjs').calendars({identity,vault,env,activeSites});
   const mailEnabled=env.CAF_MAIL_ENABLED==='true',mailRetentionDays=env.CAF_MAIL_RETENTION_DAYS?Number(env.CAF_MAIL_RETENTION_DAYS):null;
   if(mailEnabled&&(!Number.isInteger(mailRetentionDays)||mailRetentionDays<1||mailRetentionDays>36500))throw Error('Configure approved email/outbox retention duration');
-  const jobs=new (require('./jobs.cjs').Jobs)({vault,calendar,enabled:env.CAF_JOBS_ENABLED==='true',mailEnabled,retentionDays:mailRetentionDays,sendMail:require('./google-mail.cjs').googleMail({env})});
+  const jobs=new (require('./jobs.cjs').Jobs)({vault,calendar,adminEmail:env.GESTIONALE_ADMIN_EMAIL,activeSites,enabled:env.CAF_JOBS_ENABLED==='true',mailEnabled,retentionDays:mailRetentionDays,sendMail:require('./google-mail.cjs').googleMail({env})});
   const appointments=new (require('./appointments.cjs').Appointments)({vault,calendar,slotsFor,notify:value=>jobs.enqueue(value)});
   const candidatures=env.CAF_CV_RETENTION_DAYS?new (require('./candidatures.cjs').Candidatures)({vault,scan:clamScanner(scanner),retentionDays:Number(env.CAF_CV_RETENTION_DAYS),activeSites}):undefined;
-  const practices=new Practices({vault,scan:clamScanner(scanner),verifyAppointment:calendar.verifyAppointment,activeSites,enabledServices:require('../netlify/functions/practice-services.js').enabledServices(env)});
+  const practices=new Practices({vault,requireApproval:true,notify:value=>jobs.enqueuePractice(value),scan:clamScanner(scanner),verifyAppointment:calendar.verifyAppointment,activeSites,enabledServices:require('../netlify/functions/practice-services.js').enabledServices(env)});
   // Preserve existing public Google functions without enabling Netlify deployments.
   const providerHandlers={};
   for(const name of ['calendar-availability','calendar-book','calendar-cancel'])providerHandlers[name]=require('../netlify/functions/'+name+'.js').handler;

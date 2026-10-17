@@ -19,9 +19,10 @@ Aggiornamento: 17 ottobre 2026. **Non ancora pubblicato né collaudato in produz
 - [x] Repository recuperato dal ramo `codex/verifica-sicurezza-2026-10-12`.
 - [x] Suite iniziale: 140 test di comportamento e 4 test della build superati.
 - [x] Nome aggiornato nel sito, aree riservate, manifest PWA e testi email.
+- [x] Approvazione operatore e conferma quota prima dei PDF; notifiche email generiche predisposte e testate con provider simulati.
 - [x] Intake PDF, integrazioni e stati estesi al catalogo dei 30 servizi; attivazione vincolata alle durate approvate.
 - [x] Social aggiunti come semplici collegamenti, senza widget o script di tracciamento social.
-- [x] Suite finale: 148 test superati; controlli HTTP locali e rapporto corrente: vedere `VERIFICA-CHIUSURA-2026-10-17.md`.
+- [x] Suite finale: 154 test superati; controlli HTTP locali e rapporto corrente: vedere `VERIFICA-CHIUSURA-2026-10-17.md`.
 
 ## Prima dell'accesso al server
 

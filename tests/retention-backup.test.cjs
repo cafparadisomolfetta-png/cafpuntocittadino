@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),crypto=require('node:crypto');
 const {Vault}=require('../server/vault.cjs'),{Practices}=require('../server/practices.cjs'),{retentionPlan,purgeExpired}=require('../server/retention.cjs'),{backupVault,restoreVault}=require('../server/backups.cjs');
 const citizen={role:'citizen',subject:'test-citizen',authenticated:true},admin={role:'admin',subject:'test-admin',authenticated:true};
-function setup(t){const root=fs.mkdtempSync(path.join(os.tmpdir(),'caf-backup-test-')),key=crypto.randomBytes(32),vault=new Vault({directory:path.join(root,'live'),key}),practices=new Practices({vault,scan:async()=> 'clean',clock:()=> '2025-01-01T12:00:00Z'});t.after(()=>{vault.close();fs.rmSync(root,{recursive:true,force:true})});return {root,key,vault,practices}}
+function setup(t){const root=fs.mkdtempSync(path.join(os.tmpdir(),'caf-backup-test-')),key=crypto.randomBytes(32),vault=new Vault({directory:path.join(root,'live'),key}),practices=new Practices({requireApproval:false,vault,scan:async()=> 'clean',clock:()=> '2025-01-01T12:00:00Z'});t.after(()=>{vault.close();fs.rmSync(root,{recursive:true,force:true})});return {root,key,vault,practices}}
 test('Retention requires an explicit policy and deletes only expired terminal cases',async t=>{
  const {vault,practices}=setup(t),input={site:'molfetta',service:'isee',mode:'direct',privacyAcknowledged:true,privacyVersion:'2026-10-12'};
  const old=await practices.create(citizen,input),open=await practices.create(citizen,input);

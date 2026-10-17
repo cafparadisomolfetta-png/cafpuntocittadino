@@ -68,6 +68,8 @@ function createApp({practices,identity,publicDirectory,origin,providerHandlers={
      if(req.method==='POST')return json(201,await practices.create(actor,await body(req)));
      failure(405,'METHOD_NOT_ALLOWED');
     }
+    const approval=/^\/api\/practices\/([a-f0-9-]{36})\/(approval|accept-offer)$/.exec(url.pathname);
+    if(approval){if(req.method!=='POST')failure(405,'METHOD_NOT_ALLOWED');const payload=await body(req);return json(200,approval[2]==='approval'?practices.approve(actor,approval[1],payload):practices.acceptOffer(actor,approval[1],payload));}
     const match=/^\/api\/practices\/([a-f0-9-]{36})(?:\/(documents|status)(?:\/([a-f0-9-]{36}))?)?$/.exec(url.pathname);
     if(!match)failure(404,'NOT_FOUND');
     const [,id,action,documentId]=match;

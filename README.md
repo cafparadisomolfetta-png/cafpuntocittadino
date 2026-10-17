@@ -4,6 +4,8 @@ Sito pubblico con assistenza online in tutta Italia, prenotazioni Google Calenda
 
 **Codice in collaudo; nessuna nuova pubblicazione. Destinazione scelta: VPS Linux Aruba con backup separato. Netlify rimane sospeso.**
 
+Filtro approvazione, importi e notifiche: [APPROVAZIONE-QUOTE-NOTIFICHE.md](APPROVAZIONE-QUOTE-NOTIFICHE.md). Nuove richieste senza PDF fino ad approvazione dell’operatore e conferma dell’importo da parte dell’assistito.
+
 Stato corrente: [VERIFICA-CHIUSURA-2026-10-17.md](VERIFICA-CHIUSURA-2026-10-17.md). Ordine del rilascio: [CHECKLIST-RILASCIO.md](CHECKLIST-RILASCIO.md). Installazione: [deployment/README.md](deployment/README.md).
 
 - `node tools/collaudo-locale.cjs`: suite e build con dati sintetici, senza chiamate ai provider reali.

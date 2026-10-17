@@ -13,7 +13,7 @@ const pdf=Buffer.from('%PDF-1.4\nsynthetic-test-only\n%%EOF');
 const metadata={name:'documento-riservato-test.pdf',mime:'application/pdf',bytes:pdf.length};
 function setup(t,scan=async()=> 'clean'){
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'caf-test-')),key=crypto.randomBytes(32);
- const vault=new Vault({directory,key}),practices=new Practices({vault,scan});
+ const vault=new Vault({directory,key}),practices=new Practices({requireApproval:false,vault,scan});
  t.after(()=>{vault.close();fs.rmSync(directory,{recursive:true,force:true})});return {vault,practices,directory,key};
 }
 async function rejectsCode(promise,code){await assert.rejects(promise,e=>e.code===code)}
@@ -134,5 +134,5 @@ test('Authenticated callback requests keep phone/email private to operational st
  const {practices,vault}=setup(t);const callback=await practices.create({...citizen,email:'caller@example.invalid'},{...input,service:'richiamata',contactPhone:'0800000000'});assert.equal(callback.service,'richiamata');assert.equal(practices.detail(operator,callback.id).contactPhone,'0800000000');assert.equal(practices.detail(operator,callback.id).contactEmail,'caller@example.invalid');assert.equal(practices.detail(viewer,callback.id).contactPhone,undefined);assert.equal(practices.detail(citizen,callback.id).contactEmail,undefined);await assert.rejects(practices.upload(citizen,callback.id,metadata,pdf));assert.equal(vault.list('document').length,0);
 });
 test('Disabled callback intake and unapproved callback retention are refused',async t=>{
- const {vault}=setup(t);const practices=new Practices({vault,scan:async()=> 'clean',enabledServices:['730','isee']});await assert.rejects(practices.create(citizen,{...input,service:'richiamata',contactPhone:'0800000000'}),e=>e.code==='SERVICE_NOT_ACTIVE');const enabled=new Practices({vault,scan:async()=> 'clean'});await enabled.create({...citizen,email:'synthetic@example.invalid'},{...input,service:'richiamata',contactPhone:'0800000000'});assert.throws(()=>require('../server/retention.cjs').retentionPlan(vault,{'730':365,isee:365}),/missing/);
+ const {vault}=setup(t);const practices=new Practices({requireApproval:false,vault,scan:async()=> 'clean',enabledServices:['730','isee']});await assert.rejects(practices.create(citizen,{...input,service:'richiamata',contactPhone:'0800000000'}),e=>e.code==='SERVICE_NOT_ACTIVE');const enabled=new Practices({requireApproval:false,vault,scan:async()=> 'clean'});await enabled.create({...citizen,email:'synthetic@example.invalid'},{...input,service:'richiamata',contactPhone:'0800000000'});assert.throws(()=>require('../server/retention.cjs').retentionPlan(vault,{'730':365,isee:365}),/missing/);
 });

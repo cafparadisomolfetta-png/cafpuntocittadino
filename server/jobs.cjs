@@ -4,7 +4,7 @@ const {failure}=require('./practices.cjs');
 const SOURCES=[{id:'inps',name:'INPS',url:'https://www.inps.it/it/it/rss.html'},{id:'puglia',name:'Regione Puglia',url:'https://www.regione.puglia.it/'},{id:'arpal',name:'ARPAL Puglia',url:'https://arpal.regione.puglia.it/'},{id:'pugliasalute',name:'PugliaSalute',url:'https://www.sanita.puglia.it/'},{id:'interno',name:"Ministero dell’Interno",url:'https://www.interno.gov.it/'},{id:'entrate',name:'Agenzia delle Entrate',url:'https://www.agenziaentrate.gov.it/'},{id:'ader',name:'Agenzia Entrate-Riscossione',url:'https://www.agenziaentrateriscossione.gov.it/'},{id:'send',name:'SEND',url:'https://notifichedigitali.pagopa.it/'}];
 const system={authenticated:true,role:'system',subject:'runtime-jobs'};
 class Jobs{
- constructor({vault,calendar,sendMail,fetcher=fetch,enabled=false,mailEnabled=false,retentionDays=null,clock=()=>Date.now()}){this.vault=vault;this.calendar=calendar;this.sendMail=sendMail;this.fetcher=fetcher;this.enabled=enabled;this.mailEnabled=mailEnabled;this.clock=clock;this.retentionDays=retentionDays;this.running=new Set();this.tasks=new Set();}
+ constructor({vault,calendar,sendMail,fetcher=fetch,enabled=false,mailEnabled=false,retentionDays=null,clock=()=>Date.now(),adminEmail=null,activeSites=['molfetta','bari']}){this.adminEmail=adminEmail;this.activeSites=[...activeSites];this.vault=vault;this.calendar=calendar;this.sendMail=sendMail;this.fetcher=fetcher;this.enabled=enabled;this.mailEnabled=mailEnabled;this.clock=clock;this.retentionDays=retentionDays;this.running=new Set();this.tasks=new Set();}
  enqueue({kind,event,site}){
   if(!Number.isInteger(this.retentionDays)||this.retentionDays<1)return null;
   const email=event.extendedProperties?.private?.email;if(typeof email!=='string'||email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return null;
@@ -14,9 +14,18 @@ class Jobs{
   const time=new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',dateStyle:'short',timeStyle:'short'}).format(new Date(start));
   this.vault.put('outbox',id,{id,state:'pending',kind,site,eventId:event.id,start,to:email,subject:label+' — CAF Punto Cittadino Italia',text:label+'.\nSede: '+(site==='bari'?'Bari':'Molfetta')+'\nData e ora: '+time+'\nPer assistenza contatta la sede.\nNon rispondere allegando documenti personali.',createdAt:new Date(this.clock()).toISOString(),attempts:0});return id;
  }
+ enqueuePractice({kind,record}){
+  if(!['practice-received','practice-document','practice-update'].includes(kind)||!Number.isInteger(this.retentionDays)||this.retentionDays<1||!this.activeSites.includes(record.site))return null;
+  const to=kind==='practice-update'?record.ownerEmail:this.adminEmail;
+  if(typeof to!=='string'||to.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to))return null;
+  const id=crypto.createHash('sha256').update(kind+':'+record.id+':'+record.version).digest('hex');if(this.vault.get('outbox',id))return id;
+  const label={'practice-received':'Nuova richiesta ricevuta','practice-document':'Nuovo documento ricevuto','practice-update':'Aggiornamento nella tua area personale'}[kind];
+  this.vault.put('outbox',id,{id,state:'pending',kind,site:record.site,practiceId:record.id,practiceVersion:record.version,to,subject:label+' — CAF Punto Cittadino Italia',text:label+'. Accedi al portale per consultare i dettagli. Non rispondere allegando documenti personali.',createdAt:new Date(this.clock()).toISOString(),attempts:0});return id;
+ }
  status(actor){if(!actor?.authenticated||actor.role!=='admin')failure(403,'ADMIN_REQUIRED');const counts={};for(const row of this.vault.list('outbox'))counts[row.state]=(counts[row.state]||0)+1;return {enabled:this.enabled,mailEnabled:this.mailEnabled,jobs:this.vault.list('job'),outbox:counts};}
  async reminders(){const events=await this.calendar.upcomingReminders(this.clock());this.vault.transaction(()=>{for(const {event,site}of events)this.enqueue({kind:'reminder',event,site})});return {examined:events.length};}
  async currentNotification(row){
+  if(['practice-received','practice-document','practice-update'].includes(row.kind)){const record=this.vault.get('practice',row.practiceId);if(!record||record.site!==row.site||!this.activeSites.includes(record.site))return false;const expected=row.kind==='practice-update'?record.ownerEmail:this.adminEmail;return typeof expected==='string'&&expected.toLowerCase()===row.to.toLowerCase()&&(row.kind!=='practice-update'||record.version===row.practiceVersion);}
   if(row.kind==='appointment-cancelled')return true;
   if(!['reminder','appointment-moved'].includes(row.kind)||typeof row.eventId!=='string'||!row.eventId||!Number.isFinite(Date.parse(row.start))||Date.parse(row.start)<=this.clock())return false;
   // Query the authoritative event before claiming a send. Provider failures defer
