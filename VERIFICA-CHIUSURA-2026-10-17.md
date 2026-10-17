@@ -4,10 +4,12 @@
 
 Aggiornamento successivo: filtro approvazione, quote e notifiche implementati; suite totale **157 test superati**. Dettagli e limiti: [APPROVAZIONE-QUOTE-NOTIFICHE.md](APPROVAZIONE-QUOTE-NOTIFICHE.md).
 
+Aggiornamento identità successivo: **Punto Cittadino Italia**, slogan **Un solo punto, tante soluzioni**. Rimossa la parola CAF dal nome commerciale e dal wordmark, conservando il pittogramma e la grafica precedente. Missione e visione inserite nella home; nome allineato nelle applicazioni, nei manifest e nei mittenti/template email. Le categorie CAF/Patronato e il titolare giuridico restano distinti dal marchio. Nessun nuovo dominio, deposito di marchio, modifica social, invio email o pubblicazione.
+
 ## Modifiche correnti
 
-- Nome concordato aggiornato a **CAF Punto Cittadino Italia**, mantenendo dominio e nomi utente social attuali.
-- Grafica blu/turchese e logo approvato conservati; aggiunta testuale “Italia” a fianco del logo, senza ridisegnarne l'immagine.
+- Nome concordato aggiornato a **Punto Cittadino Italia**, mantenendo dominio e nomi utente social attuali.
+- Grafica blu/turchese e logo approvato conservati; pittogramma conservato e parte testuale del logo aggiornata alla nuova identità.
 - Titoli, intestazioni, aree riservate, manifest PWA e testi email aggiornati.
 - Collegamenti semplici ai profili Facebook Caf Paradiso, Instagram e TikTok `@cafpuntocittadino`; nessun widget social o script di tracciamento aggiunto. I link non realizzano una connessione amministrativa né pubblicano post.
 - Portale documentale esteso dai soli 730/ISEE ai 30 servizi del catalogo prenotazioni. Ogni tipo usa il workflow privato: richiesta, PDF, integrazioni, lavorazione e conclusione. Non vengono implementate decisioni di spettanza né invii automatici a INPS, INAIL o Agenzia delle Entrate.

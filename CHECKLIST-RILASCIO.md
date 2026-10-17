@@ -1,10 +1,10 @@
-# Rilascio Aruba — CAF Punto Cittadino Italia
+# Rilascio Aruba — Punto Cittadino Italia
 
 Aggiornamento: 17 ottobre 2026. **Non ancora pubblicato né collaudato in produzione.** Questa checklist sostituisce le precedenti indicazioni di riattivazione Netlify. Il progetto completo usa un VPS Linux con backend persistente; il PC Windows non è il server.
 
 ## Decisioni confermate
 
-- Nome pubblico: **CAF Punto Cittadino Italia**. Dominio mantenuto: `cafpuntocittadino.it`.
+- Nome pubblico: **Punto Cittadino Italia**. Dominio mantenuto: `cafpuntocittadino.it`.
 - Grafica approvata blu/turchese, logo esistente con aggiunta testuale “Italia”.
 - Assistenza soprattutto online in tutta Italia, senza prezzi o indirizzo nelle sezioni promozionali. Informative e identità legale richiedono dati effettivi corretti.
 - Avvio con una sede interna attiva; Bari predisposta ma disattivata. La configurazione interna non limita il territorio degli assistiti.

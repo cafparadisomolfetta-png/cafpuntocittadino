@@ -1,4 +1,6 @@
-# CAF Punto Cittadino Italia
+# Punto Cittadino Italia
+
+Identità: **Punto Cittadino Italia — Un solo punto, tante soluzioni.** Nome commerciale scelto; disponibilità e registrazione del marchio non ancora verificate. Dominio e profili social non rinominati.
 
 Sito pubblico con assistenza online in tutta Italia, prenotazioni Google Calendar, area assistiti e gestionale riservato. Grafica approvata blu/turchese. Dominio mantenuto: `cafpuntocittadino.it`.
 

@@ -1,7 +1,7 @@
 {
-  "name": "CAF Punto Cittadino Italia",
+  "name": "Punto Cittadino Italia",
   "short_name": "Punto Cittadino",
-  "description": "Servizi CAF e Patronato, prenotazioni e disdette",
+  "description": "Assistenza fiscale, previdenziale e digitale. Un solo punto, tante soluzioni.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

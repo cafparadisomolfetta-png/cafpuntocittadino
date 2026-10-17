@@ -133,7 +133,7 @@ function escapeHtml(value) {
 
 async function sendEmail(accessToken, { to, cc, subject, html }) {
   const message = [
-    `From: CAF Punto Cittadino Italia <${EMAIL_SEDE}>`,
+    `From: Punto Cittadino Italia <${EMAIL_SEDE}>`,
     `To: ${to}`,
     cc ? `Cc: ${cc}` : null,
     `Subject: ${subject}`,
@@ -461,7 +461,7 @@ exports.handler = async (event) => {
 
           <p>
             il tuo appuntamento presso
-            <strong>CAF Punto Cittadino Italia</strong>
+            <strong>Punto Cittadino Italia</strong>
             è stato confermato.
           </p>
 
@@ -503,7 +503,7 @@ exports.handler = async (event) => {
           <hr>
 
           <p>
-            <strong>CAF Punto Cittadino Italia</strong><br>
+            <strong>Punto Cittadino Italia</strong><br>
             Via Paradiso 34 – Molfetta<br>
             Tel. 080 6455509
           </p>
@@ -517,7 +517,7 @@ exports.handler = async (event) => {
           to: email,
           cc: EMAIL_SEDE,
           subject:
-            `Conferma appuntamento CAF Punto Cittadino Italia - ${dataIt} ore ${ora}`,
+            `Conferma appuntamento Punto Cittadino Italia - ${dataIt} ore ${ora}`,
           html
         }
       );

@@ -1,7 +1,7 @@
 'use strict';
 // Static design layer: real forms, IDs and authentication scripts remain in place.
 const pages={
- 'index.html':['home','ASSISTENZA ONLINE IN TUTTA ITALIA','Il tuo CAF online.<br><em>Ovunque tu sia.</em>','Assistenza fiscale, previdenziale e per il lavoro in tutta Italia. Prenota una consulenza telefonica o un contatto WhatsApp e segui le tue pratiche dall’area personale.'],
+ 'index.html':['home','ASSISTENZA ONLINE IN TUTTA ITALIA','Un solo punto,<br><em>tante soluzioni.</em>','Assistenza fiscale, previdenziale e per il lavoro in tutta Italia. Prenota una consulenza telefonica o un contatto WhatsApp e segui le tue pratiche dall’area personale.'],
  'caf.html':['caf','CAF E FISCALE','Più semplici i tuoi<br><em>adempimenti fiscali</em>','Consulenza e assistenza per privati, famiglie e imprese.'],
  'patronato.html':['patronato','PATRONATO / INPS','I tuoi diritti,<br><em>il nostro supporto</em>','Assistenza su pensioni, prestazioni previdenziali e servizi di welfare.'],
  'lavoro-sindacato.html':['lavoro','LAVORO / SINDACATO','Più tutela.<br><em>Più chiarezza.</em>','Contratti, buste paga, TFR, ferie, permessi e consulenza del lavoro.'],
@@ -12,6 +12,8 @@ const pages={
 };
 function themeLink(html){return html.replace(/<\/head>/i,'<link rel="stylesheet" href="/approved-design.css">\n</head>');}
 function approvedPublic(html,file){
+ // Historical source pages retain their original content; the artifact uses the current public brand.
+ html=html.replace(/CAF Punto Cittadino(?: Italia)?/g,'Punto Cittadino Italia').replace(/CAF PUNTO CITTADINO(?: ITALIA)?/g,'PUNTO CITTADINO ITALIA');
  const escape=value=>value.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
  const options='<option value="">Seleziona il servizio</option>'+require('./netlify/functions/booking-services.js').groups.map(group=>'<optgroup label="'+escape(group.label)+'">'+group.services.map(service=>'<option>'+escape(service)+'</option>').join('')+'</optgroup>').join('');
  html=html.replace(/(<select\b[^>]*\bid="bkServizio"[^>]*>)[\s\S]*?(<\/select>)/g,(_match,start,end)=>start+options+end);
@@ -33,13 +35,14 @@ function approvedPublic(html,file){
  const cfg=pages[file];if(!cfg)return html;
  const [style,label,heading,description]=cfg;
  html=html.replace('data-cafpc-design="public"','data-cafpc-design="public" data-cafpc-page="'+style+'"');
- html=html.replace(/<div class="pro-brand">[\s\S]*?<\/div>\s*<div class="pro-brand__sub">[\s\S]*?<\/div>\s*<div class="pro-brand__tag">[\s\S]*?<\/div>\s*<\/div>/,'<a class="cafpc-brand" href="/" aria-label="CAF Punto Cittadino Italia, Home"><img src="/assets/caf-brand.svg" width="280" height="80" alt="CAF Punto Cittadino Italia — Le persone al centro"><span class="cafpc-brand-italia">Italia</span></a>');
+ html=html.replace(/<div class="pro-brand">[\s\S]*?<\/div>\s*<div class="pro-brand__sub">[\s\S]*?<\/div>\s*<div class="pro-brand__tag">[\s\S]*?<\/div>\s*<\/div>/,'<a class="cafpc-brand" href="/" aria-label="Punto Cittadino Italia, Home"><img src="/assets/caf-brand.svg" width="280" height="80" alt="Punto Cittadino Italia — Un solo punto, tante soluzioni"></a>');
  const primary=style==='lavora'?'/candidature/':'/servizi-online.html#prenotazione-online';
  const secondary=style==='home'?'/caf.html':style==='lavora'?'/candidature/':'#cafpc-servizi';
  const hero='<section class="cafpc-design-hero cafpc-design-hero--'+style+'"><div class="cafpc-hero-copy"><p class="cafpc-design-eyebrow">'+label+'</p><h1>'+heading+'</h1><p>'+description+'</p><div class="cafpc-hero-actions"><a href="'+primary+'">'+(style==='lavora'?'Proponi la tua candidatura':'Prenota appuntamento')+'</a><a href="'+secondary+'">'+(style==='lavora'?'Presenta la tua struttura':'Scopri i servizi →')+'</a></div></div><img class="cafpc-hero-photo" src="/assets/'+(style==='patronato'?'caf-previdenza.svg':'caf-consulenza.svg')+'" width="420" height="270" alt="'+(style==='patronato'?'Una persona durante una consulenza previdenziale':'Una consulente accoglie una persona allo sportello')+'"></section>';
  const home=style==='home'?'<section id="cafpc-home-services" class="cafpc-services-showcase"><h2>Come possiamo aiutarti?</h2><div class="cafpc-home-grid">'+[['CAF e Fiscale','Dichiarazioni, ISEE, assistenza fiscale.','/caf.html','▤'],['Patronato / INPS','Pensioni, prestazioni e tutele.','/patronato.html','♡'],['Lavoro / Sindacato','Diritti, contratti e consulenza.','/lavoro-sindacato.html','♧'],['Area Aziende','Servizi dedicati alle imprese.','/area-aziende.html','▥']].map(([name,desc,url,icon])=>'<a class="cafpc-home-card" href="'+url+'"><span class="cafpc-service-icon" aria-hidden="true">'+icon+'</span><strong>'+name+'</strong><span>'+desc+'</span><span aria-hidden="true">→</span></a>').join('')+'</div><div class="cafpc-home-panels"><article><h2>Prenota un appuntamento</h2><p>Scegli servizio, modalità e orario nell’agenda online.</p><a class="btn btn--primary" href="/servizi-online.html#prenotazione-online">Apri le prenotazioni →</a><p>Assistenza in tutta Italia · <a href="tel:0806455509">080 6455509</a></p></article><article><h2>Il tuo sportello personale</h2><p>Documenti PDF, stato delle pratiche e richieste di integrazione della sede.</p><a class="btn btn--primary" href="/assistiti/">Accedi all’area assistiti →</a><p><a href="/news-bonus.html">Leggi News e Bonus</a></p></article></div></section>':'';
+ const about=style==='home'?'<section class="cafpc-services-showcase" aria-labelledby="cafpc-about-title"><h2 id="cafpc-about-title">Il nostro impegno</h2><div class="cafpc-home-panels"><article><h3>La nostra missione</h3><p>Semplificare le pratiche di cittadini, famiglie, lavoratori e imprese, offrendo assistenza fiscale, previdenziale e digitale con un supporto personale, accessibile online in tutta Italia.</p></article><article><h3>La nostra visione</h3><p>Diventare un punto di riferimento nazionale per l’assistenza digitale al cittadino, riconosciuto per chiarezza, affidabilità e vicinanza alle persone.</p></article></div></section>':'';
  let inserted=false;
- html=html.replace(/<nav class="pro-nav">[\s\S]*?<\/nav>/,nav=>{inserted=true;return nav+hero+home});
+ html=html.replace(/<nav class="pro-nav">[\s\S]*?<\/nav>/,nav=>{inserted=true;return nav+hero+home+about});
  if(!inserted)throw new Error('Public design navigation target missing: '+file);
  return html;
 }
