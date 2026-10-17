@@ -6,6 +6,8 @@ Aggiornamento successivo: filtro approvazione, quote e notifiche implementati; s
 
 Aggiornamento identità successivo: **Punto Cittadino Italia**, slogan **Un solo punto, tante soluzioni**. Rimossa la parola CAF dal nome commerciale e dal wordmark, conservando il pittogramma e la grafica precedente. Missione e visione inserite nella home; nome allineato nelle applicazioni, nei manifest e nei mittenti/template email. Le categorie CAF/Patronato e il titolare giuridico restano distinti dal marchio. Nessun nuovo dominio, deposito di marchio, modifica social, invio email o pubblicazione.
 
+Aggiornamento contatti: percorso urgenze scritto, WhatsApp Business confermato **0806455509** (`+390806455509`) ed email progetto. Pulsanti con bozza descrittiva e scadenza; nessun invio automatico. Rimossi inviti e collegamenti alle chiamate in entrata nelle pagine promozionali; appuntamenti telefonici restano ricontatti della struttura. Dati legali nell’informativa invariati. Suite aggiornata: **159 test locali superati**; apertura effettiva delle app WhatsApp/email su dispositivi ancora da collaudare.
+
 ## Modifiche correnti
 
 - Nome concordato aggiornato a **Punto Cittadino Italia**, mantenendo dominio e nomi utente social attuali.

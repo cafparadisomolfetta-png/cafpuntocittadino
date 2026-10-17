@@ -69,6 +69,11 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.match(text,/Assistenza a distanza in tutta Italia/,file);
   assert.match(text,/id="cafpc-explorer"/,file);
   assert.match(text,/src="\/service-explorer.js"/,file);
+  assert.ok(!/href=["']tel:/.test(text),file);
+  assert.match(text,/id="richiesta-urgente"/,file);
+  assert.match(text,/https:\/\/wa\.me\/390806455509\?text=/,file);
+  assert.match(text,/mailto:cafparadiso.molfetta@gmail.com\?subject=/,file);
+  assert.ok(!text.includes('oppure contatta la sede al numero'),file);
   assert.ok(!text.includes('id="screeningCard"'),file);
   assert.ok(!text.includes('Via Paradiso'),file);
   assert.ok(!text.includes('Sede di Molfetta'),file);

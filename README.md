@@ -6,6 +6,8 @@ Sito pubblico con assistenza online in tutta Italia, prenotazioni Google Calenda
 
 **Codice in collaudo; nessuna nuova pubblicazione. Destinazione scelta: VPS Linux Aruba con backup separato. Netlify rimane sospeso.**
 
+Urgenze e contatti: collegamenti diretti a WhatsApp Business **080 6455509** e a `cafparadiso.molfetta@gmail.com`, con richiesta scritta e ricontatto su iniziativa della struttura. Nessun invito alla chiamata in entrata nelle pagine promozionali. Numeri e destinatario sono pubblici e configurabili durante la build; nessun messaggio viene inviato automaticamente.
+
 Filtro approvazione, importi e notifiche: [APPROVAZIONE-QUOTE-NOTIFICHE.md](APPROVAZIONE-QUOTE-NOTIFICHE.md). Nuove richieste senza PDF fino ad approvazione dell’operatore e conferma dell’importo da parte dell’assistito. Per pratiche a pagamento, la lavorazione rimane bloccata fino alla verifica manuale dell’incasso sul conto da parte dell’amministratrice o di un responsabile autorizzato.
 
 Stato corrente: [VERIFICA-CHIUSURA-2026-10-17.md](VERIFICA-CHIUSURA-2026-10-17.md). Ordine del rilascio: [CHECKLIST-RILASCIO.md](CHECKLIST-RILASCIO.md). Installazione: [deployment/README.md](deployment/README.md).
