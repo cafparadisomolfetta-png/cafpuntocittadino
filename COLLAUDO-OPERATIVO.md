@@ -2,7 +2,7 @@
 
 Il lavoro sul codice prosegue senza accendere il PC della sede. La prova locale Windows viene lasciata all'ultimo passaggio della preparazione. Questo non sposta automaticamente sul PC i servizi operativi: disponibilità del server, configurazione Google, antivirus, backup e prove reali restano requisiti distinti.
 
-Per la decisione economica è disponibile [COSTI-PROGETTO-2026-10-13.md](COSTI-PROGETTO-2026-10-13.md): listini pubblici, ipotesi, costi esclusi e condizioni da verificare prima di ordinare. La direzione ha autorizzato massimo 15 euro/mese per server e backup, mantenendo AI e Netlify disattivati. Nessuna risorsa acquistata.
+Decisione aggiornata il 17 ottobre: server Linux e backup separato su Aruba. I confronti economici precedenti sono storici; verificare il preventivo finale prima di qualsiasi acquisto. Nessuna risorsa acquistata da questa sessione. AI e Netlify restano disattivati. La checklist corrente è [CHECKLIST-RILASCIO.md](CHECKLIST-RILASCIO.md).
 
 ## Preparazione già eseguita
 
@@ -19,7 +19,7 @@ Per la decisione economica è disponibile [COSTI-PROGETTO-2026-10-13.md](COSTI-P
 
 | Condizione | Evidenza richiesta | Stato |
 | --- | --- | --- |
-| Server e backup entro 15 euro/mese | Sistema effettivamente disponibile con Node compatibile, HTTPS, disco persistente privato, accessi e backup separati | Soluzione economica proposta; nessuna risorsa acquistata o configurata |
+| Server Aruba e backup separato | Sistema effettivamente disponibile con Node compatibile, HTTPS, disco persistente privato, accessi e backup separati | Fornitore scelto; risorse e accessi operativi ancora da verificare |
 | Configurazione Google del sito | Client/origini corrette, calendario distinto per sede, scope effettivi Calendar/Gmail, ruoli e revoca | Credenziali presenti per nome su Netlify, valori non esportati; runtime da configurare |
 | Antivirus | ClamAV reale, firme aggiornate, PDF pulito accettato, file di test infetto rifiutato e scanner indisponibile bloccante | Solo scanner simulato |
 | Sedi | Avvio con sola Molfetta; ulteriori sedi dopo configurazione e collaudo | Bari esclusa dall’avvio, vedi SEDI-ATTIVE.md |

@@ -49,6 +49,7 @@ function inspectEnvironment(env=process.env,{publicDirectory=path.join(root,'dis
  });
  check('google_credentials','Configure Google OAuth client, secret and refresh token privately; validity and scopes require real testing.',()=>['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN'].every(name=>present(env[name])));
  check('retention','Configure approved retention durations for 730 and ISEE.',()=>{retentionPlan({list:()=>[]},JSON.parse(env.CAF_RETENTION_DAYS_JSON||'null'));return true;});
+ check('services','Every enabled document service requires an approved retention duration.',()=>{const selected=require('../netlify/functions/practice-services.js').enabledServices(env),policy=JSON.parse(env.CAF_RETENTION_DAYS_JSON||'null');return selected.every(id=>Number.isInteger(policy?.[id])&&policy[id]>0&&policy[id]<=36500);});
  check('callback','Enabled callbacks require an approved retention duration.',()=>env.CAF_CALLBACK_ENABLED!=='true'||duration(String(JSON.parse(env.CAF_RETENTION_DAYS_JSON||'null')?.richiamata||'')));
  check('cv','If enabled, configure an approved CV retention duration.',()=>!env.CAF_CV_RETENTION_DAYS||duration(env.CAF_CV_RETENTION_DAYS));
  check('bari_schedule','If configured, use valid approved Bari slots.',()=>{siteSlots(env);return true;});

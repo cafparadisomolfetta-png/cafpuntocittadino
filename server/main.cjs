@@ -41,7 +41,7 @@ function configuredServer(env=process.env){
   const jobs=new (require('./jobs.cjs').Jobs)({vault,calendar,enabled:env.CAF_JOBS_ENABLED==='true',mailEnabled,retentionDays:mailRetentionDays,sendMail:require('./google-mail.cjs').googleMail({env})});
   const appointments=new (require('./appointments.cjs').Appointments)({vault,calendar,slotsFor,notify:value=>jobs.enqueue(value)});
   const candidatures=env.CAF_CV_RETENTION_DAYS?new (require('./candidatures.cjs').Candidatures)({vault,scan:clamScanner(scanner),retentionDays:Number(env.CAF_CV_RETENTION_DAYS),activeSites}):undefined;
-  const practices=new Practices({vault,scan:clamScanner(scanner),verifyAppointment:calendar.verifyAppointment,activeSites,enabledServices:env.CAF_CALLBACK_ENABLED==='true'?['730','isee','richiamata']:['730','isee']});
+  const practices=new Practices({vault,scan:clamScanner(scanner),verifyAppointment:calendar.verifyAppointment,activeSites,enabledServices:require('../netlify/functions/practice-services.js').enabledServices(env)});
   // Preserve existing public Google functions without enabling Netlify deployments.
   const providerHandlers={};
   for(const name of ['calendar-availability','calendar-book','calendar-cancel'])providerHandlers[name]=require('../netlify/functions/'+name+'.js').handler;

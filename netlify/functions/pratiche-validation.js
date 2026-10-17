@@ -2,7 +2,7 @@
 // Shared input validation for future document-intake endpoints.
 // No upload, storage, or external transmission is implemented here.
 const SITES=Object.freeze(['molfetta','bari']);
-const SERVICES=Object.freeze(['730','isee','richiamata']);
+const SERVICES=Object.freeze([...require('./practice-services.js').ids,'richiamata']);
 const MODES=Object.freeze(['appointment','direct']);
 const MAX_FILE_BYTES=10*1024*1024;
 const MAX_FILES=20;

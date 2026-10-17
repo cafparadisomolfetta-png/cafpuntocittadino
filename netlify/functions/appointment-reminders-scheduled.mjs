@@ -81,7 +81,7 @@ async function sendEmail(accessToken, {
   html
 }) {
   const message = [
-    `From: CAF Punto Cittadino <${EMAIL_SEDE}>`,
+    `From: CAF Punto Cittadino Italia <${EMAIL_SEDE}>`,
     `To: ${to}`,
     `Subject: ${subject}`,
     "MIME-Version: 1.0",
@@ -261,7 +261,7 @@ export default async () => {
           <p>
             Ti ricordiamo che domani hai
             un appuntamento presso
-            <strong>CAF Punto Cittadino</strong>.
+            <strong>CAF Punto Cittadino Italia</strong>.
           </p>
 
           <p>
@@ -290,7 +290,7 @@ export default async () => {
           <hr>
 
           <p>
-            <strong>CAF Punto Cittadino</strong><br>
+            <strong>CAF Punto Cittadino Italia</strong><br>
             Via Paradiso 34 – Molfetta<br>
             Tel. 080 6455509
           </p>
@@ -302,7 +302,7 @@ export default async () => {
         await sendEmail(accessToken, {
           to: email,
           subject:
-            `Promemoria appuntamento CAF Punto Cittadino - ${dataIt} ore ${ora}`,
+            `Promemoria appuntamento CAF Punto Cittadino Italia - ${dataIt} ore ${ora}`,
           html
         });
 

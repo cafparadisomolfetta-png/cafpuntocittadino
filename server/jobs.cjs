@@ -12,7 +12,7 @@ class Jobs{
   const marker=kind==='reminder'?start:(event.etag||start),id=crypto.createHash('sha256').update(kind+':'+site+':'+event.id+':'+marker).digest('hex');if(this.vault.get('outbox',id))return id;
   const label={reminder:'Promemoria appuntamento','appointment-moved':'Appuntamento spostato','appointment-cancelled':'Appuntamento annullato'}[kind];if(!label)return null;
   const time=new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',dateStyle:'short',timeStyle:'short'}).format(new Date(start));
-  this.vault.put('outbox',id,{id,state:'pending',kind,site,eventId:event.id,start,to:email,subject:label+' — CAF Punto Cittadino',text:label+'.\nSede: '+(site==='bari'?'Bari':'Molfetta')+'\nData e ora: '+time+'\nPer assistenza contatta la sede.\nNon rispondere allegando documenti personali.',createdAt:new Date(this.clock()).toISOString(),attempts:0});return id;
+  this.vault.put('outbox',id,{id,state:'pending',kind,site,eventId:event.id,start,to:email,subject:label+' — CAF Punto Cittadino Italia',text:label+'.\nSede: '+(site==='bari'?'Bari':'Molfetta')+'\nData e ora: '+time+'\nPer assistenza contatta la sede.\nNon rispondere allegando documenti personali.',createdAt:new Date(this.clock()).toISOString(),attempts:0});return id;
  }
  status(actor){if(!actor?.authenticated||actor.role!=='admin')failure(403,'ADMIN_REQUIRED');const counts={};for(const row of this.vault.list('outbox'))counts[row.state]=(counts[row.state]||0)+1;return {enabled:this.enabled,mailEnabled:this.mailEnabled,jobs:this.vault.list('job'),outbox:counts};}
  async reminders(){const events=await this.calendar.upcomingReminders(this.clock());this.vault.transaction(()=>{for(const {event,site}of events)this.enqueue({kind:'reminder',event,site})});return {examined:events.length};}

@@ -1,6 +1,6 @@
-# Runtime privato CAF Punto Cittadino
+# Runtime privato CAF Punto Cittadino Italia
 
-Implementazione verificata localmente con dati sintetici: **116 test superati**. Stato e limiti: [VERIFICA-WORK-2026-10-13.md](../VERIFICA-WORK-2026-10-13.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
+Implementazione verificata localmente con dati sintetici: **148 test superati nella revisione del 17 ottobre 2026**. Stato e limiti: [VERIFICA-CHIUSURA-2026-10-17.md](../VERIFICA-CHIUSURA-2026-10-17.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
 
 ## Ambiente
 
@@ -14,7 +14,7 @@ Il controllo verifica solo che l'eseguibile antivirus configurato sia presente e
 
 ## Funzioni e accessi
 
-- `/assistiti/`: account Google personale, richieste 730/ISEE, riferimento appuntamento verificato tramite email account/calendario, pratiche proprie, ricevute/stati, integrazioni e PDF. Upload non equivale a mandato/firma/invio ufficiale.
+- `/assistiti/`: account Google personale, richieste per i servizi del catalogo effettivamente abilitati, riferimento appuntamento verificato tramite email account/calendario, pratiche proprie, ricevute/stati, integrazioni e PDF. Upload non equivale a mandato/firma/invio ufficiale.
 - Richiamata: intake autenticato con telefono e email verificata, gestione nello stesso workflow; recapiti solo admin/manager/operator della sede, senza allegati. Le pagine pubbliche instradano verso l'area assistiti e non raccolgono questi dati in Netlify Forms.
 - `/gestionale/pratiche.html`: admin entrambe le sedi; manager/operator/viewer solo sedi assegnate. Viewer non modifica; admin gestisce collaboratori, revoca, erasure, conservazione, news e job. I dati reali non devono comparire nei test.
 - `/gestionale/`: agenda Google, spostamenti/annullamenti per operatori autorizzati della sede, esclusi viewer/citizen ed eventi senza marcatura CAF. ETag/If-Match impedisce sovrascritture di versioni cambiate; il runtime riserva lo slot prima dello spostamento. Esiti incerti/crash mantengono il blocco. Inserimenti diretti su Google o tramite altri sistemi non sono serializzati dal runtime.
@@ -65,7 +65,8 @@ Mai inserire valori segreti o documenti personali in chat, GitHub o bundle.
 | `CAF_ENABLED_SITES_JSON` | Sedi attive; default `["molfetta"]`; Bari resta disattivata |
 | `GESTIONALE_SITE_CALENDARS_JSON` | Un calendario per ogni sede attiva; distinti se si attivano più sedi |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID` | Integrazione storica Calendar/Gmail |
-| `CAF_RETENTION_DAYS_JSON` | Giorni approvati per `730`, `isee` e, se abilitata, `richiamata` |
+| `CAF_ENABLED_SERVICES_JSON` | Array di ID del catalogo `netlify/functions/practice-services.js`; senza configurazione, solo `730` e `isee`. Il modello deployment propone tutti i 30 servizi; non attivarli senza revisione della relativa raccolta documentale. |
+| `CAF_RETENTION_DAYS_JSON` | Giorni approvati per `730`, `isee` e ogni ulteriore servizio abilitato, compresa `richiamata` se attiva. Non esistono durate predefinite. |
 | `CAF_CALLBACK_ENABLED=true` | Richiamate personali; richiede policy `richiamata` |
 | `CAF_CV_RETENTION_DAYS` | Durata approvata necessaria per abilitare CV |
 | `CAF_BARI_SLOTS_JSON` | Mappa weekday 0–6 a orari privati approvati; nessun default Bari |

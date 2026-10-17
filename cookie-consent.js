@@ -1,4 +1,4 @@
-/* CAF Punto Cittadino: gestione consenso cookie, modulo pronto per integrazione.
+/* CAF Punto Cittadino Italia: gestione consenso cookie, modulo pronto per integrazione.
  * Non carica traccianti: ogni script facoltativo dovra' rispettare la scelta.
  */
 (function () {

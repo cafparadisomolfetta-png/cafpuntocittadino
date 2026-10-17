@@ -7,7 +7,7 @@ STATO: progettazione; non pubblicare né attivare upload prima dei collaudi e de
 ## Funzioni approvate
 - Invio documenti collegato a prenotazione esistente.
 - Apertura richiesta e invio documenti senza prenotazione.
-- Servizi iniziali: 730 e ISEE, poi altri servizi.
+- Aggiornamento 17 ottobre: intake PDF e stato supportati per i 30 servizi del catalogo. Attivazione selettiva tramite `CAF_ENABLED_SERVICES_JSON`, con durate e informative approvate per ciascuna raccolta effettiva. Default compatibile: 730 e ISEE; il modello Aruba propone il catalogo completo. Nessun invio automatico ufficiale agli enti.
 - Area assistito autenticata: Le mie pratiche, stato, ricevuta, richieste integrazione.
 - Gestionale: coda pratiche per sede; amministratore Molfetta e Bari, operatori soltanto sede autorizzata.
 

@@ -81,3 +81,7 @@ body[data-cafpc-design=private] .tiles article:nth-child(2){background:#e5faf3}b
 .cafpc-explorer-content h2{font-size:clamp(23px,4vw,34px)}.cafpc-explorer-content h3{margin-top:22px}.cafpc-explorer-content h4{font-size:19px;margin:0 0 12px}
 .cafpc-explorer-note{color:var(--cafpc-muted);font-size:14px;margin-top:18px}
 #cafpc-explorer details{padding:16px;background:var(--cafpc-paper);border:1px solid var(--cafpc-line);border-radius:12px;margin:18px 0}
+
+/* Keep the approved logo; extend its name without changing the original artwork. */
+.cafpc-brand{gap:6px;min-width:0}.cafpc-brand-italia{display:inline-block;flex:0 0 auto;color:var(--cafpc-navy);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid var(--cafpc-turquoise);line-height:1.7}
+.cafpc-social-links{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding:24px max(20px,calc((100vw - 1180px)/2));background:#073873;color:white}.cafpc-social-links a{color:white;text-underline-offset:4px;overflow-wrap:anywhere}.cafpc-social-links strong{flex-basis:100%}
