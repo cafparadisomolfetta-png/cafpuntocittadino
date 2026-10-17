@@ -63,6 +63,7 @@ class Practices {
   return this.vault.transaction(()=>{
    const record=this.record(actor,id,'change_status',{nextStatus:input.status});
    if(record.approvalRequired&&input.status!=='rejected'&&(record.approvalStatus!=='approved'||!record.feeOffer?.acceptedAt))failure(409,'APPROVAL_REQUIRED');
+   if(record.approvalRequired&&record.feeOffer?.amountCents>0&&!record.paymentConfirmedAt&&input.status!=='rejected')failure(409,'PAYMENT_REQUIRED');
    if(record.version!==input.version)failure(409,'VERSION_CONFLICT');
    const updated={...record,status:input.status,integrationMessage:input.status==='awaiting_documents'?message.trim():'',updatedAt:this.clock(),version:record.version+1};
    this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.status.'+input.status,id);this.notify({kind:'practice-update',record:updated});return {...projectPractice(actor,updated),version:updated.version};
@@ -71,11 +72,12 @@ class Practices {
  approve(actor,id,input){
   if(!actor?.authenticated||!['admin','manager','operator'].includes(actor.role))failure(403,'STAFF_REQUIRED');
   if(!input||!Number.isSafeInteger(input.version)||!Number.isSafeInteger(input.amountCents)||input.amountCents<0||input.amountCents>100000000||typeof input.description!=='string'||!input.description.trim()||input.description.length>500||/[\x00-\x1f]/.test(input.description))failure(400,'INVALID_FEE_OFFER');
+  const paymentInstructions=input.paymentInstructions||'';if(typeof paymentInstructions!=='string'||paymentInstructions.length>500||/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(paymentInstructions)||input.amountCents>0&&!paymentInstructions.trim())failure(400,'PAYMENT_INSTRUCTIONS_REQUIRED');
   return this.vault.transaction(()=>{
    const record=this.record(actor,id);
    if(record.version!==input.version)failure(409,'VERSION_CONFLICT');
    if(!record.approvalRequired||record.status!=='received'||record.documentCount>0||record.feeOffer?.acceptedAt)failure(409,'APPROVAL_NOT_AVAILABLE');
-   const now=this.clock(),updated={...record,approvalStatus:'approved',feeOffer:{amountCents:input.amountCents,currency:'EUR',description:input.description.trim(),offeredAt:now,acceptedAt:null},updatedAt:now,version:record.version+1};
+   const now=this.clock(),updated={...record,approvalStatus:'approved',feeOffer:{amountCents:input.amountCents,currency:'EUR',description:input.description.trim(),paymentInstructions:paymentInstructions.trim(),offeredAt:now,acceptedAt:null},paymentConfirmedAt:null,updatedAt:now,version:record.version+1};
    this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.approve_offer',id);this.notify({kind:'practice-update',record:updated});return {...projectPractice(actor,updated),version:updated.version};
   });
  }
@@ -88,6 +90,18 @@ class Practices {
    if(record.status!=='received'||!record.approvalRequired||record.approvalStatus!=='approved'||!record.feeOffer||record.feeOffer.acceptedAt)failure(409,'FEE_OFFER_NOT_AVAILABLE');
    const now=this.clock(),updated={...record,feeOffer:{...record.feeOffer,acceptedAt:now},updatedAt:now,version:record.version+1};
    this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.fee_accepted',id);this.notify({kind:'practice-update',record:updated});return {...projectPractice(actor,updated),version:updated.version};
+  });
+ }
+ confirmPayment(actor,id,input){
+  if(!actor?.authenticated||!['admin','manager'].includes(actor.role))failure(403,'PAYMENT_STAFF_REQUIRED');
+  if(!input||!Number.isSafeInteger(input.version)||input.confirmReceived!==true||!Number.isSafeInteger(input.receivedCents))failure(400,'PAYMENT_CONFIRMATION_REQUIRED');
+  return this.vault.transaction(()=>{
+   const record=this.record(actor,id);
+   if(record.version!==input.version)failure(409,'VERSION_CONFLICT');
+   if(!record.approvalRequired||record.approvalStatus!=='approved'||!record.feeOffer?.acceptedAt||!['received','awaiting_documents'].includes(record.status)||record.paymentConfirmedAt||record.feeOffer.amountCents<=0)failure(409,'PAYMENT_NOT_CONFIRMABLE');
+   if(input.receivedCents!==record.feeOffer.amountCents)failure(400,'PAYMENT_AMOUNT_MISMATCH');
+   const now=this.clock(),updated={...record,paymentConfirmedAt:now,updatedAt:now,version:record.version+1};
+   this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.payment_received',id);this.notify({kind:'practice-update',record:updated});return {...projectPractice(actor,updated),version:updated.version};
   });
  }
  erase(actor,id){

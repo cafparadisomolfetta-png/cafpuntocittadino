@@ -5,7 +5,7 @@ const citizen={authenticated:true,role:'citizen',subject:'synthetic-owner',email
 const input={site:'molfetta',service:'isee',mode:'direct',privacyVersion:'2026-10-12',privacyAcknowledged:true};
 const pdf=Buffer.from('%PDF-1.4\nsynthetic-approval-test\n%%EOF'),meta={name:'synthetic.pdf',mime:'application/pdf',bytes:pdf.length};
 function fixture(t,{retentionDays=7}={}){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'caf-approval-')),vault=new Vault({directory:dir,key:crypto.randomBytes(32)}),sent=[];t.after(()=>{vault.close();fs.rmSync(dir,{recursive:true,force:true})});const jobs=new Jobs({vault,retentionDays,adminEmail:'admin@example.test',activeSites:['molfetta'],mailEnabled:true,sendMail:async row=>{sent.push(row);return {id:'synthetic-provider-id'}}});let scans=0;const practices=new Practices({vault,activeSites:['molfetta'],scan:async()=>{scans++;return 'clean'},notify:value=>jobs.enqueuePractice(value)});return {vault,jobs,practices,sent,scans:()=>scans};}
-function offer(practices,row,amountCents=1800){return practices.approve(operator,row.id,{version:row.version,amountCents,description:'Importo complessivo per il servizio indicato; condizioni di prova.'});}
+function offer(practices,row,amountCents=1800){return practices.approve(operator,row.id,{version:row.version,amountCents,paymentInstructions:'COORDINATE SINTETICHE NON UTILIZZABILI PER BONIFICI',description:'Importo complessivo per il servizio indicato; condizioni di prova.'});}
 test('New requests default to pending approval; forged fields cannot enable documents or start work',async t=>{
  const {practices,vault,scans}=fixture(t),row=await practices.create(citizen,{...input,approvalRequired:false,approvalStatus:'approved',feeOffer:{acceptedAt:'forged'}});
  assert.equal(row.approvalRequired,true);assert.equal(row.approvalStatus,'pending');assert.equal(row.canUpload,false);assert.equal(row.feeOffer,null);
@@ -25,7 +25,8 @@ test('Approval and version-bound fee acceptance unlock PDFs for all 30 services,
   assert.throws(()=>practices.acceptOffer(operator,row.id,{version:row.version,accept:true}),e=>e.code==='CITIZEN_REQUIRED');
   row=practices.acceptOffer(citizen,row.id,{version:row.version,accept:true});assert.equal(row.canUpload,true);assert.ok(row.feeOffer.acceptedAt);
   const uploaded=await practices.upload(citizen,row.id,meta,pdf);assert.deepEqual(practices.download(operator,row.id,uploaded.id).bytes,pdf);
-  practices.changeStatus(operator,row.id,{version:row.version+1,status:'in_review'});
+  row=practices.detail(citizen,row.id);if(row.feeOffer.amountCents>0)row=practices.confirmPayment({authenticated:true,role:'admin',subject:'synthetic-admin'},row.id,{version:row.version,receivedCents:row.feeOffer.amountCents,confirmReceived:true});
+  practices.changeStatus(operator,row.id,{version:row.version,status:'in_review'});
  }
  assert.equal(vault.list('document').length,30);assert.equal(vault.verifyAudit(),true);
 });
@@ -62,4 +63,40 @@ test('HTTP routes enforce staff approval and owner acceptance before upload',asy
  assert.equal((await request(route+'/accept-offer',{version:row.version,accept:true},'other')).status,404);
  response=await request(route+'/accept-offer',{version:row.version,accept:true});row=await response.json();assert.equal(response.status,200);assert.equal(row.canUpload,true);
  response=await request(route+'/documents',{...meta,content:pdf.toString('base64')});assert.equal(response.status,201);
+});
+
+test('Fee acceptance and uploaded receipts do not unlock work before verified receipt of funds',async t=>{
+ const {practices}=fixture(t);let row=await practices.create(citizen,{...input,paymentConfirmedAt:'forged'});assert.equal(row.paymentStatus,'pending');row=offer(practices,row);row=practices.acceptOffer(citizen,row.id,{version:row.version,accept:true});
+ await practices.upload(citizen,row.id,{...meta,name:'ricevuta-bonifico.pdf'},pdf);row=practices.detail(citizen,row.id);assert.equal(row.paymentStatus,'pending');
+ assert.throws(()=>practices.changeStatus(operator,row.id,{version:row.version,status:'in_review'}),e=>e.code==='PAYMENT_REQUIRED');
+ assert.throws(()=>practices.changeStatus(operator,row.id,{version:row.version,status:'awaiting_documents',integrationMessage:'Test'}),e=>e.code==='PAYMENT_REQUIRED');
+ for(const actor of [citizen,other,operator,viewer])assert.throws(()=>practices.confirmPayment(actor,row.id,{version:row.version,receivedCents:1800,confirmReceived:true}),e=>e.code==='PAYMENT_STAFF_REQUIRED');
+ assert.throws(()=>practices.confirmPayment({...outsider,role:'manager'},row.id,{version:row.version,receivedCents:1800,confirmReceived:true}),e=>e.code==='PRACTICE_NOT_FOUND');
+ const admin={authenticated:true,role:'admin',subject:'synthetic-admin'};
+ assert.throws(()=>practices.confirmPayment(admin,row.id,{version:row.version,receivedCents:1700,confirmReceived:true}),e=>e.code==='PAYMENT_AMOUNT_MISMATCH');
+ assert.throws(()=>practices.confirmPayment(admin,row.id,{version:row.version,receivedCents:1800,confirmReceived:false}),e=>e.code==='PAYMENT_CONFIRMATION_REQUIRED');
+ assert.throws(()=>practices.confirmPayment(admin,row.id,{version:1,receivedCents:1800,confirmReceived:true}),e=>e.code==='VERSION_CONFLICT');
+ row=practices.confirmPayment(admin,row.id,{version:row.version,receivedCents:1800,confirmReceived:true});assert.equal(row.paymentStatus,'confirmed');assert.ok(row.paymentConfirmedAt);
+ assert.throws(()=>practices.confirmPayment(admin,row.id,{version:row.version,receivedCents:1800,confirmReceived:true}),e=>e.code==='PAYMENT_NOT_CONFIRMABLE');
+ row=practices.changeStatus(operator,row.id,{version:row.version,status:'in_review'});assert.equal(row.status,'in_review');
+});
+test('Paid offers require private bank instructions; confirmation cannot precede acceptance and free requests need no transfer',async t=>{
+ const {practices,vault}=fixture(t);let row=await practices.create(citizen,input);
+ assert.throws(()=>practices.approve(operator,row.id,{version:1,amountCents:1800,description:'Test'}),e=>e.code==='PAYMENT_INSTRUCTIONS_REQUIRED');
+ row=offer(practices,row);assert.match(row.feeOffer.paymentInstructions,/SINTETICHE/);
+ const admin={authenticated:true,role:'admin',subject:'synthetic-admin'};assert.throws(()=>practices.confirmPayment(admin,row.id,{version:row.version,receivedCents:1800,confirmReceived:true}),e=>e.code==='PAYMENT_NOT_CONFIRMABLE');
+ const rejected=practices.changeStatus(operator,row.id,{version:row.version,status:'rejected'});assert.equal(rejected.status,'rejected');
+ let free=await practices.create(citizen,input);free=offer(practices,free,0);free=practices.acceptOffer(citizen,free.id,{version:free.version,accept:true});assert.equal(free.paymentStatus,'not_required');
+ assert.equal(practices.changeStatus(operator,free.id,{version:free.version,status:'in_review'}).status,'in_review');
+ for(const mail of vault.list('outbox'))assert.ok(!mail.text.includes('COORDINATE'));
+});
+test('Payment HTTP endpoint permits only an authorized finance role and applies the work gate server-side',async t=>{
+ const {practices}=fixture(t),admin={authenticated:true,role:'admin',subject:'synthetic-admin'},identity={authenticate:async headers=>headers.authorization==='Bearer admin'?admin:headers.authorization==='Bearer staff'?operator:citizen};
+ const server=createApp({practices,identity,origin:'http://127.0.0.1',publicDirectory:path.resolve('dist')});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>server.close(r)));
+ const base='http://127.0.0.1:'+server.address().port;const request=(route,body,token='owner')=>fetch(base+route,{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+ let row=await practices.create(citizen,input);row=offer(practices,row);row=practices.acceptOffer(citizen,row.id,{version:row.version,accept:true});const route='/api/practices/'+row.id;
+ assert.equal((await request(route+'/status',{version:row.version,status:'in_review'},'staff')).status,409);
+ assert.equal((await request(route+'/confirm-payment',{version:row.version,receivedCents:1800,confirmReceived:true})).status,403);
+ const response=await request(route+'/confirm-payment',{version:row.version,receivedCents:1800,confirmReceived:true},'admin');assert.equal(response.status,200);row=await response.json();assert.equal(row.paymentStatus,'confirmed');
+ assert.equal((await request(route+'/status',{version:row.version,status:'in_review'},'staff')).status,200);
 });

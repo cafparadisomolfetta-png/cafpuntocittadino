@@ -1,6 +1,6 @@
 # Runtime privato CAF Punto Cittadino Italia
 
-Implementazione verificata localmente con dati sintetici: **154 test superati nella revisione del 17 ottobre 2026**. Stato e limiti: [VERIFICA-CHIUSURA-2026-10-17.md](../VERIFICA-CHIUSURA-2026-10-17.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
+Implementazione verificata localmente con dati sintetici: **157 test superati nella revisione del 17 ottobre 2026**. Stato e limiti: [VERIFICA-CHIUSURA-2026-10-17.md](../VERIFICA-CHIUSURA-2026-10-17.md). Nessuna pubblicazione, spesa, chiamata AI a pagamento o email reale effettuata. I deploy Netlify restano sospesi.
 
 ## Ambiente
 

@@ -2,7 +2,7 @@
 
 **Preparazione locale verificata; progetto non ancora online e collaudo di produzione non eseguito.** Nessun acquisto, invio email, chiamata AI, modifica DNS o riattivazione Netlify.
 
-Aggiornamento successivo: filtro approvazione, quote e notifiche implementati; suite totale **154 test superati**. Dettagli e limiti: [APPROVAZIONE-QUOTE-NOTIFICHE.md](APPROVAZIONE-QUOTE-NOTIFICHE.md).
+Aggiornamento successivo: filtro approvazione, quote e notifiche implementati; suite totale **157 test superati**. Dettagli e limiti: [APPROVAZIONE-QUOTE-NOTIFICHE.md](APPROVAZIONE-QUOTE-NOTIFICHE.md).
 
 ## Modifiche correnti
 
