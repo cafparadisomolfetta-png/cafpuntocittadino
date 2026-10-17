@@ -76,7 +76,7 @@ body[data-cafpc-design=private] .tiles article:nth-child(2){background:#e5faf3}b
 .cafpc-explorer-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
 .cafpc-explorer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;margin:18px 0 28px}
 .cafpc-explorer-grid article{min-width:0;overflow-wrap:anywhere;border-radius:16px;padding:22px;background:var(--cafpc-soft);border:1px solid var(--cafpc-line)}
-
+.cafpc-explorer-grid article:nth-child(3n+2){background:#e4faf2}.cafpc-explorer-grid article:nth-child(3n){background:#f0eaff}
 .cafpc-explorer-options{display:grid;gap:12px;max-width:700px}.cafpc-explorer-options button{text-align:left}
 .cafpc-explorer-content h2{font-size:clamp(23px,4vw,34px)}.cafpc-explorer-content h3{margin-top:22px}.cafpc-explorer-content h4{font-size:19px;margin:0 0 12px}
 .cafpc-explorer-note{color:var(--cafpc-muted);font-size:14px;margin-top:18px}
@@ -85,26 +85,3 @@ body[data-cafpc-design=private] .tiles article:nth-child(2){background:#e5faf3}b
 /* Keep the approved logo; extend its name without changing the original artwork. */
 .cafpc-brand{gap:6px;min-width:0}.cafpc-brand-italia{display:inline-block;flex:0 0 auto;color:var(--cafpc-navy);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid var(--cafpc-turquoise);line-height:1.7}
 .cafpc-social-links{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding:24px max(20px,calc((100vw - 1180px)/2));background:#073873;color:white}.cafpc-social-links a{color:white;text-underline-offset:4px;overflow-wrap:anywhere}.cafpc-social-links strong{flex-basis:100%}
-
-/* Approved service identity: category colors never depend on card position. */
-[data-cafpc-theme]{--service-surface:#e6f5ff;--service-ink:#07519c}
-[data-cafpc-theme=previdenza]{--service-surface:#e5faf3;--service-ink:#146c57}
-[data-cafpc-theme=lavoro]{--service-surface:#fff3e2;--service-ink:#92500a}
-[data-cafpc-theme=aziende]{--service-surface:#f1ebff;--service-ink:#664396}
-[data-cafpc-theme=inail]{--service-surface:#e7f7fa;--service-ink:#116878}
-[data-cafpc-theme=famiglia]{--service-surface:#fff0f4;--service-ink:#974266}
-[data-cafpc-theme=orientamento]{--service-surface:#edf4fa;--service-ink:#365d7f}
-[data-cafpc-theme=associazione]{--service-surface:#f1ebff;--service-ink:#664396}
-body[data-cafpc-design=public] .cafpc-service-card[data-cafpc-theme],#cafpc-explorer .cafpc-catalog-card{background:var(--service-surface);border-color:transparent;box-shadow:none;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
-body[data-cafpc-design=public] [data-cafpc-theme] .cafpc-service-icon{background:#fff;color:var(--service-ink);flex-shrink:0;font-size:23px}
-#cafpc-explorer .cafpc-card-category{font-size:12px;font-weight:700;color:var(--service-ink);margin:0;letter-spacing:.03em}
-#cafpc-explorer .cafpc-catalog-card h4{font-size:20px;line-height:1.3;margin:0;color:var(--cafpc-navy)}
-#cafpc-explorer .cafpc-card-description{line-height:1.6;margin:0 0 8px;color:var(--cafpc-muted)}
-#cafpc-explorer .cafpc-catalog-card button{margin-top:auto;background:transparent;border:0;border-radius:6px;padding:8px 0;color:var(--service-ink);font-weight:700;text-align:left}
-#cafpc-explorer .cafpc-catalog-card button:hover{text-decoration:underline;text-underline-offset:4px}
-.cafpc-service-heading{display:flex;align-items:center;gap:18px;background:var(--service-surface);padding:24px;border-radius:16px;margin:20px 0}
-#cafpc-explorer .cafpc-service-heading h2{margin:5px 0 0}.cafpc-service-heading p{margin:0}
-body[data-cafpc-design=public] .cafpc-service-card[data-cafpc-theme] p{margin:0;flex:1}
-body[data-cafpc-design=public] .cafpc-service-card[data-cafpc-theme] a{color:var(--service-ink);min-height:44px;display:inline-flex;align-items:center}
-.cafpc-home-card:nth-child(2) .cafpc-service-icon{color:#146c57}.cafpc-home-card:nth-child(3) .cafpc-service-icon{color:#92500a}.cafpc-home-card:nth-child(4) .cafpc-service-icon{color:#664396}
-@media(max-width:440px){.cafpc-service-heading{align-items:flex-start;padding:20px;gap:12px}}

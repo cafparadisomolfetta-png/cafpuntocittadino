@@ -100,8 +100,8 @@ function serviceCards(){
  const h=document.createElement('h2');h.textContent='I nostri servizi';section.append(h);
  const grid=document.createElement('div');grid.className='cafpc-services-grid';
  services.forEach(([name,desc],i)=>{
-  const article=document.createElement('article');article.className='cafpc-service-card';article.dataset.cafpcTheme=({'/caf.html':'fiscale','/patronato.html':'previdenza','/lavoro-sindacato.html':'lavoro','/area-aziende.html':'aziende'})[path];
-  const badge=document.createElement('span');badge.className='cafpc-service-icon';badge.setAttribute('aria-hidden','true');const icon=document.createElement('i');icon.className='fa-solid fa-'+({'/caf.html':'calculator','/patronato.html':'landmark','/lavoro-sindacato.html':'users','/area-aziende.html':'building'})[path];badge.append(icon);
+  const article=document.createElement('article');article.className='cafpc-service-card';
+  const badge=document.createElement('span');badge.className='cafpc-service-icon';badge.setAttribute('aria-hidden','true');badge.textContent=['▣','✦','⌂','◈','▤','✓'][i];
   const title=document.createElement('h3');title.textContent=name;
   const info=document.createElement('p');info.textContent=desc;
   const a=document.createElement('a');a.href='/servizi-online.html#prenotazione-online';a.textContent='Richiedi informazioni →';a.setAttribute('aria-label','Richiedi informazioni: '+name);

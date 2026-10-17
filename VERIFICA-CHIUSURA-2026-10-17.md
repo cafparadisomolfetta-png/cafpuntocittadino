@@ -4,8 +4,6 @@
 
 Aggiornamento successivo: filtro approvazione, quote e notifiche implementati; suite totale **157 test superati**. Dettagli e limiti: [APPROVAZIONE-QUOTE-NOTIFICHE.md](APPROVAZIONE-QUOTE-NOTIFICHE.md).
 
-Aggiornamento grafico servizi: schede con icone e colori stabili per categoria, coerenti con il riferimento approvato. Applicato a home, pagine tematiche, catalogo, risultati dei questionari e intestazione del dettaglio. Nessuna modifica a quote, approvazione, documenti o prenotazioni. Icone Font Awesome già presenti nel sito; nessuna nuova dipendenza o richiesta a un provider aggiunta. Verifica visiva finale desktop/mobile ancora necessaria.
-
 ## Modifiche correnti
 
 - Nome concordato aggiornato a **CAF Punto Cittadino Italia**, mantenendo dominio e nomi utente social attuali.
