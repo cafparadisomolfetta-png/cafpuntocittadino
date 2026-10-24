@@ -33,3 +33,13 @@ Seguire tutte le prove in [COLLAUDO-OPERATIVO.md](../COLLAUDO-OPERATIVO.md): Goo
 Solo dopo l'esito positivo: approvare configurazione finale, certificato e record DNS puntati al server effettivo. Conservare i record precedenti e una procedura di rollback che non riattivi Netlify. Il PC Windows viene usato per l'ultimo collaudo locale, non come server operativo.
 
 Fonti tecniche: [systemd.exec](https://github.com/systemd/systemd/blob/main/man/systemd.exec.xml), [nginx proxy](https://nginx.org/en/docs/http/ngx_http_proxy_module.html).
+
+## Conservazione operativa selezionata il 25 ottobre 2026
+
+Su delega della responsabile del progetto: `retention-policy.json` assegna 365 giorni a ciascuno dei 30 servizi, dall’ultimo aggiornamento di una pratica conclusa o non accolta. Il file riguarda l’archivio operativo del portale e non certifica i termini obbligatori dell’archivio professionale. La cancellazione resta manuale con anteprima e conferma dell’amministratrice: prima occorre verificare gli obblighi applicabili e l’archiviazione dei documenti da mantenere. Nessun nuovo job di cancellazione è attivato. Le pratiche aperte richiedono una verifica periodica della necessità di conservazione.
+
+Il file JSON va copiato nella variabile privata `CAF_RETENTION_DAYS_JSON`; il modello generico resta privo di durate automatiche. La revisione privacy completa resta un requisito separato.
+
+Backup esterno individuato: Hetzner Storage Box BX11, 1 TB, regione UE, listino verificato il 25 ottobre 2026 pari a 3,90 euro/mese IVA italiana 22% inclusa, attivazione 0 euro e nessuna durata minima. Ordine non completato. Piano proposto: copia cifrata giornaliera, finestra di recupero 30 giorni; rotazione e ripristino da configurare e verificare dopo la disponibilità dello storage. Il totale e gli accordi del fornitore vanno verificati prima dell’ordine. La chiave di cifratura non deve accompagnare i backup sullo stesso storage.
+
+Il nome pubblico è Punto Cittadino Italia. Il dominio futuro previsto è `puntocittadinoitalia.it`; disponibilità e prezzo di registrazione restano da verificare. Il dominio posseduto `cafpuntocittadino.it` resta invariato finché non esistono registrazione e configurazione del nuovo dominio.

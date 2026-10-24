@@ -1,6 +1,6 @@
 {
   "name": "Punto Cittadino Italia — Gestionale",
-  "short_name": "CAF Gestionale",
+  "short_name": "Punto Cittadino",
   "description": "Agenda riservata per operatori autorizzati",
   "start_url": "/gestionale/",
   "scope": "/gestionale/",
