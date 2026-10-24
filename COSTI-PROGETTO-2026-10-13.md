@@ -1,3 +1,5 @@
+> Documento storico. Per stato, costi e condizioni verificati il 24 ottobre, vedere [VERIFICA-COSTI-RILASCIO-2026-10-24.md](VERIFICA-COSTI-RILASCIO-2026-10-24.md). Le ipotesi di budget e di fornitore riportate sotto non sostituiscono il nuovo controllo né il riepilogo ordine.
+
 ## Proposta verificata nel browser: Netcup + backup Hetzner, 13 ottobre 2026
 
 Il confronto successivo ha individuato un candidato entro il limite di 15 euro/mese, mantenendo il deposito PDF nel portale:
