@@ -36,6 +36,9 @@ function approvedPublic(html,file){
  const [style,label,heading,description]=cfg;
  const {contactLinks,contactSection}=require('./public-contact.cjs');
  const contact=contactLinks();
+ // Keep the existing working chat integration and offer direct human contact
+ // even when its provider is unavailable. Do not activate paid API requests here.
+ html=html.replace(/(<div class="ai-secretary-actions">)[\s\S]*?(<\/div>)/,(_match,start,end)=>start+'<a class="ai-secretary-action secondary" href="/servizi-online.html#prenotazione-online" id="aiBookingLink">Apri agenda</a>'+(contact.whatsappUrl?'<a class="ai-secretary-action secondary" href="'+contact.whatsappUrl+'" target="_blank" rel="noopener noreferrer">Scrivi su WhatsApp</a>':'')+'<a class="ai-secretary-action secondary" href="'+contact.emailUrl.replace(/&/g,'&amp;')+'">Scrivi via email</a>'+end);
  html=html.replace(/<h3>Hai già un appuntamento\?<\/h3>/g,'<h3 id="disdetta-appuntamento">Hai già un appuntamento?</h3>');
  html=html.replace(/info@cafpuntocittadino\.it/g,contact.email).replace(/Rispondiamo entro 24–48 ore lavorative, dal lunedì al sabato\./g,'Ti rispondiamo rapidamente durante l’operatività dello sportello. Se necessario ti ricontattiamo noi.');
  html=html.replace('data-cafpc-design="public"','data-cafpc-design="public" data-cafpc-page="'+style+'"');
