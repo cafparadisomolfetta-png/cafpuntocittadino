@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const {googleRedirectUri} = require("./google-oauth-config");
 
 exports.handler = async function () {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -6,12 +7,13 @@ exports.handler = async function () {
   if (!clientId) {
     return {
       statusCode: 500,
-      body: "GOOGLE_CLIENT_ID non configurato su Netlify."
+      body: "Configurazione Google incompleta sul server."
     };
   }
 
-  const redirectUri =
-    "https://cafpuntocittadino.it/.netlify/functions/google-calendar-callback";
+  let redirectUri;
+  try { redirectUri = googleRedirectUri(); }
+  catch { return {statusCode:500,headers:{"Cache-Control":"no-store"},body:"Origine Google non configurata correttamente."}; }
 
   const state = crypto.randomBytes(24).toString("hex");
 

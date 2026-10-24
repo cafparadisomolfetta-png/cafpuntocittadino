@@ -1,4 +1,5 @@
 const crypto = require("node:crypto");
+const {googleRedirectUri} = require("./google-oauth-config");
 exports.handler = async function (event) {
   if (event.httpMethod !== "GET") return {statusCode:405,headers:{Allow:"GET","Cache-Control":"no-store"},body:"Metodo non consentito"};
   const code = event.queryStringParameters?.code;
@@ -52,13 +53,14 @@ exports.handler = async function (event) {
       headers: htmlHeaders,
       body: `
         <h2>Configurazione Google incompleta.</h2>
-        <p>Controlla le variabili ambiente su Netlify.</p>
+        <p>Controlla la configurazione privata del server.</p>
       `
     };
   }
 
-  const redirectUri =
-    "https://cafpuntocittadino.it/.netlify/functions/google-calendar-callback";
+  let redirectUri;
+  try { redirectUri = googleRedirectUri(); }
+  catch { return {statusCode:500,headers:htmlHeaders,body:"<h2>Origine Google non configurata correttamente.</h2>"}; }
 
   try {
     const response = await fetch(
@@ -114,8 +116,8 @@ exports.handler = async function (event) {
           </p>
           <p>
             Non è stato generato un nuovo refresh token.
-            Se il token è già configurato su Netlify,
-            non devi fare altro.
+            Il token già presente nella configurazione privata
+            deve essere verificato separatamente.
           </p>
         `
       };
