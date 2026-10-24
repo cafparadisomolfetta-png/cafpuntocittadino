@@ -19,8 +19,11 @@ function inspectEnvironment(env=process.env,{publicDirectory=path.join(root,'dis
   const value=env.CAF_PRIVATE_DIRECTORY;if(!value||!path.isAbsolute(value))return false;
   const canonical=path.resolve(value),realRoot=fs.realpathSync(root),parent=fs.realpathSync(path.dirname(canonical));
   if(inside(canonical,root)||inside(parent,realRoot))return false;
-  fs.accessSync(parent,fs.constants.W_OK|fs.constants.X_OK);
+  // An existing archive needs write access to itself, not to /var/lib.
+  // The parent needs write access only when the archive must be created.
+  fs.accessSync(parent,fs.constants.X_OK);
   if(fs.existsSync(canonical)){if(fs.lstatSync(canonical).isSymbolicLink()||!fs.statSync(canonical).isDirectory()||inside(fs.realpathSync(canonical),realRoot))return false;fs.accessSync(canonical,fs.constants.W_OK|fs.constants.X_OK);}
+  else fs.accessSync(parent,fs.constants.W_OK|fs.constants.X_OK);
   return true;
  });
  check('vault_key','Configure a canonical 32-byte base64 vault key privately.',()=>{

@@ -8,6 +8,27 @@ function setup(t){
  return {parent,env:{CAF_PRIVATE_ENABLED:'true',CAF_PRIVACY_REVIEWED:'true',CAF_PRIVATE_DIRECTORY:path.join(parent,'not-created'),CAF_VAULT_KEY:crypto.randomBytes(32).toString('base64'),CAF_CLAMSCAN_PATH:process.execPath,CAF_ORIGIN:'https://caf.example.test',GESTIONALE_GOOGLE_CLIENT_ID:'synthetic-login',GESTIONALE_ADMIN_EMAIL:'admin@example.test',GESTIONALE_SITE_CALENDARS_JSON:JSON.stringify({molfetta:'synthetic-molfetta',bari:'synthetic-bari'}),GOOGLE_CLIENT_ID:'synthetic-oauth',GOOGLE_CLIENT_SECRET:'synthetic-secret',GOOGLE_REFRESH_TOKEN:'synthetic-refresh',CAF_RETENTION_DAYS_JSON:JSON.stringify({'730':30,isee:30})}};
 }
 const failure=(env,id)=>inspectEnvironment(env).checks.find(row=>row.id===id)?.ok===false;
+test('A service account can use an existing archive under a non-writable parent',t=>{
+ if(process.platform==='win32')return t.skip('POSIX directory permissions required');
+ const parent=fs.mkdtempSync(path.join(os.tmpdir(),'caf-service-permissions-')),directory=path.join(parent,'vault');
+ t.after(()=>{fs.chmodSync(parent,0o700);fs.rmSync(parent,{recursive:true,force:true})});
+ fs.mkdirSync(directory,{mode:0o700});
+ const identity=process.getuid()===0?{uid:65534,gid:65534}:{};
+ if(identity.uid!==undefined){
+  try{fs.chownSync(directory,identity.uid,identity.gid)}catch(error){
+   if(['EINVAL','EPERM','ENOSYS'].includes(error.code))return t.skip('Runtime cannot provision an unprivileged filesystem owner');
+   throw error;
+  }
+ }
+ fs.chmodSync(parent,0o555);
+ const modulePath=path.resolve(__dirname,'../server/environment.cjs');
+ const code=`const {inspectEnvironment}=require(${JSON.stringify(modulePath)});console.log(inspectEnvironment({CAF_PRIVATE_DIRECTORY:process.argv[1]}).checks.find(x=>x.id==='private_directory').ok)`;
+ const check=target=>execFileSync(process.execPath,['-e',code,target],{...identity,cwd:os.tmpdir(),encoding:'utf8'}).trim();
+ assert.equal(check(directory),'true');
+ assert.equal(check(path.join(parent,'new-vault')),'false');
+ fs.chmodSync(directory,0o500);
+ assert.equal(check(directory),'false');
+});
 test('Offline inspection reports every missing prerequisite without writes or provider calls',t=>{
  const {parent,env}=setup(t),publicDirectory=path.join(parent,'frontend');fs.mkdirSync(publicDirectory);fs.writeFileSync(path.join(publicDirectory,'index.html'),'synthetic frontend');
  const before=fs.readdirSync(parent),oldFetch=global.fetch;

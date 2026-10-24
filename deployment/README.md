@@ -1,13 +1,13 @@
 # Preparazione del server Linux
 
-Modelli da applicare esclusivamente al server scelto e collaudato. Nessun server acquistato, nessuna installazione remota, nessun cambio DNS o Netlify. Il servizio resta disabilitato finché non esiste una configurazione privata valida e revisionata.
+Modelli da applicare esclusivamente al server scelto e collaudato. I modelli non eseguono acquisti, cambi DNS o riattivazioni Netlify. Sul VPS Netcup sono stati installati Node 24, ClamAV e Nginx per il collaudo locale; l’installazione dei modelli non equivale all’attivazione del portale. Il servizio resta disabilitato finché non esiste una configurazione privata valida e revisionata.
 
 ## Percorsi e prerequisiti
 
 - Node >=22.13 disponibile a `/usr/bin/node`; verificare `node --version` sul server. Se installato altrove, adattare entrambi i comandi della unit al percorso effettivo e verificato.
 - Codice e build in `/opt/cafpuntocittadino`, leggibili ma non scrivibili dall'utente del servizio; `dist/` creato con il collaudo completo prima dell'installazione.
 - Utente di sistema dedicato `cafpuntocittadino`, senza login interattivo e senza privilegi amministrativi.
-- Archivio in `/var/lib/cafpuntocittadino`, proprietario dell'utente del servizio, permessi 0700, fuori dal codice pubblico.
+- Archivio in `/var/lib/cafpuntocittadino/vault`, con cartella superiore e archivio di proprietà dell'utente del servizio, permessi 0700, fuori dal codice pubblico.
 - Configurazione completa in `/etc/cafpuntocittadino/runtime.env`, directory 0700, file 0600 root. Il file d'esempio non contiene credenziali né durate inventate; non cambiarne le flag per aggirare i controlli.
 - ClamAV da fonte ufficiale della distribuzione, database aggiornato leggibile dal servizio e prove reale PDF pulito/infetto/scanner guasto. Aggiornamento firme distinto dal processo applicativo.
 - Backup applicativi cifrati fuori dal repository, copia su archivio remoto separato, chiave conservata separatamente. Prima del rilascio: restore verificato e procedura di conservazione/rotazione approvata.
@@ -26,7 +26,7 @@ I modelli non registrano access log con URL/codici di disdetta/IP; verificare an
 
 ## Rilascio
 
-`nginx-production.conf` è un modello HTTPS per il dominio principale previsto puntocittadinoitalia.it e redirect www. Richiede dominio effettivamente registrato, DNS verificati e certificati già presenti. Impostare `CAF_ORIGIN=https://puntocittadinoitalia.it` soltanto quando il dominio è disponibile e configurato; allineare anche le origini OAuth Google. Il vecchio dominio `cafpuntocittadino.it` richiede un certificato e un reindirizzamento separati, da configurare dopo controllo della titolarità e collaudo: non viene trasferito né modificato automaticamente. Non è stato validato con `nginx -t` perché nginx e certificati non sono installati nell'ambiente locale. Sul server, verificare la configurazione completa con `nginx -t`, certificati, rinnovo e test del proxy prima di abilitarla. La unit è stata controllata con systemd-analyze in una copia temporanea adattando il percorso Node al runtime locale; il file finale resta da verificare sul server.
+`nginx-production.conf` è un modello HTTPS per il dominio già posseduto cafpuntocittadino.it e redirect www. Richiede dominio effettivamente registrato, DNS verificati e certificati già presenti. Impostare `CAF_ORIGIN=https://cafpuntocittadino.it` soltanto quando il dominio è disponibile e configurato; allineare anche le origini OAuth Google. L’eventuale dominio futuro `puntocittadinoitalia.it` richiede prima verifica della registrazione e della titolarità; non viene acquistato, trasferito o configurato automaticamente. Il modello HTTPS non è ancora stato validato con certificati effettivi. Il proxy di staging sul VPS supera `nginx -t` e ascolta solo su loopback. Sul server, verificare la configurazione completa con `nginx -t`, certificati, rinnovo e test del proxy prima di abilitarla. La unit installata sul VPS usa il percorso verificato `/opt/node-v24.22.1-linux-x64/bin/node` e supera `systemd-analyze verify`; resta disabilitata in attesa della configurazione privata completa.
 
 Seguire tutte le prove in [COLLAUDO-OPERATIVO.md](../COLLAUDO-OPERATIVO.md): Google, utenti/sedi, PDF reali, workflow, agenda/disdette, backup/restore, carico, UI, PWA e privacy. Approvare i moduli opzionali solo dopo il loro collaudo. AI e invio mail restano spenti in questo esempio. Attivazione, contratto, identità di fatturazione, pagamento e autorizzazioni account richiedono l'intervento previsto dal fornitore. Nessuna richiesta di password o token in chat.
 
