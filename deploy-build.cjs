@@ -33,7 +33,7 @@ for (const page of pages) {
   html=approvedPublic(html,page);
   fs.writeFileSync(path.join(out,page),html);
 }
-for (const asset of ['service-explorer.js','official-headlines.js','approved-design.css','app-navigation.js','site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js','icon-192.png','icon-512.png']) {
+for (const asset of ['service-explorer.js','service-visuals.js','official-headlines.js','approved-design.css','app-navigation.js','site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js','icon-192.png','icon-512.png']) {
   fs.copyFileSync(asset,path.join(out,asset));
 }
 fs.mkdirSync(path.join(out,'assets'),{recursive:true});

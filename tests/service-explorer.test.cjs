@@ -23,10 +23,11 @@ test('Public explorer: all detail links, guided steps, backtracking and booking 
  const document={readyState:'loading',addEventListener:(name,fn)=>{assert.equal(name,'DOMContentLoaded');ready=fn},getElementById:id=>({'cafpc-explorer':root,'cafpc-service-data':{textContent:JSON.stringify(groups)},bkServizio:select}[id])};
  const source=fs.readFileSync('service-explorer.js','utf8');
  assert.ok(!/localStorage|sessionStorage|fetch\s*\(|XMLHttpRequest/.test(source));
- vm.runInNewContext(source,{document,URLSearchParams,location:{search:'?servizio='+encodeURIComponent('INAIL: malattia professionale')},Event:function(){}});
+ vm.runInNewContext(source,{document,URLSearchParams,CAFPCServiceVisuals:require('../service-visuals.js'),location:{search:'?servizio='+encodeURIComponent('INAIL: malattia professionale')},Event:function(){}});
+ assert.equal((root.innerHTML.match(/class="cafpc-reference-photo"/g)||[]).length,names.size);
  assert.equal(changed,false);ready();assert.equal(select.value,'INAIL: malattia professionale');assert.equal(changed,true);
  const tap=dataset=>click({target:{closest:()=>({dataset})}});
- for(const name of names){tap({service:name});assert.match(root.innerHTML,/Come ti aiutiamo/);assert.ok(root.innerHTML.includes(encodeURIComponent(name)));assert.ok(!root.innerHTML.includes('undefined'));}
+ for(const name of names){tap({service:name});assert.match(root.innerHTML,/Come ti aiutiamo/);assert.match(root.innerHTML,/cafpc-reference-folder/);assert.match(root.innerHTML,/Torna a tutti i servizi/);assert.ok(root.innerHTML.includes(encodeURIComponent(name)));assert.ok(!root.innerHTML.includes('undefined'));}
  for(const kind of ['bonus','pensioni']){
   tap({explore:kind});tap({next:'yes'});assert.match(root.innerHTML,/Domanda 1 di 5/);
   for(let i=0;i<5;i++){tap({answer:String(kind==='bonus'&&i===4?6:0)});tap({next:'yes'});}

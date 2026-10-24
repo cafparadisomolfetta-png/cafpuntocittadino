@@ -1,5 +1,7 @@
 # Ordine delle prove prima dell'uso reale
 
+Aggiornamento 24 ottobre: consultare prima [VERIFICA-SERA-2026-10-24.md](VERIFICA-SERA-2026-10-24.md) e [VERIFICA-COSTI-RILASCIO-2026-10-24.md](VERIFICA-COSTI-RILASCIO-2026-10-24.md). Le indicazioni su fornitore e AI qui sotto descrivono anche fasi precedenti; non attestano acquisti o attivazioni.
+
 Il lavoro sul codice prosegue senza accendere il PC della sede. La prova locale Windows viene lasciata all'ultimo passaggio della preparazione. Questo non sposta automaticamente sul PC i servizi operativi: disponibilità del server, configurazione Google, antivirus, backup e prove reali restano requisiti distinti.
 
 Decisione aggiornata il 17 ottobre: server Linux e backup separato su Aruba. I confronti economici precedenti sono storici; verificare il preventivo finale prima di qualsiasi acquisto. Nessuna risorsa acquistata da questa sessione. AI e Netlify restano disattivati. La checklist corrente è [CHECKLIST-RILASCIO.md](CHECKLIST-RILASCIO.md).

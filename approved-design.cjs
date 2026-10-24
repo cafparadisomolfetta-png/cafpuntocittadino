@@ -22,7 +22,7 @@ function approvedPublic(html,file){
  if(pages[file]){
   const serviceData=JSON.stringify(require('./netlify/functions/booking-services.js').groups).replace(/</g,'\\u003c');
   html=html.replace(/<section class="screening" id="scopri">[\s\S]*?<\/section>/,'<section id="scopri" class="cafpc-services-showcase"><div id="cafpc-explorer"><h2>Servizi e percorsi guidati</h2><p>Per usare i percorsi guidati abilita JavaScript. Puoi anche <a href="/servizi-online.html#prenotazione-online">prenotare una consulenza</a>.</p></div><script type="application/json" id="cafpc-service-data">'+serviceData+'</script></section>');
-  html=html.replace('</body>','<script src="/service-explorer.js" defer></script>\n</body>');
+  html=html.replace('</body>','<script src="/service-visuals.js" defer></script><script src="/service-explorer.js" defer></script>\n</body>');
   // Plain outbound links: no embedded social widgets or third-party tracking scripts.
   html=html.replace('</body>','<nav class="cafpc-social-links" aria-label="I nostri profili social"><strong>Seguici sui social</strong><a href="https://www.facebook.com/caf.paradiso.molfetta" target="_blank" rel="noopener noreferrer">Facebook · Caf Paradiso</a><a href="https://www.instagram.com/cafpuntocittadino/" target="_blank" rel="noopener noreferrer">Instagram · @cafpuntocittadino</a><a href="https://www.tiktok.com/@cafpuntocittadino" target="_blank" rel="noopener noreferrer">TikTok · @cafpuntocittadino</a></nav>\n</body>');
   html=html.replace(/(<nav class="pro-nav">[\s\S]*?)(<\/nav>)/,'$1<a href="/servizi-online.html#scopri">Servizi e percorsi guidati</a>$2');
