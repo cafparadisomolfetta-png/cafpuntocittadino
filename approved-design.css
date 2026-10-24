@@ -87,3 +87,8 @@ body[data-cafpc-design=private] .tiles article:nth-child(2){background:#e5faf3}b
 .cafpc-social-links{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding:24px max(20px,calc((100vw - 1180px)/2));background:#073873;color:white}.cafpc-social-links a{color:white;text-underline-offset:4px;overflow-wrap:anywhere}.cafpc-social-links strong{flex-basis:100%}
 
 .cafpc-urgent-contact{background:#e8f7ff;border-radius:16px;padding:26px;margin-top:20px;margin-bottom:24px}.cafpc-urgent-contact h2{margin:4px 0 12px}.cafpc-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}.cafpc-contact-actions a{display:inline-flex;align-items:center;min-height:44px;border-radius:10px;background:#075bc7;color:white;padding:11px 18px;text-decoration:none}.cafpc-contact-actions .cafpc-contact-whatsapp{background:#146c57}.cafpc-contact-actions a:hover{text-decoration:underline}.cafpc-contact-actions a:focus-visible{outline:3px solid #009cbf;outline-offset:3px}
+
+/* The public catalog and guided routes live on their own services page. */
+body[data-cafpc-page=online] #scopri{display:block!important}
+
+@media(max-width:600px){body[data-cafpc-design=public] .contatti__grid{grid-template-columns:minmax(0,1fr)}body[data-cafpc-design=public] .contatti__card,body[data-cafpc-design=public] .contatti__row,body[data-cafpc-design=public] .contatti__row span{min-width:0;overflow-wrap:anywhere}}

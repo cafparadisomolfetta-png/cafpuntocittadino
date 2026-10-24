@@ -1,11 +1,11 @@
 # Rilascio Aruba — Punto Cittadino Italia
 
-Aggiornamento: 17 ottobre 2026. **Non ancora pubblicato né collaudato in produzione.** Questa checklist sostituisce le precedenti indicazioni di riattivazione Netlify. Il progetto completo usa un VPS Linux con backend persistente; il PC Windows non è il server.
+Aggiornamento: 24 ottobre 2026. **Non ancora pubblicato né collaudato in produzione.** Questa checklist sostituisce le precedenti indicazioni di riattivazione Netlify. Il progetto completo usa un VPS Linux con backend persistente; il PC Windows non è il server.
 
 ## Decisioni confermate
 
-- Nome pubblico: **Punto Cittadino Italia**. Dominio mantenuto: `cafpuntocittadino.it`.
-- Grafica approvata blu/turchese, logo esistente con aggiunta testuale “Italia”.
+- Nome pubblico: **Punto Cittadino Italia**. Dominio principale previsto: `puntocittadinoitalia.it`; dominio esistente `cafpuntocittadino.it` da conservare per reindirizzamento dopo configurazione e test.
+- Grafica approvata blu/turchese, pittogramma esistente e nome/slogan concordati; esportazione PNG compatibile del logo.
 - Assistenza soprattutto online in tutta Italia, senza prezzi o indirizzo nelle sezioni promozionali. Informative e identità legale richiedono dati effettivi corretti.
 - Avvio con una sede interna attiva; Bari predisposta ma disattivata. La configurazione interna non limita il territorio degli assistiti.
 - Prenotazioni per telefono, WhatsApp con un operatore e presenza concordata; 30 servizi, compresi INAIL e “Altro”. SMS esclusi.
@@ -23,7 +23,7 @@ Aggiornamento: 17 ottobre 2026. **Non ancora pubblicato né collaudato in produz
 - [x] Approvazione operatore e conferma quota prima dei PDF; notifiche email generiche predisposte e testate con provider simulati.
 - [x] Intake PDF, integrazioni e stati estesi al catalogo dei 30 servizi; attivazione vincolata alle durate approvate.
 - [x] Social aggiunti come semplici collegamenti, senza widget o script di tracciamento social.
-- [x] Suite finale: 157 test superati; controlli HTTP locali e rapporto corrente: vedere `VERIFICA-CHIUSURA-2026-10-17.md`.
+- [x] Suite finale: 159 test superati; controlli HTTP locali e rapporto corrente: vedere `VERIFICA-CHIUSURA-2026-10-17.md`.
 
 ## Prima dell'accesso al server
 

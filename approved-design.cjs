@@ -25,7 +25,7 @@ function approvedPublic(html,file){
   html=html.replace('</body>','<script src="/service-explorer.js" defer></script>\n</body>');
   // Plain outbound links: no embedded social widgets or third-party tracking scripts.
   html=html.replace('</body>','<nav class="cafpc-social-links" aria-label="I nostri profili social"><strong>Seguici sui social</strong><a href="https://www.facebook.com/caf.paradiso.molfetta" target="_blank" rel="noopener noreferrer">Facebook · Caf Paradiso</a><a href="https://www.instagram.com/cafpuntocittadino/" target="_blank" rel="noopener noreferrer">Instagram · @cafpuntocittadino</a><a href="https://www.tiktok.com/@cafpuntocittadino" target="_blank" rel="noopener noreferrer">TikTok · @cafpuntocittadino</a></nav>\n</body>');
-  html=html.replace(/(<nav class="pro-nav">[\s\S]*?)(<\/nav>)/,'$1<a href="#scopri">Servizi e percorsi guidati</a>$2');
+  html=html.replace(/(<nav class="pro-nav">[\s\S]*?)(<\/nav>)/,'$1<a href="/servizi-online.html#scopri">Servizi e percorsi guidati</a>$2');
   html=html.replace(/<div class="pro-info"><i class="fa-solid fa-location-dot"><\/i><div>[\s\S]*?<\/div><\/div>/g,'<div class="pro-info"><i class="fa-solid fa-globe"></i><div><strong>Online in tutta Italia</strong><br>Email · Area personale · Ricontatto su richiesta</div></div>');
   html=html.replace(/<div><strong>📍 Sede<\/strong><p>Via Paradiso 34 · Molfetta<\/p><\/div>/g,'<div><strong>Assistenza online</strong><p>In tutta Italia</p></div>');
   html=html.replace(/Via Paradiso 34 · Molfetta<br>/g,'Assistenza online in tutta Italia<br>');
@@ -36,8 +36,10 @@ function approvedPublic(html,file){
  const [style,label,heading,description]=cfg;
  const {contactLinks,contactSection}=require('./public-contact.cjs');
  const contact=contactLinks();
+ html=html.replace(/<h3>Hai già un appuntamento\?<\/h3>/g,'<h3 id="disdetta-appuntamento">Hai già un appuntamento?</h3>');
+ html=html.replace(/info@cafpuntocittadino\.it/g,contact.email).replace(/Rispondiamo entro 24–48 ore lavorative, dal lunedì al sabato\./g,'Ti rispondiamo rapidamente durante l’operatività dello sportello. Se necessario ti ricontattiamo noi.');
  html=html.replace('data-cafpc-design="public"','data-cafpc-design="public" data-cafpc-page="'+style+'"');
- html=html.replace(/<div class="pro-brand">[\s\S]*?<\/div>\s*<div class="pro-brand__sub">[\s\S]*?<\/div>\s*<div class="pro-brand__tag">[\s\S]*?<\/div>\s*<\/div>/,'<a class="cafpc-brand" href="/" aria-label="Punto Cittadino Italia, Home"><img src="/assets/caf-brand.svg" width="280" height="80" alt="Punto Cittadino Italia — Un solo punto, tante soluzioni"></a>');
+ html=html.replace(/<div class="pro-brand">[\s\S]*?<\/div>\s*<div class="pro-brand__sub">[\s\S]*?<\/div>\s*<div class="pro-brand__tag">[\s\S]*?<\/div>\s*<\/div>/,'<a class="cafpc-brand" href="/" aria-label="Punto Cittadino Italia, Home"><img src="/assets/punto-cittadino-brand.png" width="280" height="80" alt="Punto Cittadino Italia — Un solo punto, tante soluzioni"></a>');
  const primary=style==='home'?contact.emailUrl.replace(/&/g,'&amp;'):style==='lavora'?'/candidature/':'/servizi-online.html#prenotazione-online';
  const secondary=style==='home'?(contact.whatsappUrl||'/caf.html'):style==='lavora'?'/candidature/':'#cafpc-servizi';
  const hero='<section class="cafpc-design-hero cafpc-design-hero--'+style+'"><div class="cafpc-hero-copy"><p class="cafpc-design-eyebrow">'+label+'</p><h1>'+heading+'</h1><p>'+description+'</p><div class="cafpc-hero-actions"><a href="'+primary+'">'+(style==='home'?'Scrivi via email':style==='lavora'?'Proponi la tua candidatura':'Prenota appuntamento')+'</a><a href="'+secondary+'">'+(style==='home'&&contact.whatsappUrl?'Scrivi su WhatsApp':style==='lavora'?'Presenta la tua struttura':'Scopri i servizi →')+'</a></div></div><img class="cafpc-hero-photo" src="/assets/'+(style==='patronato'?'caf-previdenza.svg':'caf-consulenza.svg')+'" width="420" height="270" alt="'+(style==='patronato'?'Una persona durante una consulenza previdenziale':'Una consulente accoglie una persona allo sportello')+'"></section>';

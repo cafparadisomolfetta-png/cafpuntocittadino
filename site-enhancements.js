@@ -24,7 +24,7 @@ function setupNav(){
  // The original home navigation must not point to the Lavoro page for careers.
  nav.querySelectorAll('a').forEach(a=>{if(/lavora con noi/i.test(a.textContent))a.href='/lavora-con-noi.html'});
  // Make all sitewide navigation cards point to their own page.
- document.querySelectorAll('a').forEach(a=>{const txt=a.textContent.trim(); if(/^privacy$/i.test(txt)&&a.closest('nav'))a.remove();});
+ document.querySelectorAll('a').forEach(a=>{const txt=a.textContent.trim(); if(/^privacy$/i.test(txt)&&a.closest('nav'))a.remove();if(/Scopri cosa ti spetta/i.test(txt))a.href='/servizi-online.html#scopri';if(/Lavora con noi/i.test(txt))a.href='/lavora-con-noi.html';});
 }
 function setupFooter(){
  let foot=document.querySelector('footer');if(!foot){foot=document.createElement('footer');document.body.append(foot)}

@@ -37,7 +37,7 @@ for (const asset of ['service-explorer.js','official-headlines.js','approved-des
   fs.copyFileSync(asset,path.join(out,asset));
 }
 fs.mkdirSync(path.join(out,'assets'),{recursive:true});
-for(const asset of ['caf-brand.svg','caf-consulenza.svg','caf-previdenza.svg'])fs.copyFileSync(path.join('assets',asset),path.join(out,'assets',asset));
+for(const asset of ['punto-cittadino-brand.png','caf-consulenza.svg','caf-previdenza.svg'])fs.copyFileSync(path.join('assets',asset),path.join(out,'assets',asset));
 // Publish only the frontend of the management app, never its internal documentation.
 const privateFrontend=path.join(out,'gestionale');
 fs.mkdirSync(privateFrontend,{recursive:true});

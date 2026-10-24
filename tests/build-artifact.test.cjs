@@ -62,7 +62,7 @@ test('Approved identity is packaged across public and reserved pages',()=>{
  for(const file of ['index.html','caf.html','patronato.html','lavoro-sindacato.html','area-aziende.html','news-bonus.html','servizi-online.html','lavora-con-noi.html']){
   const text=fs.readFileSync(path.join('dist',file),'utf8');
   assert.equal((text.match(/class="cafpc-design-hero cafpc-design-hero--/g)||[]).length,1,file);
-  assert.match(text,/src="\/assets\/caf-brand.svg"/,file);
+  assert.match(text,/src="\/assets\/punto-cittadino-brand.png"/,file);
   assert.match(text,/src="\/assets\/caf-(?:consulenza|previdenza).svg"/,file);
   assert.match(text,/href="\/approved-design.css"/,file);
   assert.match(text,/<option value="WhatsApp">WhatsApp — ti contatta un operatore<\/option>/,file);
@@ -75,6 +75,9 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.match(text,/mailto:cafparadiso.molfetta@gmail.com\?subject=/,file);
   assert.ok(!text.includes('oppure contatta la sede al numero'),file);
   assert.ok(!text.includes('id="screeningCard"'),file);
+  assert.ok(!text.includes('info@cafpuntocittadino.it'),file);
+  assert.match(text,/href="\/servizi-online.html#scopri"/,file);
+  assert.match(text,/id="disdetta-appuntamento"/,file);
   assert.ok(!text.includes('Via Paradiso'),file);
   assert.ok(!text.includes('Sede di Molfetta'),file);
   assert.ok(!text.includes('In presenza — sede di Molfetta'),file);
@@ -89,5 +92,6 @@ test('Approved identity is packaged across public and reserved pages',()=>{
  }
  assert.match(fs.readFileSync('dist/news-bonus.html','utf8'),/src="\/official-headlines.js"/);
  assert.ok(fs.existsSync('dist/official-headlines.js'));
- for(const name of ['caf-brand','caf-consulenza','caf-previdenza'])assert.ok(fs.existsSync(path.join('dist','assets',name+'.svg')),name);
+ assert.ok(fs.existsSync('dist/assets/punto-cittadino-brand.png'));
+ for(const name of ['caf-consulenza','caf-previdenza'])assert.ok(fs.existsSync(path.join('dist','assets',name+'.svg')),name);
 });
