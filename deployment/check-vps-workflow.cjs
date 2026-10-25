@@ -54,4 +54,4 @@ async function main(){
   fs.rmSync(root,{recursive:true,force:true});
  }
 }
-if(require.main===module)main().catch(()=>{console.error('VPS_SYNTHETIC_CHECK_FAILED: nessun valore riservato viene mostrato.');process.exitCode=1;});
+if(require.main===module)main().catch(error=>{console.error('VPS_SYNTHETIC_CHECK_FAILED',JSON.stringify({name:error.name,code:error.code,line:String(error.stack||'').match(/check-vps-workflow\.cjs:\d+:\d+/)?.[0],actual:typeof error.actual==='number'?error.actual:undefined,expected:typeof error.expected==='number'?error.expected:undefined}));process.exitCode=1;});
