@@ -69,3 +69,16 @@ Riferimento: [guida ufficiale Certbot](https://eff-certbot.readthedocs.io/en/sta
 
 
 Esito VPS del 25 ottobre 2026: `certbot renew --dry-run --run-deploy-hooks` ha completato con successo il rinnovo simulato per entrambi i nomi. L'hook installato è stato anche eseguito direttamente: codice di uscita 0 e Nginx attivo. Il testo diagnostico di `nginx -t` viene scritto su stderr anche in caso di successo; Certbot lo etichetta come output dell'hook, senza indicare in questo caso un fallimento. Il gestionale resta inattivo. La pubblicazione applicativa richiede ancora configurazione Google, revisione privacy, backup e collaudi operativi.
+
+
+## Autorizzazione Google temporanea sul VPS
+
+Il nuovo client Calendar dedicato a Netcup è stato importato il 25 ottobre 2026 nella configurazione root 0600. Il client per il login del gestionale è conservato separatamente. Il refresh token non è ancora stato ottenuto: la sola importazione non prova un collegamento Google operativo.
+
+`google-setup.cjs` è una procedura amministrativa temporanea separata dal gestionale: Node >=22.13, processo root, configurazione privata caricata con `--env-file`, chiave di avvio casuale di 48 caratteri esadecimali come unico argomento. Ascolta soltanto su `127.0.0.1:8090`, termina dopo 15 minuti e accetta un solo tentativo di autorizzazione. Il percorso iniziale è `/__google_setup/CHIAVE`; il callback coincide con quello registrato nel nuovo client. Non registrare URL di autorizzazione, cookie, codici o token nei log o nel repository.
+
+`nginx-google-setup.conf` serve esclusivamente questi due percorsi in HTTPS e restituisce 404 altrove; mantenere il listener ACME separato sulla porta 80. Installare e validare il modello con i certificati effettivi prima dell'attivazione. Avviare la procedura usando il percorso assoluto del Node verificato e del codice, senza mettere il client secret negli argomenti o nella cronologia. Una unit transitoria con durata massima di 16 minuti può contenere il processo. Non abilitare il proxy pubblico del gestionale per effettuare questa operazione.
+
+Il collegamento richiede il consenso Google per Calendar e Gmail Send già previsti dal progetto. Il callback verifica cookie, state, scadenza e PKCE, controlla gli ambiti concessi e l'identificativo del calendario principale dell'account sede prima di salvare il refresh token. La scrittura preserva le altre variabili e rifiuta un client modificato durante l'autorizzazione, percorsi simbolici o permessi non privati. Nessuna email viene inviata da questa procedura. Il token non viene restituito al browser.
+
+Dopo il consenso: verificare privatamente presenza del token e accesso reale ai provider; disabilitare il sito Nginx temporaneo, ricaricare Nginx e terminare la unit di setup. Resta obbligatorio ripetere i collaudi di prenotazione, disdetta e posta prima del rilascio. In modalità OAuth Test verificare anche durata del token e requisiti di passaggio in produzione. Le funzioni OAuth storiche restano separate e non vanno esposte in sostituzione della procedura protetta.
