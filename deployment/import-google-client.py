@@ -82,7 +82,6 @@ def read_private_json():
     print("Poi premi Invio, scrivi FINE su una nuova riga e premi Invio.", flush=True)
     try:
         termios.tcsetattr(fd, termios.TCSAFLUSH, hidden)
-        signal.alarm(300)
         size = 0
         while True:
             line = sys.stdin.readline(32769)
