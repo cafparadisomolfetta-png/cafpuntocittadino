@@ -18,7 +18,7 @@ class Candidatures{
   if(!input||!this.activeSites.includes(input.site)||!TYPES.includes(input.type))failure(400,'INVALID_CANDIDATURE');
   for(const [field,max] of [['name',100],['surname',100],['phone',30],['presentation',2000]])if(typeof input[field]!=='string'||input[field].length>max||/[\x00-\x08\x0b-\x1f\x7f]/.test(input[field]))failure(400,'INVALID_CANDIDATURE');
   if(!input.name.trim()||!input.surname.trim()||(!/^[+0-9 ().-]{5,30}$/.test(input.phone)||input.phone.replace(/\D/g,'').length<5)||typeof actor.email!=='string')failure(400,'INVALID_CANDIDATURE');
-  if(input.privacyVersion!=='2026-10-12'||input.privacyAcknowledged!==true)failure(400,'PRIVACY_ACKNOWLEDGEMENT_REQUIRED');
+  if(input.privacyVersion!==require('./privacy.cjs').VERSION||input.privacyAcknowledged!==true)failure(400,'PRIVACY_ACKNOWLEDGEMENT_REQUIRED');
   await scanPdf(this.scan,{name:input.fileName,mime:input.mime,bytes:input.bytes},bytes,5*1024*1024);
   const digest=crypto.createHash('sha256').update(bytes).digest('hex'),id=crypto.randomUUID(),now=this.clock();
   const row={id,ownerSubject:actor.subject,email:actor.email,site:input.site,type:input.type,name:input.name.trim(),surname:input.surname.trim(),phone:input.phone.trim(),presentation:input.presentation.trim(),fileName:input.fileName,size:bytes.length,sha256:digest,status:'received',version:1,createdAt:now,updatedAt:now,privacyVersion:input.privacyVersion,privacyAcknowledgedAt:now};

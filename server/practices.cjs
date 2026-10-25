@@ -15,7 +15,7 @@ class Practices {
  async create(actor,input){
   this.requireActor(actor);if(actor.role!=='citizen')failure(403,'CITIZEN_REQUIRED');
   const valid=validateRequest(input);if(!valid.ok)failure(400,valid.error);if(!this.activeSites.includes(valid.site))failure(400,'SITE_NOT_ACTIVE');if(!this.enabledServices.includes(valid.service))failure(503,'SERVICE_NOT_ACTIVE');if(valid.service==='richiamata'&&typeof actor.email!=='string')failure(401,'INVALID_IDENTITY');
-  if(input.privacyVersion!=='2026-10-12'||input.privacyAcknowledged!==true)failure(400,'PRIVACY_ACKNOWLEDGEMENT_REQUIRED');
+  if(input.privacyVersion!==require('./privacy.cjs').VERSION||input.privacyAcknowledged!==true)failure(400,'PRIVACY_ACKNOWLEDGEMENT_REQUIRED');
   if(input.mode==='appointment'&&(!this.verifyAppointment||!(await this.verifyAppointment(actor,input))))failure(400,'APPOINTMENT_NOT_VERIFIED');
   const now=this.clock(),id=crypto.randomUUID();
   const record={id,ownerSubject:actor.subject,site:valid.site,service:valid.service,mode:valid.mode,status:'received',createdAt:now,updatedAt:now,version:1,documentCount:0,...(this.requireApproval&&valid.service!=='richiamata'?{approvalRequired:true,approvalStatus:'pending'}:{}),...(typeof actor.email==='string'?{ownerEmail:actor.email}:{}),privacyVersion:input.privacyVersion,privacyAcknowledgedAt:now,...(valid.service==='richiamata'?{contactPhone:input.contactPhone.trim(),contactEmail:actor.email}:{}),...(input.mode==='appointment'?{appointmentId:input.appointmentId}:{})};
@@ -77,7 +77,8 @@ class Practices {
    const record=this.record(actor,id);
    if(record.version!==input.version)failure(409,'VERSION_CONFLICT');
    if(!record.approvalRequired||record.status!=='received'||record.documentCount>0||record.feeOffer?.acceptedAt)failure(409,'APPROVAL_NOT_AVAILABLE');
-   const now=this.clock(),updated={...record,approvalStatus:'approved',feeOffer:{amountCents:input.amountCents,currency:'EUR',description:input.description.trim(),paymentInstructions:paymentInstructions.trim(),offeredAt:now,acceptedAt:null},paymentConfirmedAt:null,updatedAt:now,version:record.version+1};
+   if(input.privacyBasisReviewed!==true)failure(400,'PRIVACY_BASIS_REVIEW_REQUIRED');
+   const now=this.clock(),updated={...record,approvalStatus:'approved',privacyBasisReviewedAt:now,privacyBasisReviewedBy:actor.subject,feeOffer:{amountCents:input.amountCents,currency:'EUR',description:input.description.trim(),paymentInstructions:paymentInstructions.trim(),offeredAt:now,acceptedAt:null},paymentConfirmedAt:null,updatedAt:now,version:record.version+1};
    this.vault.put('practice',id,updated);this.vault.audit(actor,'practice.approve_offer',id);this.notify({kind:'practice-update',record:updated});return {...projectPractice(actor,updated),version:updated.version};
   });
  }

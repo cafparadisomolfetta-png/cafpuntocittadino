@@ -13,7 +13,7 @@ function projectPractice(actor,record){
    createdAt:record.createdAt,
    updatedAt:record.updatedAt
  };
- if(record.approvalRequired===true){result.approvalRequired=true;result.approvalStatus=record.approvalStatus;result.feeOffer=record.feeOffer?{amountCents:record.feeOffer.amountCents,currency:record.feeOffer.currency,description:record.feeOffer.description,paymentInstructions:record.feeOffer.paymentInstructions||'',offeredAt:record.feeOffer.offeredAt,acceptedAt:record.feeOffer.acceptedAt}:null;result.paymentStatus=record.feeOffer?.amountCents===0?'not_required':record.paymentConfirmedAt?'confirmed':'pending';result.paymentConfirmedAt=record.paymentConfirmedAt||null;result.canUpload=authorizeOperation(actor,record,'upload').allowed;}
+ if(record.approvalRequired===true){result.approvalRequired=true;result.privacyBasisReviewedAt=record.privacyBasisReviewedAt||null;result.approvalStatus=record.approvalStatus;result.feeOffer=record.feeOffer?{amountCents:record.feeOffer.amountCents,currency:record.feeOffer.currency,description:record.feeOffer.description,paymentInstructions:record.feeOffer.paymentInstructions||'',offeredAt:record.feeOffer.offeredAt,acceptedAt:record.feeOffer.acceptedAt}:null;result.paymentStatus=record.feeOffer?.amountCents===0?'not_required':record.paymentConfirmedAt?'confirmed':'pending';result.paymentConfirmedAt=record.paymentConfirmedAt||null;result.canUpload=authorizeOperation(actor,record,'upload').allowed;}
  if(record.service==='richiamata'&&['admin','manager','operator'].includes(actor.role)){result.contactPhone=record.contactPhone;result.contactEmail=record.contactEmail;}
  if(actor.role==='citizen'){
    result.needsIntegration=record.status==='awaiting_documents';

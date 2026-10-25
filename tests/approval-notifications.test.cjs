@@ -2,10 +2,10 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),crypto=require('node:crypto');
 const {Vault}=require('../server/vault.cjs'),{Practices}=require('../server/practices.cjs'),{Jobs}=require('../server/jobs.cjs'),{createApp}=require('../server/app.cjs');
 const citizen={authenticated:true,role:'citizen',subject:'synthetic-owner',email:'owner@example.test'},other={...citizen,subject:'other-owner',email:'other@example.test'},operator={authenticated:true,role:'operator',subject:'synthetic-staff',sites:['molfetta']},viewer={...operator,role:'viewer'},outsider={...operator,sites:['bari']};
-const input={site:'molfetta',service:'isee',mode:'direct',privacyVersion:'2026-10-12',privacyAcknowledged:true};
+const input={site:'molfetta',service:'isee',mode:'direct',privacyVersion:'2026-10-25',privacyAcknowledged:true};
 const pdf=Buffer.from('%PDF-1.4\nsynthetic-approval-test\n%%EOF'),meta={name:'synthetic.pdf',mime:'application/pdf',bytes:pdf.length};
 function fixture(t,{retentionDays=7}={}){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'caf-approval-')),vault=new Vault({directory:dir,key:crypto.randomBytes(32)}),sent=[];t.after(()=>{vault.close();fs.rmSync(dir,{recursive:true,force:true})});const jobs=new Jobs({vault,retentionDays,adminEmail:'admin@example.test',activeSites:['molfetta'],mailEnabled:true,sendMail:async row=>{sent.push(row);return {id:'synthetic-provider-id'}}});let scans=0;const practices=new Practices({vault,activeSites:['molfetta'],scan:async()=>{scans++;return 'clean'},notify:value=>jobs.enqueuePractice(value)});return {vault,jobs,practices,sent,scans:()=>scans};}
-function offer(practices,row,amountCents=1800){return practices.approve(operator,row.id,{version:row.version,amountCents,paymentInstructions:'COORDINATE SINTETICHE NON UTILIZZABILI PER BONIFICI',description:'Importo complessivo per il servizio indicato; condizioni di prova.'});}
+function offer(practices,row,amountCents=1800){return practices.approve(operator,row.id,{version:row.version,privacyBasisReviewed:true,amountCents,paymentInstructions:'COORDINATE SINTETICHE NON UTILIZZABILI PER BONIFICI',description:'Importo complessivo per il servizio indicato; condizioni di prova.'});}
 test('New requests default to pending approval; forged fields cannot enable documents or start work',async t=>{
  const {practices,vault,scans}=fixture(t),row=await practices.create(citizen,{...input,approvalRequired:false,approvalStatus:'approved',feeOffer:{acceptedAt:'forged'}});
  assert.equal(row.approvalRequired,true);assert.equal(row.approvalStatus,'pending');assert.equal(row.canUpload,false);assert.equal(row.feeOffer,null);
@@ -58,8 +58,8 @@ test('HTTP routes enforce staff approval and owner acceptance before upload',asy
  const server=createApp({practices,identity,origin:'http://127.0.0.1',publicDirectory:path.resolve('dist')});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>server.close(r)));
  const base='http://127.0.0.1:'+server.address().port;const request=(route,body,token='owner')=>fetch(base+route,{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
  let response=await request('/api/practices',input),row=await response.json();assert.equal(response.status,201);const route='/api/practices/'+row.id;
- assert.equal((await request(route+'/approval',{version:1,amountCents:0,description:'Nessuna quota.'})).status,403);
- response=await request(route+'/approval',{version:1,amountCents:0,description:'Nessuna quota.'},'staff');row=await response.json();assert.equal(response.status,200);
+ assert.equal((await request(route+'/approval',{version:1,amountCents:0,privacyBasisReviewed:true,description:'Nessuna quota.'})).status,403);
+ response=await request(route+'/approval',{version:1,amountCents:0,privacyBasisReviewed:true,description:'Nessuna quota.'},'staff');row=await response.json();assert.equal(response.status,200);
  assert.equal((await request(route+'/accept-offer',{version:row.version,accept:true},'other')).status,404);
  response=await request(route+'/accept-offer',{version:row.version,accept:true});row=await response.json();assert.equal(response.status,200);assert.equal(row.canUpload,true);
  response=await request(route+'/documents',{...meta,content:pdf.toString('base64')});assert.equal(response.status,201);
@@ -99,4 +99,17 @@ test('Payment HTTP endpoint permits only an authorized finance role and applies 
  assert.equal((await request(route+'/confirm-payment',{version:row.version,receivedCents:1800,confirmReceived:true})).status,403);
  const response=await request(route+'/confirm-payment',{version:row.version,receivedCents:1800,confirmReceived:true},'admin');assert.equal(response.status,200);row=await response.json();assert.equal(row.paymentStatus,'confirmed');
  assert.equal((await request(route+'/status',{version:row.version,status:'in_review'},'staff')).status,200);
+});
+
+
+test('Document approval requires an explicit staff review and records it without trusting citizen fields',async t=>{
+ const {practices,vault,scans}=fixture(t);
+ const row=await practices.create(citizen,{...input,privacyBasisReviewedAt:'forged',privacyBasisReviewedBy:'forged'});
+ assert.equal(vault.get('practice',row.id).privacyBasisReviewedAt,undefined);
+ for(const privacyBasisReviewed of [undefined,false,'true'])assert.throws(()=>practices.approve(operator,row.id,{version:row.version,amountCents:0,description:'Synthetic free request',privacyBasisReviewed}),e=>e.code==='PRIVACY_BASIS_REVIEW_REQUIRED');
+ await assert.rejects(practices.upload(citizen,row.id,meta,pdf));assert.equal(scans(),0);
+ let approved=offer(practices,row,0);const saved=vault.get('practice',row.id);
+ assert.ok(saved.privacyBasisReviewedAt);assert.equal(saved.privacyBasisReviewedBy,operator.subject);
+ approved=practices.acceptOffer(citizen,row.id,{version:approved.version,accept:true});
+ await practices.upload(citizen,row.id,meta,pdf);assert.equal(scans(),1);
 });

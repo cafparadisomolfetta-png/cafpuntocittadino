@@ -1,0 +1,2 @@
+'use strict';
+module.exports={VERSION:'2026-10-25'};

@@ -8,7 +8,7 @@ function authorizeOperation(actor,practice,operation,options={}){
  if(operation==='view')return {allowed:true};
  if(operation==='download')return {allowed:!!options.verifiedCleanFile,reason:options.verifiedCleanFile?undefined:'FILE_NOT_VERIFIED'};
  if(operation==='upload'){
-   if(practice.approvalRequired===true&&(practice.approvalStatus!=='approved'||!practice.feeOffer?.acceptedAt))return {allowed:false,reason:'APPROVAL_REQUIRED'};
+   if(practice.approvalRequired===true&&(practice.approvalStatus!=='approved'||!practice.feeOffer?.acceptedAt||!practice.privacyBasisReviewedAt))return {allowed:false,reason:'APPROVAL_REQUIRED'};
    if(practice.service==='richiamata')return {allowed:false,reason:'CALLBACK_HAS_NO_DOCUMENTS'};
    if(actor.role!=='citizen'||practice.ownerSubject!==actor.subject)return {allowed:false,reason:'FORBIDDEN'};
    return {allowed:practice.status==='received'||practice.status==='awaiting_documents',reason:'UPLOAD_NOT_ALLOWED'};

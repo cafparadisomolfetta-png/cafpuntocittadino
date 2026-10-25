@@ -8,7 +8,7 @@ const other={authenticated:true,subject:'citizen-two',role:'citizen'};
 const operator={authenticated:true,subject:'op-molfetta',role:'operator',sites:['molfetta']};
 const viewer={authenticated:true,subject:'reader',role:'viewer',sites:['molfetta']};
 const admin={authenticated:true,subject:'admin-one',role:'admin',sites:['molfetta','bari']};
-const input={site:'molfetta',service:'isee',mode:'direct',privacyVersion:'2026-10-12',privacyAcknowledged:true};
+const input={site:'molfetta',service:'isee',mode:'direct',privacyVersion:'2026-10-25',privacyAcknowledged:true};
 const pdf=Buffer.from('%PDF-1.4\nsynthetic-test-only\n%%EOF');
 const metadata={name:'documento-riservato-test.pdf',mime:'application/pdf',bytes:pdf.length};
 function setup(t,scan=async()=> 'clean'){

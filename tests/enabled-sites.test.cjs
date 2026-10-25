@@ -11,7 +11,7 @@ test('Launch defaults to Molfetta and additional sites require explicit valid co
  assert.equal(inspectEnvironment({...map,CAF_ENABLED_SITES_JSON:'["molfetta","bari"]'}).checks.find(x=>x.id==='calendars').ok,false);
 });
 test('Inactive-site practice data remains stored and inaccessible until reactivation',async t=>{
- const vault=setup(t),both=new Practices({requireApproval:false,vault,scan:async()=> 'clean'}),input={site:'bari',service:'isee',mode:'direct',privacyVersion:'2026-10-12',privacyAcknowledged:true};
+ const vault=setup(t),both=new Practices({requireApproval:false,vault,scan:async()=> 'clean'}),input={site:'bari',service:'isee',mode:'direct',privacyVersion:'2026-10-25',privacyAcknowledged:true};
  const row=await both.create(citizen,input),single=new Practices({requireApproval:false,vault,scan:async()=> 'clean',activeSites:['molfetta']});
  await assert.rejects(single.create(citizen,input),e=>e.code==='SITE_NOT_ACTIVE');assert.deepEqual(single.list(citizen),[]);
  assert.throws(()=>single.detail(citizen,row.id),e=>e.code==='PRACTICE_NOT_FOUND');assert.throws(()=>single.list(admin,'bari'),e=>e.code==='SITE_FORBIDDEN');

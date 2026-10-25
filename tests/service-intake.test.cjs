@@ -13,7 +13,7 @@ test('Private catalog covers exactly the 30 public booking services with stable 
 test('Each enabled intake supports scanned PDFs, private visibility and the operator status workflow',async t=>{
  const {vault,practices}=fixture(t),pdf=Buffer.from('%PDF-1.4\nsynthetic-catalog-intake\n%%EOF');
  for(const id of ids){
-  const row=await practices.create(citizen,{site:'molfetta',service:id,mode:'direct',privacyVersion:'2026-10-12',privacyAcknowledged:true});
+  const row=await practices.create(citizen,{site:'molfetta',service:id,mode:'direct',privacyVersion:'2026-10-25',privacyAcknowledged:true});
   const doc=await practices.upload(citizen,row.id,{name:'synthetic.pdf',mime:'application/pdf',bytes:pdf.length},pdf);
   assert.deepEqual(practices.download(operator,row.id,doc.id).bytes,pdf,id);assert.throws(()=>practices.detail(other,row.id),e=>e.code==='PRACTICE_NOT_FOUND');
   practices.changeStatus(operator,row.id,{version:2,status:'in_review'});practices.changeStatus(operator,row.id,{version:3,status:'completed'});
@@ -30,7 +30,7 @@ test('Service activation is explicit and fails closed without an approved durati
  assert.equal(inspectEnvironment(patch).checks.find(x=>x.id==='services').ok,false);
  patch.CAF_RETENTION_DAYS_JSON=JSON.stringify(Object.fromEntries(ids.map(id=>[id,30])));assert.equal(inspectEnvironment(patch).checks.find(x=>x.id==='services').ok,true);
  assert.throws(()=>retentionPlan({list:()=>[]},{'730':1,isee:1,unknown:1}),/Invalid retention policy/);
- const {vault,practices}=fixture(t,['730','isee']);await assert.rejects(practices.create(citizen,{site:'molfetta',service:'inail_infortunio',mode:'direct',privacyVersion:'2026-10-12',privacyAcknowledged:true}),e=>e.code==='SERVICE_NOT_ACTIVE');assert.equal(vault.list('practice').length,0);
+ const {vault,practices}=fixture(t,['730','isee']);await assert.rejects(practices.create(citizen,{site:'molfetta',service:'inail_infortunio',mode:'direct',privacyVersion:'2026-10-25',privacyAcknowledged:true}),e=>e.code==='SERVICE_NOT_ACTIVE');assert.equal(vault.list('practice').length,0);
 });
 test('Public configuration supplies only enabled service labels without exposing retention or secrets',async t=>{
  const {practices}=fixture(t,['imu','inail_infortunio','altro']);const server=createApp({practices,identity:{clientId:'synthetic-client',activeSites:['molfetta']},origin:'http://127.0.0.1',publicDirectory:path.resolve('dist')});

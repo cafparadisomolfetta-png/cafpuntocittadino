@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),crypto=require('node:crypto');
 const {Vault}=require('../server/vault.cjs'),{Candidatures}=require('../server/candidatures.cjs');
 const citizen={authenticated:true,role:'citizen',subject:'candidate-one',email:'candidate@example.invalid'},other={...citizen,subject:'candidate-two'},admin={authenticated:true,role:'admin',subject:'admin'},operator={authenticated:true,role:'operator',subject:'operator',sites:['molfetta']};
-const pdf=Buffer.from('%PDF-1.4\nsynthetic-cv-only\n%%EOF'),input={site:'molfetta',type:'Collaborazione',name:'Persona',surname:'Test',phone:'0800000000',presentation:'Candidatura sintetica di collaudo',privacyVersion:'2026-10-12',privacyAcknowledged:true,fileName:'cv-test.pdf',mime:'application/pdf',bytes:pdf.length};
+const pdf=Buffer.from('%PDF-1.4\nsynthetic-cv-only\n%%EOF'),input={site:'molfetta',type:'Collaborazione',name:'Persona',surname:'Test',phone:'0800000000',presentation:'Candidatura sintetica di collaudo',privacyVersion:'2026-10-25',privacyAcknowledged:true,fileName:'cv-test.pdf',mime:'application/pdf',bytes:pdf.length};
 function setup(t,scan=async()=> 'clean'){const directory=fs.mkdtempSync(path.join(os.tmpdir(),'caf-cv-')),vault=new Vault({directory,key:crypto.randomBytes(32)}),cvs=new Candidatures({vault,scan,retentionDays:90});t.after(()=>{vault.close();fs.rmSync(directory,{recursive:true,force:true})});return {vault,cvs,directory}}
 test('CVs are scanned, encrypted, visible to the applicant and admin only',async t=>{
  const {vault,cvs,directory}=setup(t),row=await cvs.submit(citizen,{...input,email:'untrusted@example.invalid'},pdf);
