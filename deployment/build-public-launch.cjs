@@ -17,7 +17,11 @@ for(const file of fs.readdirSync('dist').filter(name=>name.endsWith('.html'))){
   .replace(/Prenota un appuntamento, consulta le tue pratiche e accedi allo sportello personale\./g,'Scopri i servizi e scrivici per concordare un appuntamento.')
   .replace(/Documenti PDF, stato delle pratiche e richieste di integrazione della sede\./g,'L’area documenti e la consultazione delle pratiche saranno disponibili dopo l’attivazione.')
   .replace(/Usa la Segretaria AI oppure contattaci:/g,'Contattaci:')
-  .replace(/chiedi alla Segretaria AI o alla sede/g,'chiedi alla sede');
+  .replace(/chiedi alla Segretaria AI o alla sede/g,'chiedi alla sede')
+  .replace(/href="(?:\/servizi-online\.html)?#aiSecretaryLauncher"/g,'href="/servizi-online.html#contatti"')
+  .replace(/Chiedi alla Segretaria AI/g,'Contatta un operatore')
+  .replace(/(<section\b[^>]*id="privacy-policy"[^>]*>)[\s\S]*?<\/section>/g,'$1<div style="max-width:900px;margin:auto"><h2>Privacy Policy</h2><p>Consulta l’<a href="/privacy.html">informativa completa sul trattamento dei dati personali</a>.</p></div></section>')
+  .replace(/(<section\b[^>]*id="cookie-policy"[^>]*>)[\s\S]*?<\/section>/g,'$1<div style="max-width:900px;margin:auto"><h2>Cookie Policy</h2><p>Consulta la <a href="/cookie-policy.html">cookie policy</a>. Puoi modificare le scelte dal pulsante Preferenze cookie.</p></div></section>');
  fs.writeFileSync(target,html);
  assert.ok(html.includes('cafpc-launch-notice'));
 }
