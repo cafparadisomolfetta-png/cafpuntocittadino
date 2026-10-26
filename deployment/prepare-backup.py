@@ -15,6 +15,10 @@ def private_write(path, value):
     fd=os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW, 0o600)
     with os.fdopen(fd,'w') as stream: stream.write(value)
 
+def missing_authorized_keys(result):
+    details=(result.stdout+'\n'+result.stderr).lower()
+    return result.returncode!=0 and result.returncode!=5 and 'permission denied' not in details and 'authorized_keys' in details and ('no such file' in details or 'not found' in details)
+
 def prepare(user):
     if not re.fullmatch(r'u[0-9]+',user): raise ValueError('Invalid user')
     os.umask(0o077)
@@ -68,8 +72,8 @@ def connect(config):
         if result.returncode==0:
             if not old.exists() or old.stat().st_size>1048576: raise ValueError('Unexpected key file')
             previous=old.read_text()
-        elif 'no such file' in result.stderr.lower(): previous=''
-        else: raise ValueError('SFTP authentication or key read failed')
+        elif missing_authorized_keys(result): previous=''
+        else: raise ValueError('SFTP access/key read refused; exit status '+str(result.returncode))
         public=run(['/usr/bin/ssh-keygen','-e','-m','RFC4716','-f',str(BASE/'id_ed25519.pub')]).stdout
         combined.write_text(previous.rstrip()+'\n'+public.rstrip()+'\n');combined.chmod(0o600)
         stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S')
