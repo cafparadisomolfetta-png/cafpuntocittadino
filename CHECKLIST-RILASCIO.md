@@ -31,8 +31,11 @@ Aggiornamento: 26 ottobre 2026. **Sito pubblico online su Netcup; funzioni riser
 ## Prima di aprire le funzioni riservate
 
 - [x] Storage Box BX11 acquistata dal titolare entro €3,90/mese; External Reachability attivo. Destinazione SFTP risolta dal VPS e impronte moderne confrontate con la documentazione ufficiale del fornitore.
-- [ ] Accesso tramite chiave dedicata, passphrase Restic e copia di recupero custodita dal titolare. Strumenti e unit sono installati; timer disattivato. Nessun trasferimento o ripristino esterno ancora eseguito.
-- [ ] Backup cifrato fuori dal VPS, chiave custodita separatamente e ripristino isolato con verifica di dati/documenti sintetici e audit.
+- [x] Accesso SFTP tramite chiave dedicata verificato; passphrase Restic inserita personalmente e copia di recupero confermata dal titolare. Repository esterno cifrato inizializzato.
+- [x] Ripristino esterno isolato di un fascicolo e PDF sintetici: 3 file verificati, archivio decifrato, documento e audit integri; controllo completo dei dati Restic riuscito.
+- [x] Backup effettivo di codice, build pubblica e configurazioni: 239 file trasferiti e ripristinati in isolamento con hash verificati. Vault di produzione non inizializzato, nessun documento reale da dichiarare recuperato.
+- [x] Esecuzione reale di `punto-backup.service` con protezioni systemd riuscita (`Result=success`, `ExecMainStatus=0`); timer giornaliero abilitato e attivo. Prima esecuzione pianificata osservata: 27 ottobre 2026 alle 03:27 CET, entro la finestra 03:15–03:30 Europe/Rome.
+- [ ] Definire conservazione/eliminazione degli snapshot prima di accettare documenti reali; nessuna cancellazione automatica attiva.
 - [x] Superato `deployment/check-vps-workflow.cjs` con antivirus reale, scanner guasto, isolamento e restore locale; vedere limiti sopra.
 - [ ] Concludere revisione informative, presupposti/mandati, accordi dei fornitori e conservazione. Testi aggiornati non attestano da soli la conformità dell'organizzazione.
 - [ ] Accesso Google reale, due account assistiti, ruoli e revoca. Le identità simulate non sostituiscono questa prova.
