@@ -7,7 +7,8 @@ const {contactLinks}=require('../public-contact.cjs'),contact=contactLinks();
 const actions='<p><a class="btn btn--primary" href="'+contact.emailUrl.replace(/&/g,'&amp;')+'">Scrivi via email</a> '+(contact.whatsappUrl?'<a class="btn btn--primary" href="'+contact.whatsappUrl+'" target="_blank" rel="noopener noreferrer">Scrivi su WhatsApp</a>':'')+'</p>';
 const notice='<div class="cafpc-launch-notice" role="note"><strong>Contatti e consulenze disponibili.</strong> Per fissare un appuntamento scrivici via email o WhatsApp. Agenda automatica e area documenti sono in preparazione. Non inviare documenti personali in chat.</div>';
 const style='<style>.cafpc-launch-notice{padding:16px 24px;background:#eaf6fa;color:#12395a;text-align:center;border-bottom:1px solid #c9e1eb;font:16px/1.6 Arial,sans-serif}#bookingForm,#bookingConfirmation,#aiSecretaryLauncher,#aiSecretaryPanel{display:none!important}.cafpc-launch-contact{padding:24px;background:#fff;border:1px solid #dbe6ef;border-radius:14px;margin:20px auto;max-width:900px}</style>';
-for(const file of fs.readdirSync('dist').filter(name=>name.endsWith('.html'))){
+const publicPages=[...fs.readdirSync('dist').filter(name=>name.endsWith('.html')),...fs.readdirSync('dist/schede').filter(name=>name.endsWith('.html')).map(name=>'schede/'+name)];
+for(const file of publicPages){
  const target=path.join('dist',file);let html=fs.readFileSync(target,'utf8');
  html=html.replace('</head>',style+'</head>').replace(/(<body\b[^>]*>)/i,'$1'+notice);
  html=html.replace(/(<div\b[^>]*id="bookingForm"[^>]*>)/,'<div class="cafpc-launch-contact"><h3 id="disdetta-appuntamento">Fissa o modifica un appuntamento con un operatore</h3><p>Scrivici indicando il servizio e quando preferisci essere ricontattato. La prenotazione sarà concordata direttamente con la sede.</p>'+actions+'</div>$1');

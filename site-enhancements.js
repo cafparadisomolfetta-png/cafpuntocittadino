@@ -128,7 +128,7 @@ function featureNavigation(){
  };
  const items=catalog[path];if(!items)return;
  const hero=document.querySelector('.cafpc-design-hero'),main=document.querySelector('main')||document.body;
- if(!hero||!main||main.querySelector('.cafpc-feature-nav'))return;
+ if(!hero||!main||main.querySelector('.cafpc-feature-nav')||document.getElementById('cafpc-servizi'))return;
  const section=document.createElement('section');section.className='cafpc-feature-nav';section.id='cafpc-servizi';
  const title=document.createElement('h2');title.textContent=path.includes('news-')?'Esplora gli argomenti':path.includes('lavora')?'Scegli il tuo percorso':'Come possiamo aiutarti?';
  const grid=document.createElement('div');grid.className='cafpc-feature-grid';
@@ -185,6 +185,6 @@ function safeCrossPageBookingLinks(){
   a.title='Apri Servizi online e verifica le modalità disponibili';
  });
 }
-function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();repairPageLinks();safeCrossPageBookingLinks()}
+function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();repairPageLinks()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

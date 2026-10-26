@@ -3,6 +3,7 @@ require('./preflight.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const {approvedPublic}=require('./approved-design.cjs');
+const {separatePage}=require('./public-pages.cjs');
 const out = path.join(process.cwd(), 'dist');
 // A previous build must not leave obsolete public files or private data behind.
 fs.rmSync(out, {recursive:true, force:true});
@@ -31,7 +32,12 @@ for (const page of pages) {
     html=html.replace(/<\/body>/i,'<script src="/site-enhancements.js" defer></script>\n</body>');
   if(page==='news-bonus.html')html=html.replace('</body>','<script src="/official-headlines.js" defer></script>\n</body>');
   html=approvedPublic(html,page);
-  fs.writeFileSync(path.join(out,page),html);
+  const separated=separatePage(html,page);
+  fs.writeFileSync(path.join(out,page),separated.html);
+  for(const detail of separated.details){
+    fs.mkdirSync(path.join(out,'schede'),{recursive:true});
+    fs.writeFileSync(path.join(out,'schede',detail.id+'.html'),separatePage(html,page,detail.id).html);
+  }
 }
 for (const asset of ['service-explorer.js','service-visuals.js','official-headlines.js','approved-design.css','app-navigation.js','site-enhancements.css','site-enhancements.js','manifest.webmanifest','app-icon.svg','public-sw.js','cookie-consent.js','icon-192.png','icon-512.png']) {
   fs.copyFileSync(asset,path.join(out,asset));

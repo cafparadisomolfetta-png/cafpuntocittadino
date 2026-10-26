@@ -58,6 +58,23 @@ test('Public artifact excludes server code, credentials and internal documentati
  }
 });
 
+test('Category cards open separate dossiers instead of duplicating every service on every page',()=>{
+ const {categories,sections}=require('../public-pages.cjs');
+ for(const [page,ids] of Object.entries(categories)){
+  const html=fs.readFileSync(path.join('dist',page),'utf8');
+  const actual=new Set(sections(html).map(row=>row.id));
+  for(const id of ids){
+   assert.ok(!actual.has(id),page+' still contains a full dossier: '+id);
+   assert.ok(html.includes('href="/schede/'+id+'.html"'),page+' missing dossier link: '+id);
+   const detail=fs.readFileSync(path.join('dist','schede',id+'.html'),'utf8');
+   assert.ok(sections(detail).some(row=>row.id===id),'Missing dossier '+id);
+   for(const other of Object.values(categories).flat())if(other!==id)
+    assert.ok(!sections(detail).some(row=>row.id===other),'Unrelated dossier '+other+' on '+id);
+  }
+ }
+ assert.ok(!fs.readFileSync('dist/index.html','utf8').includes('id="prenotazione-online"'));
+});
+
 test('Approved identity is packaged across public and reserved pages',()=>{
  for(const file of ['index.html','caf.html','patronato.html','lavoro-sindacato.html','area-aziende.html','news-bonus.html','servizi-online.html','lavora-con-noi.html']){
   const text=fs.readFileSync(path.join('dist',file),'utf8');
@@ -65,9 +82,9 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.match(text,/src="\/assets\/punto-cittadino-brand.png"/,file);
   assert.match(text,/src="\/assets\/caf-(?:consulenza|previdenza).svg"/,file);
   assert.match(text,/href="\/approved-design.css"/,file);
-  assert.match(text,/<option value="WhatsApp">WhatsApp — ti contatta un operatore<\/option>/,file);
-  assert.match(text,/Assistenza a distanza in tutta Italia/,file);
-  assert.match(text,/id="cafpc-explorer"/,file);
+  if(file==='servizi-online.html')assert.match(text,/<option value="WhatsApp">WhatsApp — ti contatta un operatore<\/option>/,file);
+  if(file==='servizi-online.html')assert.match(text,/Assistenza a distanza in tutta Italia/,file);
+  if(file==='servizi-online.html')assert.match(text,/id="cafpc-explorer"/,file);
   assert.match(text,/src="\/service-explorer.js"/,file);
   assert.ok(!/href=["']tel:/.test(text),file);
   assert.match(text,/id="richiesta-urgente"/,file);
@@ -77,11 +94,11 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.ok(!text.includes('id="screeningCard"'),file);
   assert.ok(!text.includes('info@cafpuntocittadino.it'),file);
   assert.match(text,/href="\/servizi-online.html#scopri"/,file);
-  assert.match(text,/id="disdetta-appuntamento"/,file);
+  if(file==='servizi-online.html')assert.match(text,/id="disdetta-appuntamento"/,file);
   assert.ok(!text.includes('Via Paradiso'),file);
   assert.ok(!text.includes('Sede di Molfetta'),file);
   assert.ok(!text.includes('In presenza — sede di Molfetta'),file);
-  assert.match(text,/<option value="Telefonico">Telefonico — ti chiamiamo noi<\/option><option value="WhatsApp">/,file);
+  if(file==='servizi-online.html')assert.match(text,/<option value="Telefonico">Telefonico — ti chiamiamo noi<\/option><option value="WhatsApp">/,file);
   assert.ok(!text.includes('Servizi gratuiti e servizi su tessera'),file);
  }
  for(const file of ['assistiti/index.html','gestionale/index.html','gestionale/pratiche.html','candidature/index.html']){
