@@ -25,4 +25,5 @@ RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 CapabilityBoundingSet=CAP_DAC_READ_SEARCH
 RuntimeDirectory=punto-backup
 RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=yes
 ReadWritePaths=/var/lib/cafpuntocittadino-backup /run/punto-backup
