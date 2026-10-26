@@ -32,17 +32,18 @@ function separatePage(html,file,detail=null){
  if(detail){
   const row=details.find(r=>r.id===detail);if(!row)throw Error('Missing dossier '+detail);
   const heading='<section class="cafpc-services-showcase"><p><a href="/'+file+'">← Torna alla categoria</a></p><h1>'+title(row)+'</h1><p><a href="/servizi-online.html#prenotazione-online">Appuntamenti</a> · <a href="/assistiti/">Area assistiti</a></p></section>';
-  result=result.replace(/(<body\b[^>]*>)/i,'$1'+heading);
+  result=result.replace(/(<\/nav>)/i,'$1'+heading);
   result=result.replace(/<title>[\s\S]*?<\/title>/i,'<title>'+title(row)+' — Punto Cittadino Italia</title>');
  }else if(details.length){
   const catalog='<section class="cafpc-services-showcase" id="cafpc-servizi"><h2>Scegli il servizio</h2><div class="cafpc-home-grid">'+details.map(row=>'<a class="cafpc-home-card" href="/schede/'+row.id+'.html"><strong>'+title(row)+'</strong><span>Apri la scheda →</span></a>').join('')+'</div></section>';
-  result=result.replace(/(<section\b[^>]*class="cafpc-urgent-contact)/,catalog+'$1');
-  if(!result.includes('id="cafpc-servizi"'))result=result.replace(/(<\/nav>)/, '$1'+catalog);
+  const hero=sections(result).find(row=>/cafpc-design-hero/.test(row.tag));
+  if(!hero)throw Error('Category hero missing');
+  result=result.slice(0,hero.end)+catalog+result.slice(hero.end);
  }else if(!result.includes('id="cafpc-servizi"'))result=result.replace(/(<section\b[^>]*class="cafpc-design-hero)/,'<span id="cafpc-servizi"></span>$1');
  // Inline legacy controllers target forms which belong only on Services online.
  if(file!=='servizi-online.html'||detail)result=result.replace(/<script\b([^>]*)>[\s\S]*?<\/script>/gi,(all,attrs)=>/\bsrc=|application\/json/.test(attrs)?all:'');
  const visible=detail?[detail]:(extras[file]||[]).filter(id=>id!=='aiSecretaryPanel');
- result=result.replace('</head>','<style>'+visible.map(id=>'body[data-cafpc-design=public] #'+id+'{display:block!important}').join('')+'body[data-cafpc-design=public] .fade-in{opacity:1;transform:none}</style></head>');
+ result=result.replace('</head>','<style>'+visible.map(id=>'body[data-cafpc-design=public] #'+id+'{display:block!important}').join('')+'body[data-cafpc-design=public] .fade-in{opacity:1;transform:none}body[data-cafpc-design=public] [id$=\"-page-menu\"],body[data-cafpc-design=public] #come-funziona{display:none!important}</style></head>');
  const routes=routeMap();
  result=result.replace(/href="([^"#]*)(#[^"]+)"/g,(all,base,hash)=>{
   const id=hash.slice(1);if(detail&&id===detail&&!base)return all;
