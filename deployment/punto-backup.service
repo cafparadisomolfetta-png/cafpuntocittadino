@@ -1,0 +1,28 @@
+[Unit]
+Description=Punto Cittadino Italia encrypted off-site backup
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/etc/cafpuntocittadino/backup/access-ready.json
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/cafpuntocittadino
+ExecStart=/opt/node-v24.22.1-linux-x64/bin/node /opt/cafpuntocittadino/deployment/backup.cjs backup
+UMask=0077
+TimeoutStartSec=2h
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH
+RuntimeDirectory=punto-backup
+RuntimeDirectoryMode=0700
+ReadWritePaths=/var/lib/cafpuntocittadino-backup /run/punto-backup

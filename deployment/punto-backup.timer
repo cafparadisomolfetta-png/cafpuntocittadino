@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily encrypted backup for Punto Cittadino Italia
+
+[Timer]
+OnCalendar=*-*-* 03:15:00 Europe/Rome
+RandomizedDelaySec=15m
+Persistent=true
+Unit=punto-backup.service
+
+[Install]
+WantedBy=timers.target

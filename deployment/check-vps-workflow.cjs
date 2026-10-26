@@ -35,8 +35,15 @@ async function main(){
   response=await request(route+'/documents','owner','POST',upload(clean));assert.equal(response.status,201);const document=await response.json();
   assert.equal((await request(route+'/documents/'+document.id,'other')).status,404);
   response=await request(route+'/documents/'+document.id,'owner');assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.deepEqual(Buffer.from(await response.arrayBuffer()),clean);results.isolation=true;
-  const infected=Buffer.concat([Buffer.from('%PDF-1.4\n'),eicar,Buffer.from('\n%%EOF')]);
-  response=await request(route+'/documents','owner','POST',upload(infected));assert.equal(response.status,400);assert.equal((await response.json()).error,'UNSAFE_DOCUMENT');assert.equal(vault.list('document').length,1);results.malwareBlocked=true;
+  // An EICAR string pasted into PDF text is not a reliable EICAR fixture.
+  // Add a signature only to this isolated test scanner, retaining the installed
+  // databases too. The production scanner/database are never changed.
+  const infected=Buffer.from('%PDF-1.4\nPUNTO_SYNTHETIC_CLAMAV_PROBE_ONLY\n%%EOF');
+  const signature=path.join(root,'probe.hsb'),wrapper=path.join(root,'probe-scanner');
+  fs.writeFileSync(signature,crypto.createHash('sha256').update(infected).digest('hex')+':'+infected.length+':Punto.Synthetic.PdfProbe\n',{mode:0o600});
+  fs.writeFileSync(wrapper,'#!/bin/sh\nexec /usr/bin/clamscan --database=/var/lib/clamav --database="'+signature+'" "$@"\n',{mode:0o700});
+  practices.scan=clamScanner(wrapper);
+  response=await request(route+'/documents','owner','POST',upload(infected));assert.equal(response.status,400);assert.equal((await response.json()).error,'UNSAFE_DOCUMENT');assert.equal(vault.list('document').length,1);results.malwareBlocked=true;results.malwareProbe='synthetic-signature-real-clamav';practices.scan=scan;
   practices.scan=clamScanner('/nonexistent/synthetic-scanner');response=await request(route+'/documents','owner','POST',upload(Buffer.from('%PDF-1.4\nsecond-synthetic-check\n%%EOF')));assert.equal(response.status,503);assert.equal((await response.json()).error,'SCANNER_UNAVAILABLE');assert.equal(vault.list('document').length,1);practices.scan=scan;results.scannerFailureBlocked=true;
   response=await request(route,'operator');row=await response.json();
   assert.equal((await request(route+'/status','viewer','POST',{version:row.version,status:'in_review'})).status,404);
