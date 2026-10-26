@@ -5,7 +5,8 @@ Storage password is used once through an inherited pipe, never stored or logged.
 import base64, datetime, getpass, hashlib, json, os, pathlib, re, subprocess, sys, tempfile
 
 BASE=pathlib.Path('/etc/cafpuntocittadino/backup')
-FINGERPRINT='XqONwb1S0zuj5A1CDxpOSuD2hnAArV1A3wKY7Z3sdgM'
+FINGERPRINTS={'ssh-ed25519':'XqONwb1S0zuj5A1CDxpOSuD2hnAArV1A3wKY7Z3sdgM','ssh-rsa':'EMlfI8GsRIfpVkoW1H2u0zYVpFGKkIMKHFZIRkf2ioI','ecdsa-sha2-nistp256':'oDHZqKXnoMtgvPBjjC57pcuFez28roaEuFcfwyg8O5c'}
+ALGORITHMS='ssh-ed25519,ecdsa-sha2-nistp256,rsa-sha2-512,rsa-sha2-256'
 
 def run(args, **kwargs):
     return subprocess.run(args, check=True, capture_output=True, text=True, timeout=90, **kwargs)
@@ -27,16 +28,16 @@ def prepare(user):
     key=BASE/'id_ed25519'
     if not key.exists(): run(['/usr/bin/ssh-keygen','-q','-t','ed25519','-N','','-f',str(key),'-C','punto-cittadino-backup'])
     if key.is_symlink() or key.stat().st_uid!=0 or key.stat().st_mode&0o077: raise ValueError('Private key required')
-    result=run(['/usr/bin/ssh-keyscan','-T','15','-t','ed25519',host])
+    result=run(['/usr/bin/ssh-keyscan','-T','15','-t','ed25519,ecdsa,rsa',host])
     keys=[]
     for line in result.stdout.splitlines():
         parts=line.split()
-        if len(parts)!=3 or parts[1]!='ssh-ed25519': continue
+        if len(parts)!=3 or parts[1] not in FINGERPRINTS: continue
         fingerprint=base64.b64encode(hashlib.sha256(base64.b64decode(parts[2],validate=True)).digest()).decode().rstrip('=')
-        if fingerprint!=FINGERPRINT: raise ValueError('Unexpected host fingerprint')
-        keys.append(parts[2])
+        if fingerprint!=FINGERPRINTS[parts[1]]: raise ValueError('Unexpected host fingerprint')
+        keys.append(parts[1]+' '+parts[2])
     if not keys: raise ValueError('No verified host key')
-    known=host+' ssh-ed25519 '+keys[0]+'\n'
+    known=''.join(host+' '+key+'\n' for key in sorted(set(keys)))
     target=BASE/'known_hosts'
     if target.exists():
         if target.read_text()!=known: raise ValueError('Host key changed')
@@ -51,7 +52,7 @@ def connect(config):
     print('La password Hetzner viene usata una volta e non viene salvata. Non incollarla in chat.')
     secret=getpass.getpass('Password della Storage Box (invisibile): ')
     if not secret or len(secret)>1024 or '\n' in secret or '\r' in secret: raise ValueError('Invalid password')
-    common=['-F','/dev/null','-P','22','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+str(BASE/'known_hosts'),'-o','HostKeyAlgorithms=ssh-ed25519','-o','UpdateHostKeys=no','-o','ConnectTimeout=15']
+    common=['-F','/dev/null','-P','22','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+str(BASE/'known_hosts'),'-o','HostKeyAlgorithms='+ALGORITHMS,'-o','UpdateHostKeys=no','-o','ConnectTimeout=15']
     destination=config['user']+'@'+config['host']
     def authenticated(batch):
         read_fd,write_fd=os.pipe()

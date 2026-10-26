@@ -26,7 +26,7 @@ inserisce personalmente, senza eco, la password Storage Box e una nuova passphra
 Restic ripetuta due volte. Nessun segreto deve transitare in chat o nel repository.
 Il passaggio installa sul servizio la chiave pubblica dedicata in formato RFC4716,
 preservando e salvando una copia delle eventuali chiavi preesistenti. L'impronta
-ED25519 viene confrontata con quella pubblicata dalla documentazione Hetzner;
+SSH viene confrontata con quelle pubblicate dalla documentazione Hetzner;
 una mancata corrispondenza blocca la preparazione, senza accettare nuove chiavi.
 SFTP sulla porta 22 ed External Reachability sono sufficienti; non servono SMB,
 WebDAV o la shell estesa sulla porta 23.
