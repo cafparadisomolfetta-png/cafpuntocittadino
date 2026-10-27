@@ -22,6 +22,8 @@ async function app(req,res){
   try{
    const query=Object.fromEntries(new URL(req.url||'/', 'http://localhost').searchParams);
    if(!/^\d{4}-\d{2}-\d{2}$/.test(query.date||''))return respond(res,400,JSON.stringify({error:'Data mancante o non valida'}),{'Content-Type':'application/json; charset=utf-8'});
+   const parsed=new Date(query.date+'T12:00:00Z');
+   if(!Number.isFinite(parsed.getTime())||parsed.toISOString().slice(0,10)!==query.date)return respond(res,400,'Data non valida');
    const {calendarForSite}=require('../netlify/functions/site-calendars.js');
    const resolved=calendarForSite(query.sede||query.site||'molfetta');
    if(resolved.error)return respond(res,resolved.status,JSON.stringify({error:resolved.error}),{'Content-Type':'application/json; charset=utf-8'});
