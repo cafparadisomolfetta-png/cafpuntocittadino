@@ -1,0 +1,25 @@
+name: Diagnostica pubblica dominio (senza deploy)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Controllo risposta pubblica e asset della nuova versione
+        shell: bash
+        run: |
+          set -euo pipefail
+          site="https://cafpuntocittadino.it"
+          code=$(curl --location --max-time 20 --silent --output /tmp/punto-home.html --write-out "%{http_code}" "$site/")
+          echo "Homepage HTTP: $code"
+          test "$code" = "200"
+          grep -qi '<html' /tmp/punto-home.html
+          for asset in /site-enhancements.js /site-enhancements.css /gestionale/index.html /privacy.html /cookie-policy.html; do
+            response=$(curl --location --max-time 20 --silent --output /tmp/punto-asset --write-out "%{http_code}" "$site$asset")
+            echo "$asset HTTP: $response"
+            test "$response" = "200"
+          done
+          echo "Risultato: pagine e asset raggiungibili; nessuna prova eseguita sui dati personali o sulle API che modificano prenotazioni."
