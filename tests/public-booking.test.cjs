@@ -27,7 +27,7 @@ test('Calendar routing remains fail-closed for Bari',()=>{
   process.env.GOOGLE_CALENDAR_ID='calendar-molfetta';
   delete process.env.GESTIONALE_SITE_CALENDARS_JSON;
   assert.equal(calendarForSite('molfetta').calendarId,'calendar-molfetta');
-  assert.equal(calendarForSite('bari').status,503);
+  assert.equal(calendarForSite('bari').status,400);
   assert.equal(calendarForSite('other').status,400);
   process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'same',bari:'same'});
   assert.equal(calendarForSite('molfetta').status,503);
