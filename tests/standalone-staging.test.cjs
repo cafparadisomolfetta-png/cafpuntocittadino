@@ -97,3 +97,30 @@ test('availability requires an explicit Molfetta calendar mapping',async()=>{
   global.fetch=oldFetch;
  }
 });
+
+test('Google Calendar read works through mocked OAuth and events endpoint',async()=>{
+ const keys=['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN','GOOGLE_CALENDAR_ID','GESTIONALE_SITE_CALENDARS_JSON'];
+ const saved=keys.map(k=>process.env[k]);const previousFetch=global.fetch;const requests=[];
+ try {
+  process.env.GOOGLE_CLIENT_ID='example-client';
+  process.env.GOOGLE_CLIENT_SECRET='example-secret';
+  process.env.GOOGLE_REFRESH_TOKEN='example-refresh';
+  process.env.GOOGLE_CALENDAR_ID='cafparadiso.molfetta@gmail.com';
+  delete process.env.GESTIONALE_SITE_CALENDARS_JSON;
+  global.fetch=async(url,options)=>{
+   requests.push({url:String(url),options});
+   if(String(url).includes('oauth2.googleapis.com/token'))return {ok:true,json:async()=>({access_token:'example-access'})};
+   if(String(url).includes('googleapis.com/calendar/v3/calendars/'))return {ok:true,json:async()=>({items:[]})};
+   throw Error('Unexpected external request');
+  };
+  const result=await call('GET','/api/calendar-availability?date=2026-11-03&site=molfetta');
+  assert.equal(result.status,200);
+  assert.ok(Array.isArray(JSON.parse(result.body).slots));
+  assert.equal(requests.length,2);
+  assert.match(requests[1].url,/cafparadiso.molfetta%40gmail.com/);
+  assert.equal(requests[1].options.headers.Authorization,'Bearer example-access');
+ } finally {
+  keys.forEach((k,i)=>{if(saved[i]===undefined)delete process.env[k];else process.env[k]=saved[i]});
+  global.fetch=previousFetch;
+ }
+});
