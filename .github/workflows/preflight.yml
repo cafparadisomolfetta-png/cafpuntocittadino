@@ -46,3 +46,16 @@ jobs:
           path: dist/
           retention-days: 14
           if-no-files-found: error
+      - name: Prepara pacchetto runtime Node per staging
+        run: |
+          mkdir -p staging-node
+          cp -R server netlify dist staging-node/
+          cp package.json staging-node/
+          printf '%s\n' 'Node.js 22+ richiesto. Avviare con: node server/standalone.cjs' > staging-node/ISTRUZIONI.txt
+      - name: Archivia runtime per hosting Node indipendente
+        uses: actions/upload-artifact@v4
+        with:
+          name: punto-cittadino-node-staging-${{ github.sha }}
+          path: staging-node/
+          retention-days: 14
+          if-no-files-found: error
