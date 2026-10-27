@@ -21,7 +21,7 @@ jobs:
       - name: Collauda runtime Node indipendente in staging
         run: |
           node --check server/standalone.cjs
-          node --test tests/standalone-staging.test.cjs tests/booking-lock.test.cjs
+          node --test tests/standalone-staging.test.cjs tests/booking-lock.test.cjs tests/booking-schema.test.cjs
       - name: Collauda server HTTP Node reale in localhost
         shell: bash
         run: |
