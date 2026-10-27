@@ -37,6 +37,17 @@ test('Calendar routing remains fail-closed for Bari',()=>{
  }
 });
 
+test('Valid Molfetta mapping is used instead of the legacy primary calendar',()=>{
+ const previous=process.env.GESTIONALE_SITE_CALENDARS_JSON;
+ try{
+  process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta-mapped'});
+  assert.deepEqual(calendarForSite('molfetta'),{site:'molfetta',calendarId:'calendar-molfetta-mapped'});
+ }finally{
+  if(previous===undefined)delete process.env.GESTIONALE_SITE_CALENDARS_JSON;
+  else process.env.GESTIONALE_SITE_CALENDARS_JSON=previous;
+ }
+});
+
 test('Malformed mapped calendars do not fall back to the primary calendar',()=>{
  const old=process.env.GESTIONALE_SITE_CALENDARS_JSON;
  try{
