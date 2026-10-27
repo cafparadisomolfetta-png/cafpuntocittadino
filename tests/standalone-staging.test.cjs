@@ -81,3 +81,19 @@ test('availability rejects missing Google configuration without external call',a
   global.fetch=previous;
  }
 });
+
+test('availability requires an explicit Molfetta calendar mapping',async()=>{
+ const keys=['GOOGLE_CALENDAR_ID','GESTIONALE_SITE_CALENDARS_JSON'];
+ const saved=keys.map(k=>process.env[k]);
+ const oldFetch=global.fetch;
+ try{
+  for(const k of keys)delete process.env[k];
+  global.fetch=async()=>{throw Error('No external request expected')};
+  const result=await call('GET','/api/calendar-availability?date=2026-11-03');
+  assert.equal(result.status,503);
+  assert.match(result.body,/Identificativo calendario Molfetta/);
+ }finally{
+  keys.forEach((k,i)=>{if(saved[i]===undefined)delete process.env[k];else process.env[k]=saved[i]});
+  global.fetch=oldFetch;
+ }
+});
