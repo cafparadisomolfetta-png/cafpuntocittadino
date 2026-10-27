@@ -21,6 +21,8 @@ async function app(req,res){
   const {handler}=require('../netlify/functions/calendar-availability.js');
   try{
    const query=Object.fromEntries(new URL(req.url||'/', 'http://localhost').searchParams);
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(query.date||''))return respond(res,400,JSON.stringify({error:'Data mancante o non valida'}),{'Content-Type':'application/json; charset=utf-8'});
+   if(!process.env.GOOGLE_CLIENT_ID||!process.env.GOOGLE_CLIENT_SECRET||!process.env.GOOGLE_REFRESH_TOKEN)return respond(res,503,JSON.stringify({error:'Calendario non configurato sul server'}),{'Content-Type':'application/json; charset=utf-8'});
    const result=await handler({httpMethod:'GET',queryStringParameters:query});
    return respond(res,result.statusCode,result.body,result.headers||{});
   }catch{return respond(res,503,JSON.stringify({error:'Disponibilità temporaneamente non verificabile'}),{'Content-Type':'application/json; charset=utf-8'});}
