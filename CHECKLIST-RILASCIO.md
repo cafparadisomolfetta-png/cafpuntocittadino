@@ -1,6 +1,6 @@
 # Rilascio — Punto Cittadino Italia
 
-Aggiornamento: 26 ottobre 2026. **Sito pubblico online su Netcup; funzioni riservate ancora chiuse.**
+Aggiornamento: 27 ottobre 2026. **Sito pubblico online su Netcup; funzioni riservate ancora chiuse.**
 
 ## Stato effettivo
 
@@ -13,6 +13,14 @@ Aggiornamento: 26 ottobre 2026. **Sito pubblico online su Netcup; funzioni riser
 - `/api/` e `/.netlify/functions/`: 503. Richieste diverse da GET/HEAD bloccate. Questa pubblicazione non accetta caricamenti o prenotazioni.
 - Runtime privato disabilitato; nessuna attestazione di revisione privacy definitiva inserita per aggirare il preflight.
 - Nessun nuovo acquisto, riattivazione Netlify o chiamata AI a pagamento.
+
+## Intervento del 27 ottobre
+
+- [x] Pubblicata la build del codice `269111b`: categorie separate e schede con URL dedicati; provato nel browser CAF → ISEE → ritorno alla categoria. Vecchia build conservata per rollback. Backend privato ancora chiuso.
+- [x] Verificato il backup notturno del 27 ottobre e completato un backup dopo la pubblicazione.
+- [x] Riconvalidato Google sul VPS: refresh, scope e account calendario positivi.
+- [x] Verificato direttamente Aruba: Dominio con Email attivo fino al 25 ottobre 2027, ordine iniziale pagato €4,87. Sola casella postmaster creata.
+- [ ] Completare `info@puntocittadinoitalia.it`: profilo preparato; nuova password e completamento creazione a cura del titolare, poi prova invio/ricezione. Nessun nuovo acquisto necessario per questa casella inclusa.
 
 ## Controlli eseguiti
 

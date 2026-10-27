@@ -2,6 +2,14 @@
 
 Ricostruzione del 27 ottobre 2026, dalle decisioni visibili nella conversazione, dal codice e dall'ispezione dei due domini. Documento di stato e di lavoro: non attesta il completamento del progetto o la conformità GDPR. Progetto distinto da Punto Cittadino Italia Tech/Punto Cittadino Pro.
 
+## Aggiornamento operativo successivo alla ricostruzione
+
+Il 27 ottobre è stata pubblicata sul dominio principale la build del codice `269111b`: categorie compatte e schede con URL dedicati. Verificato nel browser il percorso CAF → ISEE → ritorno alla categoria. La precedente build è conservata sul VPS per rollback. I riferimenti più sotto alla mancata pubblicazione descrivono lo stato osservato prima di questo intervento.
+
+Verifica diretta nell'account Aruba: `puntocittadinoitalia.it`, servizio **Dominio con Email**, attivo, scadenza **25 ottobre 2027**, ordine del 24 ottobre pagato **€4,87**. Non risulta un hosting applicativo aggiuntivo in questo elenco; il sito resta sul VPS Netcup. Nella gestione posta è attiva soltanto `postmaster@puntocittadinoitalia.it`. Preparata la creazione di `info@puntocittadinoitalia.it`, fermata prima dell'inserimento della nuova password, che deve effettuare personalmente il titolare. La nuova casella non è ancora creata e non è stata dichiarata collaudata.
+
+Backup notturno del 27 ottobre verificato: timestamp registrato `2026-10-27T02:28:37.507Z`, servizio con risultato positivo. Eseguito inoltre un backup successivo alla pubblicazione, concluso con `Result=success` ed `ExecMainStatus=0`. Google riconvalidato sul VPS: refresh, scope e account calendario tutti positivi. Il controllo runtime segnala soltanto `privacy` ed `enabled`: nessun flag è stato modificato per aggirare la revisione o dichiarare il gestionale già attivo.
+
 ## 1. Identità e grafica da conservare
 
 Nome pubblico definitivo: **Punto Cittadino Italia**. Assistenza in tutta Italia; contatti urgenti per iscritto, email/WhatsApp, con eventuale ricontatto della sede. Nessuna nuova proposta grafica.
