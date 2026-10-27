@@ -22,6 +22,25 @@ jobs:
         run: |
           node --check server/standalone.cjs
           node --test tests/standalone-staging.test.cjs tests/booking-lock.test.cjs
+      - name: Collauda server HTTP Node reale in localhost
+        shell: bash
+        run: |
+          set -euo pipefail
+          PORT=18971 node server/standalone.cjs > /tmp/punto-node.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:18971/healthz > /tmp/punto-health.json; then break; fi
+            sleep 0.25
+          done
+          grep -q '"bookingEnabled":false' /tmp/punto-health.json
+          for asset in / /site-enhancements.js /site-enhancements.css /cookie-policy.html /gestionale/index.html; do
+            curl --fail --silent --show-error -o /dev/null "http://127.0.0.1:18971$asset"
+          done
+          for route in /api/calendar-book /api/calendar-cancel /api/gestionale; do
+            code=$(curl --silent -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:18971$route")
+            test "$code" = "503"
+          done
       - name: Controlla file pubblicati senza effettuare deploy
         run: |
           test -f dist/index.html
