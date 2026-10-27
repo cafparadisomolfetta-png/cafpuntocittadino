@@ -13,3 +13,16 @@ test('atomic slot claim uses a parameterized query and honors conflicts',async()
  assert.deepEqual(await claimSlot({query:async()=>({rows:[]})},{start:'2026-11-03T09:00:00+01:00',end:'2026-11-03T09:20:00+01:00'}),{held:false});
  await assert.rejects(claimSlot(pool,{site:'bari',start:'2026-11-03T09:00:00+01:00',end:'2026-11-03T09:20:00+01:00'}),/Invalid slot/);
 });
+
+test('pending claims can be confirmed or expired only from held state',async()=>{
+ const {confirmSlot,releaseUnconfirmedSlot}=require('../server/database.cjs');
+ const calls=[];
+ const pool={query:async(sql,args)=>{calls.push({sql,args});return {rows:[{id:12}]}}};
+ assert.equal(await confirmSlot(pool,{id:12,eventId:'google-test-event'}),true);
+ assert.match(calls[0].sql,/state='held'/);
+ assert.deepEqual(calls[0].args,[12,'google-test-event']);
+ assert.equal(await releaseUnconfirmedSlot(pool,{id:12}),true);
+ assert.match(calls[1].sql,/external_event_id IS NULL/);
+ await assert.rejects(confirmSlot(pool,{id:0,eventId:'x'}),/Invalid booking reference/);
+ await assert.rejects(releaseUnconfirmedSlot(pool,{id:-1}),/Invalid booking reference/);
+});
