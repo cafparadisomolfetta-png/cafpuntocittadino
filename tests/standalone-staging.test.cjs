@@ -42,3 +42,16 @@ test('Cloe staging requires POST and server-side configuration',async()=>{
   assert.equal(post.status,503);
  }finally{if(original===undefined)delete process.env.OPENAI_API_KEY;else process.env.OPENAI_API_KEY=original;}
 });
+
+test('booking and cancellation fail closed without touching Calendar',async()=>{
+ const old=global.fetch;
+ global.fetch=async()=>{throw Error('No external write allowed')};
+ try{
+  for(const route of ['/api/calendar-book','/api/calendar-cancel','/.netlify/functions/calendar-book','/.netlify/functions/calendar-cancel']){
+   const reply=await call('POST',route);
+   assert.equal(reply.status,503);
+   assert.match(reply.body,/BOOKING_MIGRATION_LOCKED/);
+   assert.equal((await call('GET',route)).status,405);
+  }
+ }finally{global.fetch=old}
+});
