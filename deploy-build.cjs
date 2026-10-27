@@ -55,6 +55,10 @@ for(const asset of ['index.html','app.css','app.js','manifest.webmanifest','serv
  fs.copyFileSync(path.join('assistiti',asset),path.join(citizenFrontend,asset));
 const candidatureFrontend=path.join(out,'candidature');fs.mkdirSync(candidatureFrontend,{recursive:true});
 for(const asset of ['index.html','app.js'])fs.copyFileSync(path.join('candidature',asset),path.join(candidatureFrontend,asset));
+// Reserved app menus and legal pages share the same real workflow destinations.
+const {workflowLinks}=require('./public-pages.cjs');
+function rewriteWorkflowMenus(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())rewriteWorkflowMenus(file);else if(file.endsWith('.html'))fs.writeFileSync(file,workflowLinks(fs.readFileSync(file,'utf8')));}}
+rewriteWorkflowMenus(out);
 console.log('Ready: '+pages.length+' pages, shared assets. Server functions stay outside public dist/.');
 
 require('node:child_process').execFileSync(process.execPath,['--test','tests/build-artifact.test.cjs'],{stdio:'inherit',timeout:15000});

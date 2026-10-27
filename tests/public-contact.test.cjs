@@ -10,7 +10,7 @@ test('Written urgent contact opens a user-controlled email draft and only the co
 });
 test('Missing WhatsApp configuration does not send urgent requests to a guessed or private number',()=>{
  assert.equal(new URL(contactLinks({}).whatsappUrl).pathname,'/390806455509');
- const links=contactLinks({CAF_PUBLIC_WHATSAPP_NUMBER:''});assert.equal(links.whatsappUrl,null);assert.ok(!contactSection(links).includes('wa.me/'));assert.match(contactSection(links),/mailto:cafparadiso.molfetta@gmail.com/);
+ const links=contactLinks({CAF_PUBLIC_WHATSAPP_NUMBER:''});assert.equal(links.whatsappUrl,null);assert.ok(!contactSection(links).includes('wa.me/'));assert.match(contactSection(links),/mailto:info@puntocittadinoitalia.it/);
  for(const number of ['javascript:alert(1)','+39 123 456','39000?text=other','0000000'])assert.throws(()=>contactLinks({CAF_PUBLIC_WHATSAPP_NUMBER:number}));
  assert.throws(()=>contactLinks({CAF_PUBLIC_CONTACT_EMAIL:'a@example.invalid\nBcc:b@example.invalid'}));
 });

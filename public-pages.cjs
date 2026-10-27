@@ -10,21 +10,23 @@ const categories={
  'lavora-con-noi.html':[],'index.html':[]
 };
 const extras={'servizi-online.html':['scopri','prenotazione-online','consulenza-20','contatti','tesseramento-associazione','condizioni-consulenza','aiSecretaryPanel'],'lavora-con-noi.html':['lavora-con-noi']};
+const workflowIds=extras['servizi-online.html'].filter(id=>id!=='aiSecretaryPanel');
+const workflowTitles={'scopri':'Servizi e percorsi guidati','prenotazione-online':'Appuntamenti e disdette','consulenza-20':'Consulenza individuale','contatti':'Contatti','tesseramento-associazione':'Tesseramento associativo','condizioni-consulenza':'Condizioni consulenza e tesseramento'};
 const escape=s=>s.replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function sections(html){
  const token=/<!--[\s\S]*?-->|<script\b[^>]*>[\s\S]*?<\/script\s*>|<style\b[^>]*>[\s\S]*?<\/style\s*>|<\/?section\b[^>]*>/gi,stack=[],out=[];let m;
  while((m=token.exec(html))){if(!/^<\/?section\b/i.test(m[0]))continue;if(/^<\//.test(m[0])){const start=stack.pop();if(!start)throw Error('Unbalanced public sections');if(!stack.length)out.push({...start,end:token.lastIndex,html:html.slice(start.start,token.lastIndex)});}else stack.push({start:m.index,tag:m[0],id:m[0].match(/\bid="([^"]+)"/)?.[1]||''});}
  if(stack.length)throw Error('Unclosed public sections');return out;
 }
-function title(row){return (row.html.match(/<h[12]\b[^>]*>([\s\S]*?)<\/h[12]>/i)?.[1]||row.id).replace(/<[^>]*>/g,'').trim();}
-function routeMap(){const out={};for(const [page,ids] of Object.entries(categories))for(const id of ids)out[id]='/schede/'+id+'.html';for(const [page,ids] of Object.entries(extras))for(const id of ids)out[id]='/'+page+'#'+id;Object.assign(out,{'privacy-policy':'/privacy.html','cookie-policy':'/cookie-policy.html','richiamami':'/assistiti/?richiamata=1','invio-documenti':'/assistiti/','stato-pratica':'/assistiti/','servizi-digitali':'/servizi-online.html#cafpc-servizi','catalogo':'/servizi-online.html#scopri','lavora-con-noi':'/lavora-con-noi.html','form-candidatura':'/candidature/','chi-siamo':'/#cafpc-about-title','tariffe':'/servizi-online.html#consulenza-20','servizi-fotografici':'/#cafpc-home-services'});return out;}
+function title(row){return workflowTitles[row.id]||(row.html.match(/<h[12]\b[^>]*>([\s\S]*?)<\/h[12]>/i)?.[1]||row.id).replace(/<[^>]*>/g,'').trim();}
+function routeMap(){const out={};for(const [page,ids] of Object.entries(categories))for(const id of ids)out[id]='/schede/'+id+'.html';for(const [page,ids] of Object.entries(extras))for(const id of ids)out[id]='/'+page+'#'+id;for(const id of workflowIds)out[id]='/schede/'+id+'.html';Object.assign(out,{'privacy-policy':'/privacy.html','cookie-policy':'/cookie-policy.html','richiamami':'/assistiti/?richiamata=1','invio-documenti':'/assistiti/','stato-pratica':'/assistiti/','servizi-digitali':'/servizi-online.html#cafpc-servizi','catalogo':'/schede/scopri.html','lavora-con-noi':'/lavora-con-noi.html','form-candidatura':'/candidature/','chi-siamo':'/#cafpc-about-title','tariffe':'/schede/consulenza-20.html','disdetta-appuntamento':'/schede/prenotazione-online.html#disdetta-appuntamento','servizi-fotografici':'/#cafpc-home-services'});return out;}
 function separatePage(html,file,detail=null){
  if(!categories[file])return {html,details:[]};
- const rows=sections(html),ids=categories[file],details=rows.filter(r=>ids.includes(r.id)),keep=new Set(detail?[detail]:(extras[file]||[]));
+ const rows=sections(html),ids=[...categories[file],...(file==='servizi-online.html'?workflowIds:[])],details=rows.filter(r=>ids.includes(r.id)),keep=new Set(detail?[detail]:(file==='servizi-online.html'?[]:extras[file]||[]));
  let result=html;
  for(const row of [...rows].reverse()){
   const generated=/\bclass="[^"]*cafpc-/.test(row.tag);
-  const retained=detail?row.id===detail:generated||keep.has(row.id);
+  const retained=detail?row.id===detail:(generated&&!ids.includes(row.id))||keep.has(row.id);
   if(!retained)result=result.slice(0,row.start)+result.slice(row.end);
  }
  // Remove the duplicated legacy menus and section heading outside the dossiers.
@@ -40,9 +42,14 @@ function separatePage(html,file,detail=null){
   if(!hero)throw Error('Category hero missing');
   result=result.slice(0,hero.end)+catalog+result.slice(hero.end);
  }else if(!result.includes('id="cafpc-servizi"'))result=result.replace(/(<section\b[^>]*class="cafpc-design-hero)/,'<span id="cafpc-servizi"></span>$1');
- // Inline legacy controllers target forms which belong only on Services online.
- if(file!=='servizi-online.html'||detail)result=result.replace(/<script\b([^>]*)>[\s\S]*?<\/script>/gi,(all,attrs)=>/\bsrc=|application\/json/.test(attrs)?all:'');
- const visible=detail?[detail]:(extras[file]||[]).filter(id=>id!=='aiSecretaryPanel');
+ // A workflow page owns its controller; category pages never initialise unrelated forms.
+ result=result.replace(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi,(all,attrs,code)=>{
+  if(/\bsrc=|application\/json/.test(attrs))return all;
+  if(detail==='prenotazione-online'&&(/const E=id=>/.test(code)||/serviceAmountNotice/.test(code)))return all;
+  if(['consulenza-20','prenotazione-online'].includes(detail)&&/function apriTesseramento/.test(code))return all;
+  return '';
+ });
+ const visible=detail?[detail]:(file==='servizi-online.html'?[]:extras[file]||[]).filter(id=>id!=='aiSecretaryPanel');
  result=result.replace('</head>','<style>'+visible.map(id=>'body[data-cafpc-design=public] #'+id+'{display:block!important}').join('')+'body[data-cafpc-design=public] .fade-in{opacity:1;transform:none}body[data-cafpc-design=public] [id$=\"-page-menu\"],body[data-cafpc-design=public] #come-funziona{display:none!important}</style></head>');
  const routes=routeMap();
  result=result.replace(/href="([^"#]*)(#[^"]+)"/g,(all,base,hash)=>{
@@ -52,4 +59,7 @@ function separatePage(html,file,detail=null){
  result=result.replace(/<a\b([^>]*)href="\/lavoro-sindacato.html"([^>]*)>([\s\S]*?)<\/a>/g,(all,a,b,label)=>/Lavora con noi/i.test(label)?'<a'+a+'href="/lavora-con-noi.html"'+b+'>'+label+'</a>':all);
  return {html:result,details};
 }
-module.exports={categories,separatePage,sections};
+function workflowLinks(html){
+ const routes=routeMap();return html.replace(/href="\/servizi-online\.html(\?[^"#]*)?#([^"#]+)"/g,(all,query,id)=>workflowIds.includes(id)||id==='disdetta-appuntamento'?'href="'+routes[id].replace(/(#|$)/,(_m,hash)=>(query||'')+hash)+'"':all);
+}
+module.exports={categories,separatePage,sections,workflowIds,routeMap,workflowTitles,workflowLinks};

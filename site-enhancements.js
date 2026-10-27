@@ -2,6 +2,15 @@
 if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('/public-sw.js',{scope:'/'}).catch(()=>{});
 const routes=[['Home','/'],['CAF e Fiscale','/caf.html'],['Patronato / INPS','/patronato.html'],['Lavoro / Sindacato','/lavoro-sindacato.html'],['Area Aziende','/area-aziende.html'],['News e Bonus','/news-bonus.html'],['Servizi online','/servizi-online.html'],['Lavora con noi','/lavora-con-noi.html']];
 const path=location.pathname;
+const workflowRoutes=Object.fromEntries(['scopri','prenotazione-online','consulenza-20','contatti','tesseramento-associazione','condizioni-consulenza'].map(id=>[id,'/schede/'+id+'.html']));
+workflowRoutes['disdetta-appuntamento']='/schede/prenotazione-online.html#disdetta-appuntamento';
+// Preserve saved links to the old long page, including the selected service.
+if(path==='/servizi-online.html'&&workflowRoutes[location.hash.slice(1)]){
+ const target=new URL(workflowRoutes[location.hash.slice(1)],location.origin);target.search=location.search;location.replace(target.href);return;
+}
+function workflowLinks(){
+ document.querySelectorAll('a[href]').forEach(a=>{const u=new URL(a.href,location.href);if(u.origin!==location.origin)return;const target=workflowRoutes[u.hash.slice(1)];if(u.pathname==='/servizi-online.html'&&target){const next=new URL(target,location.origin);next.search=u.search;a.href=next.href;}});
+}
 const same=(a,b)=>a.replace(/\s+/g,' ').trim().toLowerCase()===b.toLowerCase();
 function setupNav(){
  const candidates=[...document.querySelectorAll('nav')];let nav=candidates.find(n=>n.classList.contains('pro-nav'))||candidates.find(n=>n.querySelectorAll('a').length>=3);
@@ -185,6 +194,6 @@ function safeCrossPageBookingLinks(){
   a.title='Apri Servizi online e verifica le modalità disponibili';
  });
 }
-function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();repairPageLinks()}
+function init(){setupNav();setupFooter();careers();designPages();serviceCards();featureNavigation();workflowLinks();repairPageLinks()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

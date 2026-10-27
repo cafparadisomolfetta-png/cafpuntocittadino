@@ -65,7 +65,7 @@ const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 const btn=(label,key,value)=>'<button type="button" data-'+key+'="'+safe(value)+'">'+safe(label)+'</button>';
 const visuals=globalThis.CAFPCServiceVisuals;
 function visual(name){return visuals?.visualFor(name,catalog.findIndex(s=>s.name===name),groups.findIndex(g=>g.services.includes(name)));}
-const book=name=>'<a class="btn btn--primary" href="/servizi-online.html?servizio='+encodeURIComponent(name)+'#prenotazione-online">Prenota per questo servizio</a>';
+const book=name=>'<a class="btn btn--primary" href="/schede/prenotazione-online.html?servizio='+encodeURIComponent(name)+'">Prenota per questo servizio</a>';
 let kind='bonus',step=0,done=false,answers={},detail=null,mode='catalog';
 function render(){
  const nav='<div class="cafpc-explorer-actions">'+btn('Tutti i servizi','explore','catalog')+btn('Scopri i bonus','explore','bonus')+btn('Orientamento pensioni','explore','pensioni')+'</div>';
@@ -82,7 +82,7 @@ function render(){
   }
   body+='<p class="cafpc-explorer-note">Le risposte restano in questa pagina e si cancellano ricaricandola. Non inserire dati identificativi o documenti sanitari.</p>';
  }else{
-  body='<h2>Servizi e percorsi guidati</h2><p>Apri una scheda oppure rispondi alle domande per individuare il servizio da approfondire. Assistenza online in tutta Italia.</p>'+groups.map(g=>'<section><h3>'+safe(g.label)+'</h3><div class="cafpc-explorer-grid">'+g.services.map(name=>{const v=visual(name);return v?'<button type="button" class="cafpc-reference-photo" style="--service-color:'+v.color+'" data-service="'+safe(name)+'"><img src="'+v.image+'" alt="" width="384" height="256" loading="lazy"><span class="cafpc-reference-photo-copy"><small>'+safe(g.label)+'</small><strong>'+safe(name)+'</strong><span>Apri la scheda →</span></span></button>':'<article><h4>'+safe(name)+'</h4><p>'+safe(serviceInfo(name)[0])+'</p>'+btn('Apri scheda','service',name)+'</article>';}).join('')+'</div></section>').join('');
+  body='<h2>Servizi e percorsi guidati</h2><p>Apri una scheda oppure rispondi alle domande per individuare il servizio da approfondire. Assistenza online in tutta Italia.</p>'+groups.map(g=>'<details class="cafpc-catalog-group"><summary>'+safe(g.label)+' · '+g.services.length+' servizi</summary><div class="cafpc-explorer-grid">'+g.services.map(name=>{const v=visual(name);return v?'<button type="button" class="cafpc-reference-photo" style="--service-color:'+v.color+'" data-service="'+safe(name)+'"><img src="'+v.image+'" alt="" width="384" height="256" loading="lazy"><span class="cafpc-reference-photo-copy"><small>'+safe(g.label)+'</small><strong>'+safe(name)+'</strong><span>Apri la scheda →</span></span></button>':'<article><h4>'+safe(name)+'</h4><p>'+safe(serviceInfo(name)[0])+'</p>'+btn('Apri scheda','service',name)+'</article>';}).join('')+'</div></details>').join('');
  }
  root.innerHTML=nav+'<div class="cafpc-explorer-content" aria-live="polite">'+body+'</div>';
 }

@@ -19,8 +19,8 @@ Aggiornamento: 27 ottobre 2026. **Sito pubblico online su Netcup; funzioni riser
 - [x] Pubblicata la build del codice `269111b`: categorie separate e schede con URL dedicati; provato nel browser CAF → ISEE → ritorno alla categoria. Vecchia build conservata per rollback. Backend privato ancora chiuso.
 - [x] Verificato il backup notturno del 27 ottobre e completato un backup dopo la pubblicazione.
 - [x] Riconvalidato Google sul VPS: refresh, scope e account calendario positivi.
-- [x] Verificato direttamente Aruba: Dominio con Email attivo fino al 25 ottobre 2027, ordine iniziale pagato €4,87. Sola casella postmaster creata.
-- [ ] Completare `info@puntocittadinoitalia.it`: profilo preparato; nuova password e completamento creazione a cura del titolare, poi prova invio/ricezione. Nessun nuovo acquisto necessario per questa casella inclusa.
+- [x] Verificato direttamente Aruba: Dominio con Email attivo fino al 25 ottobre 2027, ordine iniziale pagato €4,87. Caselle postmaster e info attive.
+- [x] `info@puntocittadinoitalia.it` creata e primo cambio password completato dal titolare. Invio e ricezione collaudati realmente tra Aruba e Gmail ufficio, con verifica su entrambe le INBOX.
 
 ## Controlli eseguiti
 
@@ -61,5 +61,5 @@ Per il backup seguire `deployment/BACKUP.md`: `init`, `self-test`, `backup`, `ve
 ## Attività separate
 
 - Vecchio dominio `cafpuntocittadino.it`: trasferimento/redirect Register.it–Aruba non completati; preservare posta e PEC.
-- Caselle nuovo dominio Aruba: attivazione/consegna non verificate. Il sito usa il contatto Gmail dell'ufficio confermato.
+- Casella info Aruba: invio/ricezione verificati. Nuova build con contatto pubblico info; mittente automatico Google ancora distinto, da configurare separatamente se si desidera inviare come Aruba.
 - Nessuna automazione futura di acquisto o attivazione creata.

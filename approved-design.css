@@ -102,3 +102,6 @@ body[data-cafpc-design=private] .tiles article:nth-child(2){background:#e5faf3}b
 body[data-cafpc-page=online] #scopri{display:block!important}
 
 @media(max-width:600px){body[data-cafpc-design=public] .contatti__grid{grid-template-columns:minmax(0,1fr)}body[data-cafpc-design=public] .contatti__card,body[data-cafpc-design=public] .contatti__row,body[data-cafpc-design=public] .contatti__row span{min-width:0;overflow-wrap:anywhere}}
+
+/* Keep the guided catalog compact until a visitor selects a category. */
+.cafpc-catalog-group{margin:12px 0;border:1px solid #c9e1eb;border-radius:14px;background:#e8f7ff;padding:14px}.cafpc-catalog-group>summary{cursor:pointer;font-weight:700;color:#073873}.cafpc-catalog-group[open]>.cafpc-explorer-grid{margin-top:16px}

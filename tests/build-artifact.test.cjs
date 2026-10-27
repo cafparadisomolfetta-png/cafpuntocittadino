@@ -82,23 +82,23 @@ test('Approved identity is packaged across public and reserved pages',()=>{
   assert.match(text,/src="\/assets\/punto-cittadino-brand.png"/,file);
   assert.match(text,/src="\/assets\/caf-(?:consulenza|previdenza).svg"/,file);
   assert.match(text,/href="\/approved-design.css"/,file);
-  if(file==='servizi-online.html')assert.match(text,/<option value="WhatsApp">WhatsApp — ti contatta un operatore<\/option>/,file);
-  if(file==='servizi-online.html')assert.match(text,/Assistenza a distanza in tutta Italia/,file);
-  if(file==='servizi-online.html')assert.match(text,/id="cafpc-explorer"/,file);
+  if(file==='servizi-online.html')assert.match(fs.readFileSync('dist/schede/prenotazione-online.html','utf8'),/<option value="WhatsApp">WhatsApp — ti contatta un operatore<\/option>/,file);
+  if(file==='servizi-online.html')assert.match(fs.readFileSync('dist/schede/prenotazione-online.html','utf8'),/Assistenza a distanza in tutta Italia/,file);
+  if(file==='servizi-online.html')assert.match(fs.readFileSync('dist/schede/scopri.html','utf8'),/id="cafpc-explorer"/,file);
   assert.match(text,/src="\/service-explorer.js"/,file);
   assert.ok(!/href=["']tel:/.test(text),file);
   assert.match(text,/id="richiesta-urgente"/,file);
   assert.match(text,/https:\/\/wa\.me\/390806455509\?text=/,file);
-  assert.match(text,/mailto:cafparadiso.molfetta@gmail.com\?subject=/,file);
+  assert.match(text,/mailto:info@puntocittadinoitalia.it\?subject=/,file);
   assert.ok(!text.includes('oppure contatta la sede al numero'),file);
   assert.ok(!text.includes('id="screeningCard"'),file);
   assert.ok(!text.includes('info@cafpuntocittadino.it'),file);
-  assert.match(text,/href="\/servizi-online.html#scopri"/,file);
-  if(file==='servizi-online.html')assert.match(text,/id="disdetta-appuntamento"/,file);
+  assert.match(text,/href="\/schede\/scopri.html"/,file);
+  if(file==='servizi-online.html')assert.match(fs.readFileSync('dist/schede/prenotazione-online.html','utf8'),/id="disdetta-appuntamento"/,file);
   assert.ok(!text.includes('Via Paradiso'),file);
   assert.ok(!text.includes('Sede di Molfetta'),file);
   assert.ok(!text.includes('In presenza — sede di Molfetta'),file);
-  if(file==='servizi-online.html')assert.match(text,/<option value="Telefonico">Telefonico — ti chiamiamo noi<\/option><option value="WhatsApp">/,file);
+  if(file==='servizi-online.html')assert.match(fs.readFileSync('dist/schede/prenotazione-online.html','utf8'),/<option value="Telefonico">Telefonico — ti chiamiamo noi<\/option><option value="WhatsApp">/,file);
   assert.ok(!text.includes('Servizi gratuiti e servizi su tessera'),file);
  }
  for(const file of ['assistiti/index.html','gestionale/index.html','gestionale/pratiche.html','candidature/index.html']){
@@ -111,4 +111,18 @@ test('Approved identity is packaged across public and reserved pages',()=>{
  assert.ok(fs.existsSync('dist/official-headlines.js'));
  assert.ok(fs.existsSync('dist/assets/punto-cittadino-brand.png'));
  for(const name of ['caf-consulenza','caf-previdenza'])assert.ok(fs.existsSync(path.join('dist','assets',name+'.svg')),name);
+});
+
+// A service category is an index, never a collection of complete workflows.
+test('Online workflows have dedicated pages and category content stays compact',()=>{
+ const {sections,workflowIds}=require('../public-pages.cjs');
+ const index=fs.readFileSync('dist/servizi-online.html','utf8');
+ const rootIds=sections(index).map(row=>row.id);
+ for(const id of workflowIds){
+  assert.ok(!rootIds.includes(id),'Workflow embedded in category: '+id);
+  assert.ok(index.includes('href="/schede/'+id+'.html"'),'Workflow link missing: '+id);
+  const detail=fs.readFileSync('dist/schede/'+id+'.html','utf8');
+  assert.ok(sections(detail).some(row=>row.id===id),'Workflow body missing: '+id);
+  for(const other of workflowIds)if(other!==id)assert.ok(!sections(detail).some(row=>row.id===other),'Unrelated workflow '+other+' in '+id);
+ }
 });

@@ -12,6 +12,11 @@ for(const file of publicPages){
  const target=path.join('dist',file);let html=fs.readFileSync(target,'utf8');
  html=html.replace('</head>',style+'</head>').replace(/(<body\b[^>]*>)/i,'$1'+notice);
  html=html.replace(/(<div\b[^>]*id="bookingForm"[^>]*>)/,'<div class="cafpc-launch-contact"><h3 id="disdetta-appuntamento">Fissa o modifica un appuntamento con un operatore</h3><p>Scrivici indicando il servizio e quando preferisci essere ricontattato. La prenotazione sarà concordata direttamente con la sede.</p>'+actions+'</div>$1');
+ // The historical consultation demo must not collect names or imply an enabled workflow.
+ if(file==='schede/consulenza-20.html'){
+  html=html.replace(/<div id="scelta-consulenza"[\s\S]*?(?=<\/section>)/,'<div class="cafpc-launch-contact"><p>Contattaci per concordare la consulenza e ricevere le condizioni prima della conferma.</p>'+actions+'</div>');
+  html=html.replace(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi,(all,attrs,code)=>/function apriTesseramento/.test(code)?'':all);
+ }
  html=html.replace(/<div class="cafpc-private-cv">[\s\S]*?<\/div>/g,'<div class="cafpc-private-cv"><p>La raccolta dei curriculum tramite il portale è in preparazione. Contattaci per informazioni, senza allegare documenti.</p>'+actions+'</div>');
  html=html.replace(/Scegli servizio e data: vedrai soltanto gli orari realmente disponibili nel calendario della sede\./g,'Concorda il servizio e l’orario direttamente con un operatore.')
   .replace(/Scegli servizio, modalità e orario nell’agenda online\./g,'Scrivici per concordare servizio, modalità e orario con un operatore.')
