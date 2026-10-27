@@ -48,7 +48,8 @@ Aggiornamento: 27 ottobre 2026. **Sito pubblico online su Netcup; funzioni riser
 - [ ] Concludere revisione informative, presupposti/mandati, accordi dei fornitori e conservazione. Testi aggiornati non attestano da soli la conformità dell'organizzazione.
 - [ ] Accesso Google reale, due account assistiti, ruoli e revoca. Le identità simulate non sostituiscono questa prova.
 - [ ] Verificare audience/pubblicazione OAuth e durata delle autorizzazioni prima dell'uso stabile.
-- [ ] Prenotazione/disdetta reali di prova, conflitti, fuso italiano e consegna email, senza coinvolgere assistiti reali.
+- [x] Collaudo reale del backend Calendar/Gmail il 27 ottobre, usando solo l’account dell’ufficio: disponibilità, prenotazione, conflitto 409, disdetta, rilascio slot e rimozione evento sintetico riusciti. Entrambe le email presenti nella posta in arrivo Gmail, verificate separatamente tramite connettore. Vault locale di test isolato; nessuna pratica reale.
+- [ ] Completare il percorso pubblico nel browser con backend attivo, login Google reale, promemoria schedulato e verifiche finali del fuso. Il test del provider non apre automaticamente l’agenda.
 - [ ] Percorso pratiche sul dominio finale: verifica operatore, accettazione quota, incasso se dovuto, PDF, integrazione e chiusura.
 - [ ] Abilitare separatamente le funzioni opzionali collaudate con conservazione configurata: CV, notifiche, news automatiche e richiamate.
 - [ ] PWA su dispositivi reali e controlli mobile/tastiera.

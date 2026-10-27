@@ -10,6 +10,12 @@ Verifica diretta nell'account Aruba: `puntocittadinoitalia.it`, servizio **Domin
 
 Backup notturno del 27 ottobre verificato: timestamp registrato `2026-10-27T02:28:37.507Z`, servizio con risultato positivo. Eseguito inoltre un backup successivo alla pubblicazione, concluso con `Result=success` ed `ExecMainStatus=0`. Google riconvalidato sul VPS: refresh, scope e account calendario tutti positivi. Il controllo runtime segnala soltanto `privacy` ed `enabled`: nessun flag è stato modificato per aggirare la revisione o dichiarare il gestionale già attivo.
 
+### Collaudo Calendar/Gmail successivo
+
+Il 27 ottobre è stato eseguito `deployment/check-live-booking.cjs --run`, con account ufficio verificato e vault locale temporaneo separato da quello di produzione. Disponibilità, creazione evento, rifiuto della doppia prenotazione con 409, disdetta, rilascio dello slot e rimozione dell'evento di prova sono riusciti. Gmail ha accettato le due conferme. La ricezione delle due email è stata poi verificata separatamente nel connettore Gmail dell'account ufficio, con etichetta INBOX; non sono stati coinvolti assistiti o altri destinatari. Nessun codice di disdetta o token è registrato qui.
+
+La prova riguarda il backend effettivo usato dal runtime e i provider reali. Il sito pubblico resta in modalità contatti finché non vengono conclusi revisione/configurazione private e collaudo nel browser; login Google reale, promemoria e apertura dell'area assistiti restano distinti. `inboxDeliveryVerified:false` nel rapporto dello script significa che lo script da solo non legge la casella: la ricezione è stata verificata attraverso il connettore separato.
+
 ## 1. Identità e grafica da conservare
 
 Nome pubblico definitivo: **Punto Cittadino Italia**. Assistenza in tutta Italia; contatti urgenti per iscritto, email/WhatsApp, con eventuale ricontatto della sede. Nessuna nuova proposta grafica.
