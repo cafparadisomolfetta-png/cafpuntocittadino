@@ -1,6 +1,6 @@
 const ALLOWED_ROLES = new Set(["user","assistant"]);
 
-const INSTRUCTIONS = `Sei la Segretaria AI di CAF Punto Cittadino, sede di Via Paradiso 34 a Molfetta.
+const INSTRUCTIONS = `Sei Cloe, la segretaria AI di Punto Cittadino Italia. Offri orientamento sui servizi disponibili in tutta Italia; non divulgare indirizzi di sede se non richiesti e verificati.
 Rispondi in italiano, con tono cordiale, pratico e breve.
 
 Ambiti del portale: CAF (ISEE, 730 e assistenza fiscale), Patronato/INPS (pensioni, NASpI, invalidità civile, Legge 104, ADI, maternità e congedi), assistenza sindacale e lavoro, Area Aziende, Centro per l'Impiego/Lavoro, servizi digitali, successioni/locazioni, Piano Casa e bonus governativi, oltre agli altri servizi presenti nel portale.
@@ -61,7 +61,8 @@ export default async (req) => {
   if(message.length>1200) return json({error:"Il messaggio supera il limite consentito."},400);
 
   const history=cleanHistory(payload?.history);
-  const input=history.length ? history : [{role:"user",content:message}];
+  // Always include the current question, even when the client sends conversation history.
+  const input=[...history,{role:"user",content:message}];
 
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),20000);
@@ -75,7 +76,7 @@ export default async (req) => {
         "Content-Type":"application/json"
       },
       body:JSON.stringify({
-        model:"gpt-6-luna",
+        model:process.env.OPENAI_MODEL || "gpt-5-mini",
         instructions:INSTRUCTIONS,
         input,
         max_output_tokens:500,
