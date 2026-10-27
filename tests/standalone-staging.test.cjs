@@ -65,3 +65,19 @@ test('staging health probe discloses disabled sensitive functions',async()=>{
  assert.equal(data.documentsEnabled,false);
  assert.equal((await call('POST','/healthz')).status,405);
 });
+
+test('availability rejects missing Google configuration without external call',async()=>{
+ const names=['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN'];
+ const saved=names.map(name=>process.env[name]);
+ const previous=global.fetch;
+ try{
+  for(const name of names)delete process.env[name];
+  global.fetch=async()=>{throw Error('Google must not be contacted')};
+  const r=await call('GET','/api/calendar-availability?date=2026-11-03');
+  assert.equal(r.status,503);
+  assert.match(r.body,/non configurato/);
+ }finally{
+  names.forEach((name,i)=>{if(saved[i]===undefined)delete process.env[name];else process.env[name]=saved[i]});
+  global.fetch=previous;
+ }
+});
