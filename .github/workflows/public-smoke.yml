@@ -25,6 +25,18 @@ jobs:
             echo "$asset HTTP: $response"
             if [ "$response" != "200" ]; then failed=1; fi
           done
+          # Read-only / rejected-input checks: never create bookings or upload files.
+          for spec in \
+            "/.netlify/functions/gestionale-session|200,503" \
+            "/.netlify/functions/pratiche|503" \
+            "/.netlify/functions/calendar-availability?date=invalid|400" \
+            "/.netlify/functions/segretaria-ai|405"; do
+            endpoint="${spec%%|*}"
+            allowed="${spec#*|}"
+            response=$(curl --location --max-time 20 --silent --output /tmp/punto-api --write-out "%{http_code}" "$site$endpoint")
+            echo "$endpoint HTTP: $response (allowed $allowed)"
+            if [[ ",$allowed," != *",$response,"* ]]; then failed=1; fi
+          done
           if [ "$failed" -ne 0 ]; then
             echo "::error::Almeno una pagina o risorsa della versione nuova non è disponibile in produzione."
             exit 1
