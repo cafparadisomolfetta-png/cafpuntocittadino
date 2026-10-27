@@ -9,6 +9,20 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: staging
+          POSTGRES_PASSWORD: staging-only
+          POSTGRES_DB: booking_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U staging -d booking_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,6 +36,10 @@ jobs:
         run: |
           node --check server/standalone.cjs
           node --test tests/standalone-staging.test.cjs tests/booking-lock.test.cjs tests/booking-schema.test.cjs tests/database-adapter.test.cjs
+      - name: Verifica concorrenza e audit su PostgreSQL reale isolato
+        env:
+          DATABASE_URL: postgresql://staging:staging-only@127.0.0.1:5432/booking_ci
+        run: node --test tests/postgres-integration.test.cjs
       - name: Collauda server HTTP Node reale in localhost
         shell: bash
         run: |
