@@ -24,4 +24,24 @@ async function releaseUnconfirmedSlot(pool,{id}){
  const result=await pool.query("UPDATE booking_slot_claims SET state='expired',modified_at=now() WHERE id=$1 AND state='held' AND external_event_id IS NULL RETURNING id",[id]);
  return result.rows.length===1;
 }
-module.exports={createDatabase,claimSlot,confirmSlot,releaseUnconfirmedSlot};
+async function recordCancellation(pool,{id,eventId}){
+ if(!Number.isSafeInteger(id)||id<1||typeof eventId!=='string'||!eventId.trim())throw new TypeError('Invalid cancellation reference');
+ const client=await pool.connect();
+ try{
+  await client.query('BEGIN');
+  const claim=await client.query("SELECT id,site,slot_start,external_event_id FROM booking_slot_claims WHERE id=$1 AND state='confirmed' FOR UPDATE",[id]);
+  if(claim.rows.length!==1 || claim.rows[0].external_event_id!==eventId){
+   await client.query('ROLLBACK');
+   return false;
+  }
+  const row=claim.rows[0];
+  await client.query("INSERT INTO booking_cancellation_audit (claim_id,external_event_id,site,slot_start) VALUES ($1,$2,$3,$4)",[id,eventId,row.site,row.slot_start]);
+  await client.query("UPDATE booking_slot_claims SET state='cancelled',modified_at=now() WHERE id=$1 AND state='confirmed'",[id]);
+  await client.query('COMMIT');
+  return true;
+ }catch(error){
+  await client.query('ROLLBACK');
+  throw error;
+ }finally{client.release()}
+}
+module.exports={createDatabase,claimSlot,confirmSlot,releaseUnconfirmedSlot,recordCancellation};
