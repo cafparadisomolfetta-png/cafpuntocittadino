@@ -25,6 +25,7 @@ async function app(req,res){
    const {calendarForSite}=require('../netlify/functions/site-calendars.js');
    const resolved=calendarForSite(query.sede||query.site||'molfetta');
    if(resolved.error)return respond(res,resolved.status,JSON.stringify({error:resolved.error}),{'Content-Type':'application/json; charset=utf-8'});
+   if(!process.env.GOOGLE_CALENDAR_ID&&!process.env.GESTIONALE_SITE_CALENDARS_JSON)return respond(res,503,JSON.stringify({error:'Identificativo calendario Molfetta non configurato'}),{'Content-Type':'application/json; charset=utf-8'});
    if(!process.env.GOOGLE_CLIENT_ID||!process.env.GOOGLE_CLIENT_SECRET||!process.env.GOOGLE_REFRESH_TOKEN)return respond(res,503,JSON.stringify({error:'Calendario non configurato sul server'}),{'Content-Type':'application/json; charset=utf-8'});
    const result=await handler({httpMethod:'GET',queryStringParameters:query});
    return respond(res,result.statusCode,result.body,result.headers||{});
