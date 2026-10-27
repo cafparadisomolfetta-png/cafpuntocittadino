@@ -21,6 +21,18 @@ async function app(req,res){
    return respond(res,result.statusCode,result.body,result.headers||{});
   }catch{return respond(res,503,JSON.stringify({error:'Disponibilità temporaneamente non verificabile'}),{'Content-Type':'application/json; charset=utf-8'});}
  }
+ if(pathname==='/api/segretaria-ai'||pathname==='/.netlify/functions/segretaria-ai'){
+  if(req.method!=='POST')return respond(res,405,JSON.stringify({error:'Metodo non consentito'}),{'Content-Type':'application/json','Allow':'POST'});
+  if(!process.env.OPENAI_API_KEY)return respond(res,503,JSON.stringify({error:'Servizio non configurato'}),{'Content-Type':'application/json'});
+  try{
+   const chunks=[];let bytes=0;
+   for await(const chunk of req){bytes+=chunk.length;if(bytes>16384)return respond(res,413,JSON.stringify({error:'Richiesta troppo grande'}),{'Content-Type':'application/json'});chunks.push(chunk)}
+   const module=await import('../netlify/functions/segretaria-ai.mjs');
+   const request=new Request('http://localhost/api/segretaria-ai',{method:'POST',body:Buffer.concat(chunks)});
+   const result=await module.default(request);
+   return respond(res,result.status,await result.text(),{'Content-Type':'application/json'});
+  }catch{return respond(res,502,JSON.stringify({error:'Servizio non disponibile'}),{'Content-Type':'application/json'});}
+ }
  if(pathname.startsWith('/.netlify/functions/')||pathname.startsWith('/api/')){
   return respond(res,503,JSON.stringify({ok:false,code:'MIGRATION_NOT_READY',message:'Servizio temporaneamente non disponibile'}),{'Content-Type':'application/json; charset=utf-8'});
  }
