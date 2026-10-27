@@ -24,4 +24,14 @@ jobs:
           test -f dist/gestionale/index.html
           test -f dist/site-enhancements.js
           test -f dist/manifest.webmanifest
+          test -f dist/site-enhancements.css
+          test -f dist/cookie-policy.html
+          test -f dist/gestionale/app.js
           echo "Preflight and static build completed; no deployment."
+      - name: Prepara pacchetto sito statico per collaudo Aruba
+        uses: actions/upload-artifact@v4
+        with:
+          name: punto-cittadino-statico-${{ github.sha }}
+          path: dist/
+          retention-days: 14
+          if-no-files-found: error
