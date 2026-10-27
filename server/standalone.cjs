@@ -12,6 +12,10 @@ function respond(res,status,body,headers={}){
 }
 async function app(req,res){
  const pathname=new URL(req.url||'/', 'http://localhost').pathname;
+ if(pathname==='/healthz'){
+  if(req.method!=='GET')return respond(res,405,'Metodo non consentito',{'Allow':'GET'});
+  return respond(res,200,JSON.stringify({ok:true,mode:'staging',bookingEnabled:false,documentsEnabled:false}),{'Content-Type':'application/json; charset=utf-8'});
+ }
  if(pathname==='/api/calendar-availability'||pathname==='/.netlify/functions/calendar-availability'){
   if(req.method!=='GET')return respond(res,405,'Metodo non consentito',{'Allow':'GET'});
   const {handler}=require('../netlify/functions/calendar-availability.js');
@@ -60,6 +64,7 @@ async function app(req,res){
 }
 if(require.main===module){
  const port=Number(process.env.PORT||8080);
- http.createServer(app).listen(port,'127.0.0.1',()=>console.log('Frontend staging on localhost:'+port));
+ const host=process.env.HOST||'127.0.0.1';
+ http.createServer(app).listen(port,host,()=>console.log('Frontend staging listening on '+host+':'+port));
 }
 module.exports={app};
