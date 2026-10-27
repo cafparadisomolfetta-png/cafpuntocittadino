@@ -35,7 +35,7 @@ jobs:
       - name: Collauda runtime Node indipendente in staging
         run: |
           node --check server/standalone.cjs
-          node --test tests/standalone-staging.test.cjs tests/booking-lock.test.cjs tests/booking-schema.test.cjs tests/database-adapter.test.cjs tests/booking-orchestrator.test.cjs tests/google-event-id.test.cjs
+          node --test tests/standalone-staging.test.cjs tests/booking-lock.test.cjs tests/booking-schema.test.cjs tests/database-adapter.test.cjs tests/booking-orchestrator.test.cjs tests/google-event-id.test.cjs tests/google-reconciliation.test.cjs
       - name: Verifica concorrenza e audit su PostgreSQL reale isolato
         env:
           DATABASE_URL: postgresql://staging:staging-only@127.0.0.1:5432/booking_ci
