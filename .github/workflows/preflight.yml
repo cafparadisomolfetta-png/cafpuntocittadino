@@ -41,6 +41,21 @@ jobs:
             code=$(curl --silent -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:18971$route")
             test "$code" = "503"
           done
+      - name: Collauda container staging in isolamento
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build -f Dockerfile.staging -t punto-cittadino-staging:test .
+          docker run -d --name punto-cittadino-ci -p 127.0.0.1:18972:8080 punto-cittadino-staging:test
+          trap 'docker rm -f punto-cittadino-ci >/dev/null 2>&1 || true' EXIT
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:18972/healthz >/tmp/punto-docker-health.json; then break; fi
+            sleep 0.25
+          done
+          grep -q '"bookingEnabled":false' /tmp/punto-docker-health.json
+          curl -fsS -o /dev/null http://127.0.0.1:18972/site-enhancements.js
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:18972/api/calendar-book)
+          test "$status" = "503"
       - name: Controlla file pubblicati senza effettuare deploy
         run: |
           test -f dist/index.html
