@@ -18,6 +18,10 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Compila il sito ed esegui tutti i test preflight
         run: node deploy-build.cjs
+      - name: Collauda runtime Node indipendente in staging
+        run: |
+          node --check server/standalone.cjs
+          node --test tests/standalone-staging.test.cjs
       - name: Controlla file pubblicati senza effettuare deploy
         run: |
           test -f dist/index.html
