@@ -28,6 +28,13 @@ jobs:
           test -f dist/cookie-policy.html
           test -f dist/gestionale/app.js
           echo "Preflight and static build completed; no deployment."
+      - name: Verifica che gli endpoint sensibili non entrino nel pacchetto pubblico
+        run: |
+          test ! -e dist/netlify/functions
+          test ! -e dist/gestionale/ARCHITETTURA.md
+          test ! -e dist/.env
+          grep -q "site-enhancements.js" dist/index.html
+          grep -q "site-enhancements.css" dist/index.html
       - name: Prepara pacchetto sito statico per collaudo Aruba
         uses: actions/upload-artifact@v4
         with:
