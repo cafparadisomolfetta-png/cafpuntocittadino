@@ -26,3 +26,13 @@ test('pending claims can be confirmed or expired only from held state',async()=>
  await assert.rejects(confirmSlot(pool,{id:0,eventId:'x'}),/Invalid booking reference/);
  await assert.rejects(releaseUnconfirmedSlot(pool,{id:-1}),/Invalid booking reference/);
 });
+
+test('cancellation audit is transactional',async()=>{
+ const {recordCancellation}=require('../server/database.cjs');
+ const steps=[];
+ const client={query:async(sql)=>{steps.push(sql);return sql.startsWith('SELECT')?{rows:[{site:'molfetta',slot_start:'2026-11-03T08:00:00Z',external_event_id:'event-12'}]}:{rows:[]}},release:()=>{steps.push('RELEASE')}};
+ assert.equal(await recordCancellation({connect:async()=>client},{id:12,eventId:'event-12'}),true);
+ assert.equal(steps[0],'BEGIN');
+ assert.equal(steps.at(-2),'COMMIT');
+ assert.equal(steps.at(-1),'RELEASE');
+});
