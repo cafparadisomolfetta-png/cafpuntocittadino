@@ -10,8 +10,17 @@ function respond(res,status,body,headers={}){
  res.writeHead(status,{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers});
  res.end(body);
 }
-function app(req,res){
+async function app(req,res){
  const pathname=new URL(req.url||'/', 'http://localhost').pathname;
+ if(pathname==='/api/calendar-availability'||pathname==='/.netlify/functions/calendar-availability'){
+  if(req.method!=='GET')return respond(res,405,'Metodo non consentito',{'Allow':'GET'});
+  const {handler}=require('../netlify/functions/calendar-availability.js');
+  try{
+   const query=Object.fromEntries(new URL(req.url||'/', 'http://localhost').searchParams);
+   const result=await handler({httpMethod:'GET',queryStringParameters:query});
+   return respond(res,result.statusCode,result.body,result.headers||{});
+  }catch{return respond(res,503,JSON.stringify({error:'Disponibilità temporaneamente non verificabile'}),{'Content-Type':'application/json; charset=utf-8'});}
+ }
  if(pathname.startsWith('/.netlify/functions/')||pathname.startsWith('/api/')){
   return respond(res,503,JSON.stringify({ok:false,code:'MIGRATION_NOT_READY',message:'Servizio temporaneamente non disponibile'}),{'Content-Type':'application/json; charset=utf-8'});
  }
