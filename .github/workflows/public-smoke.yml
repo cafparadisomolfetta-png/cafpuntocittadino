@@ -19,9 +19,14 @@ jobs:
           echo "Homepage HTTP: $code"
           test "$code" = "200"
           grep -qi '<html' /tmp/punto-home.html
-          for asset in /site-enhancements.js /site-enhancements.css /gestionale/index.html /privacy.html /cookie-policy.html; do
+          failed=0
+          for asset in /site-enhancements.js /site-enhancements.css /gestionale/index.html /privacy.html /cookie-policy.html /caf.html /servizi-online.html /lavora-con-noi.html; do
             response=$(curl --location --max-time 20 --silent --output /tmp/punto-asset --write-out "%{http_code}" "$site$asset")
             echo "$asset HTTP: $response"
-            test "$response" = "200"
+            if [ "$response" != "200" ]; then failed=1; fi
           done
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::Almeno una pagina o risorsa della versione nuova non è disponibile in produzione."
+            exit 1
+          fi
           echo "Risultato: pagine e asset raggiungibili; nessuna prova eseguita sui dati personali o sulle API che modificano prenotazioni."
