@@ -55,3 +55,13 @@ test('booking and cancellation fail closed without touching Calendar',async()=>{
   }
  }finally{global.fetch=old}
 });
+
+test('staging health probe discloses disabled sensitive functions',async()=>{
+ const response=await call('GET','/healthz');
+ assert.equal(response.status,200);
+ const data=JSON.parse(response.body);
+ assert.equal(data.ok,true);
+ assert.equal(data.bookingEnabled,false);
+ assert.equal(data.documentsEnabled,false);
+ assert.equal((await call('POST','/healthz')).status,405);
+});
