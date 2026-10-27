@@ -21,7 +21,7 @@ jobs:
       - name: Collauda runtime Node indipendente in staging
         run: |
           node --check server/standalone.cjs
-          node --test tests/standalone-staging.test.cjs
+          node --test tests/standalone-staging.test.cjs tests/booking-lock.test.cjs
       - name: Controlla file pubblicati senza effettuare deploy
         run: |
           test -f dist/index.html
