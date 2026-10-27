@@ -1,5 +1,7 @@
 name: Diagnostica pubblica dominio (senza deploy)
 on:
+  push:
+    branches: ['release/**']
   workflow_dispatch:
 permissions:
   contents: read
