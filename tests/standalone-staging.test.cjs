@@ -124,3 +124,8 @@ test('Google Calendar read works through mocked OAuth and events endpoint',async
   global.fetch=previousFetch;
  }
 });
+
+test('calendar rejects impossible calendar dates',async()=>{
+ const answer=await call('GET','/api/calendar-availability?date=2026-02-30');
+ assert.equal(answer.status,400);
+});
