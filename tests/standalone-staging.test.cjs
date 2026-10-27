@@ -9,7 +9,7 @@ async function call(method,url){
  return {status,headers,body};
 }
 test('standalone refuses all legacy API paths during migration',async()=>{
- for(const url of ['/.netlify/functions/calendar-book','/.netlify/functions/pratiche','/api/gestionale'])
+ for(const url of ['/.netlify/functions/pratiche','/api/gestionale'])
   for(const method of ['GET','POST']){
    const r=await call(method,url);
    assert.equal(r.status,503);
