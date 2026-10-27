@@ -27,6 +27,7 @@ async function load(identity=false){
  try{
   const url='/.netlify/functions/gestionale-agenda?'+new URLSearchParams({site:selected,date});
   const r=await fetch(url,{headers:{Authorization:'Bearer '+credential},cache:'no-store'});
+  if(epoch!==sessionEpoch||!credential)return;
   if(r.status===401||r.status===403){clear();throw Error('Accesso non autorizzato per questa sede. Contatta l’amministratrice.')}
   if(!r.ok)throw Error('Agenda non disponibile: verifica collegamento Google Calendar e autorizzazioni.');
   const data=await r.json();
@@ -59,6 +60,7 @@ async function load(identity=false){
     card.append(title,detail);historyContainer.append(card);
    }
   }catch{
+   if(epoch!==sessionEpoch||!credential)return;
    const warning=document.createElement('p');warning.textContent='Storico disdette non disponibile: gli appuntamenti attivi sono comunque aggiornati.';historyContainer.append(warning);
   }
   info('Agenda caricata. I dati sono visibili solo ai profili autorizzati.');
