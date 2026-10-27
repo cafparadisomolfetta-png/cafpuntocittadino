@@ -33,7 +33,7 @@ test('refuse requests when provider token exchange fails',async()=>{
 });
 
 test('reject invalid calendar day before requesting calendar data',async()=>{
- process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta',bari:'calendar-bari'});
+ process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta'});
  global.fetch=async url=>{
   if(String(url).includes('tokeninfo'))return {ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'operator@example.org',sub:'sample-google-sub'})};
   throw new Error('No Google Calendar call expected');
@@ -65,7 +65,7 @@ test('administrator may read Molfetta agenda without exposing private cancellati
  process.env.GESTIONALE_GOOGLE_CLIENT_ID='test-client';
  process.env.GESTIONALE_ADMIN_EMAIL='admin@example.org';
  process.env.GESTIONALE_OPERATORS_JSON='[]';
- process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta',bari:'calendar-bari'});
+ process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta'});
  global.fetch=async (url)=>{
   const target=String(url);
   if(target.includes('/tokeninfo?'))return {ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'admin@example.org',sub:'admin-google-sub'})};
