@@ -33,6 +33,12 @@ async function app(req,res){
    return respond(res,result.status,await result.text(),{'Content-Type':'application/json'});
   }catch{return respond(res,502,JSON.stringify({error:'Servizio non disponibile'}),{'Content-Type':'application/json'});}
  }
+ if(pathname==='/api/calendar-book'||pathname==='/api/calendar-cancel'||pathname==='/.netlify/functions/calendar-book'||pathname==='/.netlify/functions/calendar-cancel'){
+  if(req.method!=='POST')return respond(res,405,JSON.stringify({error:'Metodo non consentito'}),{'Content-Type':'application/json; charset=utf-8','Allow':'POST'});
+  // Real writes remain unavailable until a transactional reservation lock,
+  // independent cancellation audit and operator review are implemented.
+  return respond(res,503,JSON.stringify({ok:false,code:'BOOKING_MIGRATION_LOCKED',message:'Prenotazioni e disdette non ancora abilitate su questo server'}),{'Content-Type':'application/json; charset=utf-8'});
+ }
  if(pathname.startsWith('/.netlify/functions/')||pathname.startsWith('/api/')){
   return respond(res,503,JSON.stringify({ok:false,code:'MIGRATION_NOT_READY',message:'Servizio temporaneamente non disponibile'}),{'Content-Type':'application/json; charset=utf-8'});
  }
