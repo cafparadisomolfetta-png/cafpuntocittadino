@@ -31,3 +31,14 @@ test('standalone rejects traversal and mutation',async()=>{
  assert.equal((await call('GET','/%2e%2e/secret')).status,404);
  assert.equal((await call('POST','/index.html')).status,405);
 });
+
+test('Cloe staging requires POST and server-side configuration',async()=>{
+ const original=process.env.OPENAI_API_KEY;
+ delete process.env.OPENAI_API_KEY;
+ try{
+  const get=await call('GET','/api/segretaria-ai');
+  assert.equal(get.status,405);
+  const post=await call('POST','/.netlify/functions/segretaria-ai');
+  assert.equal(post.status,503);
+ }finally{if(original===undefined)delete process.env.OPENAI_API_KEY;else process.env.OPENAI_API_KEY=original;}
+});
