@@ -76,7 +76,7 @@ export default async (req) => {
         "Content-Type":"application/json"
       },
       body:JSON.stringify({
-        model:process.env.OPENAI_MODEL || "gpt-5-mini",
+        model:process.env.OPENAI_MODEL || "gpt-6-luna",
         instructions:INSTRUCTIONS,
         input,
         max_output_tokens:500,
