@@ -15,6 +15,7 @@ exports.handler=async event=>{
  if(!validDate(date))return reply(400,{error:'INVALID_DATE'});
  let sites;try{sites=JSON.parse(process.env.GESTIONALE_SITE_CALENDARS_JSON||'{}')}catch{return reply(503,{error:'CALENDAR_CONFIGURATION_INVALID'})}
  if(!sites||typeof sites!=='object'||Array.isArray(sites))return reply(503,{error:'CALENDAR_CONFIGURATION_INVALID'});
+ if(Object.keys(sites).some(key=>key!=='molfetta'))return reply(503,{error:'UNSUPPORTED_SITE_CONFIGURATION'});
  const ids=Object.values(sites);
  if(ids.some(id=>typeof id!=='string'||!id.trim())||new Set(ids).size!==ids.length)return reply(503,{error:'SITE_CALENDAR_ISOLATION_REQUIRED'});
  const calendar=sites[site];if(!calendar)return reply(503,{error:'SITE_CALENDAR_NOT_CONFIGURED'});

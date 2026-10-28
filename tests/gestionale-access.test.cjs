@@ -13,7 +13,7 @@ test('refuse requests without authentication',async()=>{
  assert.equal(r.statusCode,401);
 });
 test('operator cannot access another site even when selecting it manually',async()=>{
- process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta',bari:'calendar-bari'});
+ process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta'});
  global.fetch=async url=>{
   assert.match(String(url),/tokeninfo/);
   return {ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'operator@example.org',sub:'sample-google-sub'})};
@@ -21,11 +21,11 @@ test('operator cannot access another site even when selecting it manually',async
  const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'bari',date:'2026-10-12'}});
  assert.equal(r.statusCode,403);
 });
-test('reject shared calendar between two independent sites',async()=>{
+test('reject legacy multi-site calendar configuration',async()=>{
  process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'shared',bari:'shared'});
  const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
  assert.equal(r.statusCode,503);
- assert.equal(JSON.parse(r.body).error,'SITE_CALENDAR_ISOLATION_REQUIRED');
+ assert.equal(JSON.parse(r.body).error,'UNSUPPORTED_SITE_CONFIGURATION');
 });
 test('refuse requests when provider token exchange fails',async()=>{
  const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
@@ -33,7 +33,7 @@ test('refuse requests when provider token exchange fails',async()=>{
 });
 
 test('reject invalid calendar day before requesting calendar data',async()=>{
- process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta',bari:'calendar-bari'});
+ process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta'});
  global.fetch=async url=>{
   if(String(url).includes('tokeninfo'))return {ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'operator@example.org',sub:'sample-google-sub'})};
   throw new Error('No Google Calendar call expected');
@@ -61,22 +61,22 @@ test('reject calendar mapping that is not an object',async()=>{
  assert.equal(r.statusCode,503);
 });
 
-test('administrator may read Bari agenda without exposing private cancellation codes',async()=>{
+test('administrator may read Molfetta agenda without exposing private cancellation codes',async()=>{
  process.env.GESTIONALE_GOOGLE_CLIENT_ID='test-client';
  process.env.GESTIONALE_ADMIN_EMAIL='admin@example.org';
  process.env.GESTIONALE_OPERATORS_JSON='[]';
- process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta',bari:'calendar-bari'});
+ process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta'});
  global.fetch=async (url)=>{
   const target=String(url);
   if(target.includes('/tokeninfo?'))return {ok:true,json:async()=>({aud:'test-client',iss:'accounts.google.com',email_verified:'true',email:'admin@example.org',sub:'admin-google-sub'})};
   if(target.includes('oauth2.googleapis.com/token'))return {ok:true,json:async()=>({access_token:'fake-calendar-token'})};
-  assert.ok(target.includes('/calendars/calendar-bari/events'));
+  assert.ok(target.includes('/calendars/calendar-molfetta/events'));
   return {ok:true,json:async()=>({items:[{id:'event-1',summary:'CAF - Assistito Demo',start:{dateTime:'2026-10-12T09:00:00+02:00'},end:{dateTime:'2026-10-12T09:20:00+02:00'},description:'Codice disdetta: SECRET',extendedProperties:{private:{cancelCode:'SECRET',service:'CAF'}}}]})};
  };
- const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'bari',date:'2026-10-12'}});
+ const r=await handler({httpMethod:'GET',headers:{authorization:'Bearer example.jwt.token'},queryStringParameters:{site:'molfetta',date:'2026-10-12'}});
  assert.equal(r.statusCode,200);
  const body=JSON.parse(r.body);
- assert.deepEqual(body.sites,['molfetta','bari']);
+ assert.deepEqual(body.sites,['molfetta']);
  assert.equal(body.role,'admin');
  assert.equal(body.appointments.length,1);
  assert.ok(!JSON.stringify(body).includes('SECRET'));

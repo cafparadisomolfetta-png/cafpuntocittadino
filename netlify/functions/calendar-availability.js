@@ -17,7 +17,7 @@ async function getAccessToken() {
   const data = await response.json();
 
   if (!response.ok) {
-    console.error("Errore token Google:", data);
+    console.error("Errore token Google: richiesta rifiutata");
     throw new Error("Impossibile ottenere il token Google");
   }
 
@@ -53,7 +53,7 @@ exports.handler = async function (event) {
   try {
     const date = event.queryStringParameters?.date;
 
-    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date+"T12:00:00Z")) || new Date(date+"T12:00:00Z").toISOString().slice(0,10)!==date) {
       return {
         statusCode: 400,
         headers,
@@ -96,8 +96,13 @@ exports.handler = async function (event) {
         return {statusCode:503,headers,body:JSON.stringify({error:"Impossibile verificare la disponibilità"})};
       }
       const data = await response.json();
-      for (const item of data.items || []) {
-        eventi.push({inizio:item.start?.dateTime||item.start?.date,fine:item.end?.dateTime||item.end?.date});
+      if(!Array.isArray(data.items))return {statusCode:503,headers,body:JSON.stringify({error:"Risposta calendario non valida"})};
+      for (const item of data.items) {
+        if(item.status==="cancelled"||item.transparency==="transparent")continue;
+        const inizio=item.start?.dateTime||item.start?.date;
+        const fine=item.end?.dateTime||item.end?.date;
+        if(!inizio||!fine||!Number.isFinite(Date.parse(inizio))||!Number.isFinite(Date.parse(fine)))return {statusCode:503,headers,body:JSON.stringify({error:"Impossibile verificare tutti gli impegni"})};
+        eventi.push({inizio,fine});
       }
       pageToken = data.nextPageToken || "";
       if (!pageToken) break;
@@ -127,7 +132,7 @@ exports.handler = async function (event) {
     };
 
   } catch (error) {
-    console.error("Errore calendar-availability:", error);
+    console.error("Errore calendar-availability: richiesta non completata");
 
     return {
       statusCode: 500,

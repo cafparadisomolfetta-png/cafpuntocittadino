@@ -1,7 +1,7 @@
 name: Verifica pre-rilascio (senza pubblicazione)
 on:
   push:
-    branches: [main]
+    branches: [main, 'release/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -9,6 +9,20 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: staging
+          POSTGRES_PASSWORD: staging-only
+          POSTGRES_DB: booking_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U staging -d booking_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,10 +32,96 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Compila il sito ed esegui tutti i test preflight
         run: node deploy-build.cjs
+      - name: Collauda runtime Node indipendente in staging
+        run: |
+          node --check server/standalone.cjs
+          node --test tests/standalone-staging.test.cjs tests/booking-lock.test.cjs tests/booking-schema.test.cjs tests/database-adapter.test.cjs tests/booking-orchestrator.test.cjs tests/google-event-id.test.cjs tests/google-reconciliation.test.cjs
+      - name: Verifica concorrenza e audit su PostgreSQL reale isolato
+        env:
+          DATABASE_URL: postgresql://staging:staging-only@127.0.0.1:5432/booking_ci
+        run: node --test tests/postgres-integration.test.cjs
+      - name: Collauda server HTTP Node reale in localhost
+        shell: bash
+        run: |
+          set -euo pipefail
+          PORT=18971 node server/standalone.cjs > /tmp/punto-node.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:18971/healthz > /tmp/punto-health.json; then break; fi
+            sleep 0.25
+          done
+          grep -q '"bookingEnabled":false' /tmp/punto-health.json
+          for asset in / /site-enhancements.js /site-enhancements.css /cookie-policy.html /gestionale/index.html; do
+            curl --fail --silent --show-error -o /dev/null "http://127.0.0.1:18971$asset"
+          done
+          for route in /api/calendar-book /api/calendar-cancel /api/gestionale; do
+            code=$(curl --silent -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:18971$route")
+            test "$code" = "503"
+          done
+      - name: Collauda container staging in isolamento
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build -f Dockerfile.staging -t punto-cittadino-staging:test .
+          docker run -d --name punto-cittadino-ci -p 127.0.0.1:18972:8080 punto-cittadino-staging:test
+          trap 'docker rm -f punto-cittadino-ci >/dev/null 2>&1 || true' EXIT
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:18972/healthz >/tmp/punto-docker-health.json; then break; fi
+            sleep 0.25
+          done
+          grep -q '"bookingEnabled":false' /tmp/punto-docker-health.json
+          curl -fsS -o /dev/null http://127.0.0.1:18972/site-enhancements.js
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:18972/api/calendar-book)
+          test "$status" = "503"
+      - name: Verifica immagine Railway costruita dal repository
+        run: |
+          docker build -f Dockerfile.railway -t punto-cittadino-railway:test .
+          docker run -d --name punto-railway-ci -p 127.0.0.1:18973:8080 punto-cittadino-railway:test
+          trap 'docker rm -f punto-railway-ci >/dev/null 2>&1 || true' EXIT
+          for i in {1..50}; do
+            if curl -fsS http://127.0.0.1:18973/healthz > /tmp/railway-health.json; then break; fi
+            sleep 0.3
+          done
+          grep -q '"bookingEnabled":false' /tmp/railway-health.json
+      - name: Verifica sintassi controllo Netcup non distruttivo
+        run: bash -n scripts/netcup-preflight.sh
+      - name: Verifica configurazione staging Netcup senza avviare servizi remoti
+        run: docker compose -f compose.netcup.staging.yaml config --quiet
       - name: Controlla file pubblicati senza effettuare deploy
         run: |
           test -f dist/index.html
           test -f dist/gestionale/index.html
           test -f dist/site-enhancements.js
           test -f dist/manifest.webmanifest
+          test -f dist/site-enhancements.css
+          test -f dist/cookie-policy.html
+          test -f dist/gestionale/app.js
           echo "Preflight and static build completed; no deployment."
+      - name: Verifica che gli endpoint sensibili non entrino nel pacchetto pubblico
+        run: |
+          test ! -e dist/netlify/functions
+          test ! -e dist/gestionale/ARCHITETTURA.md
+          test ! -e dist/.env
+          grep -q "site-enhancements.js" dist/index.html
+          grep -q "site-enhancements.css" dist/index.html
+      - name: Prepara pacchetto sito statico per collaudo Aruba
+        uses: actions/upload-artifact@v4
+        with:
+          name: punto-cittadino-statico-${{ github.sha }}
+          path: dist/
+          retention-days: 14
+          if-no-files-found: error
+      - name: Prepara pacchetto runtime Node per staging
+        run: |
+          mkdir -p staging-node
+          cp -R server netlify dist staging-node/
+          cp package.json staging-node/
+          printf '%s\n' 'Node.js 22+ richiesto. Avviare con: node server/standalone.cjs' > staging-node/ISTRUZIONI.txt
+      - name: Archivia runtime per hosting Node indipendente
+        uses: actions/upload-artifact@v4
+        with:
+          name: punto-cittadino-node-staging-${{ github.sha }}
+          path: staging-node/
+          retention-days: 14
+          if-no-files-found: error

@@ -1,0 +1,8 @@
+.git
+.github
+node_modules
+staging-node
+*.log
+.env
+.env.*
+!dist/**

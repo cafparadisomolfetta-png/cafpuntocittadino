@@ -1,0 +1,20 @@
+# Staging preview only. Import manually after reviewing Render pricing.
+# Never attach production domain or enable sensitive endpoints before security review.
+services:
+  - type: web
+    name: punto-cittadino-staging
+    runtime: docker
+    plan: starter
+    branch: release/molfetta-only-20261027
+    dockerfilePath: ./Dockerfile.railway
+    healthCheckPath: /healthz
+    autoDeployTrigger: "off"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: "8080"
+# Database, OAuth secrets and live booking operations intentionally NOT configured.
+# Add any database only after the account owner reviews cost and access.

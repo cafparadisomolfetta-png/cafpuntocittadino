@@ -1,35 +1,29 @@
-# Gestionale: configurazione prima del rilascio
+# Gestionale Punto Cittadino Italia — configurazione sede Molfetta
 
-## Struttura organizzativa confermata
-Le sedi iniziali sono **Molfetta** e **Bari**. La titolare del gestionale avrà un solo profilo **admin**, valido per entrambe le sedi, e svolgerà anche la funzione di responsabile. Il ruolo admin comprende la visibilità di entrambe le sedi senza creare un secondo account responsabile. Altri responsabili, operatori e lettori restano limitati alle sedi assegnate. Non inserire l'indirizzo personale dell'amministratrice in GitHub: configurarlo soltanto nelle variabili Netlify.
+## Stato verificato
+Il gestionale è una PWA responsive con autenticazione Google Identity Services e consultazione agenda in sola lettura. Il progetto sito originale **non** coincide con la startup Punto Cittadino Italia Tech.
 
+La sola sede autorizzata in questa versione è **Molfetta**. Il backend rifiuta configurazioni che includono altre sedi. Ogni operatore autenticato consulta gli appuntamenti della sede Molfetta secondo i propri permessi; l'amministratrice usa un solo account admin. Le funzionalità di gestione completa fascicoli, documenti e operatori non risultano ancora attive.
 
-La app è una web app responsive con login tramite Google Identity Services e agenda **in sola lettura**. Nessun utente è abilitato in automatico. Il codice non contiene password o refresh token.
+## Variabili riservate richieste
+Non inserire credenziali, email personali, token o dati di assistiti in GitHub.
+- `GESTIONALE_ADMIN_EMAIL`: indirizzo privato dell'amministratrice, che riceve ruolo `admin` con `sites: ["molfetta"]`.
+- `GESTIONALE_GOOGLE_CLIENT_ID`: Google OAuth client ID con origine JavaScript autorizzata sul dominio effettivo.
+- `GESTIONALE_OPERATORS_JSON`: array di operatori consentiti; inizialmente `[]`. Esempio illustrativo: `[{"email":"operatore@example.org","role":"operator","sites":["molfetta"],"enabled":true}]`.
+- `GESTIONALE_SITE_CALENDARS_JSON`: esclusivamente `{"molfetta":"ID_CALENDARIO_PRIVATO"}`, senza altre chiavi.
+- `GOOGLE_CALENDAR_ID`: deve indicare lo **stesso** calendario di Molfetta.
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`: credenziali Google tenute nel secret manager dell'ambiente di esecuzione.
 
-## Impostazioni necessarie in Netlify (variabili di ambiente, NON GitHub)
-- `GESTIONALE_ADMIN_EMAIL`: impostare in Netlify l'indirizzo Gmail scelto dall'amministratrice. Il server assegna a questo account il ruolo `admin` e le sedi `molfetta` e `bari`, senza riportarlo nel codice.
-- `GESTIONALE_GOOGLE_CLIENT_ID`: OAuth web client ID di Google Cloud. Aggiungere il dominio finale nelle *Authorized JavaScript origins*.
-- `GESTIONALE_OPERATORS_JSON`: JSON degli **altri** utenti abilitati manualmente; lasciare `[]` fino al loro inserimento, ad esempio:
-  `[{"email":"operatore@example.org","role":"operator","sites":["molfetta"],"enabled":true}]`
-- `GESTIONALE_SITE_CALENDARS_JSON`: mappa fra sede autorizzata e ID calendario Google, ad esempio `{"molfetta":"calendario-molfetta@group.calendar.google.com","bari":"calendario-bari@group.calendar.google.com"}` (valore da verificare nell'account che ha autorizzato il refresh token).
-- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID`: già utilizzate dal sito per gli appuntamenti; ricontrollare gli scope Calendar.
+## Controlli obbligatori
+1. Autenticazione valida, email verificata, audience e issuer Google corretti; utenti sospesi o non presenti devono essere rifiutati.
+2. Accesso Molfetta solo per utenti abilitati; rifiutare altri valori `site` e mappe calendario legacy.
+3. Test reali su Google Calendar: prenotazione, conflitti, disdetta entro regole consentite, paginazione, scadenze token e fuso orario Europe/Rome.
+4. Test delle email, dello storico delle disdette e della conservazione dei dati.
+5. Privacy GDPR, controllo degli accessi, backup, ripristino e test desktop/mobile.
+6. Area fascicoli e caricamento documenti: **attualmente disabilitati** finché non sono disponibili storage privato, scansione file, audit e policy di conservazione.
 
-## Permessi
-**Visibilità operatori confermata:** ciascun operatore autenticato può consultare **tutti** gli appuntamenti della propria sede autorizzata, indipendentemente dall'operatore cui sono assegnati. Non può consultare appuntamenti di altre sedi non assegnate. L'amministratrice/responsabile può consultare entrambe le sedi (Molfetta e Bari). Restano in vigore le limitazioni sulle operazioni di modifica e sui dati riservati.
+## Hosting
+Il codice server esistente usa **Netlify Functions** e Netlify Blobs; Aruba è la destinazione di hosting indicata per il sito, ma un piano Aruba statico/PHP non esegue automaticamente queste funzioni. Prima della migrazione occorre individuare il piano Aruba realmente attivo, configurare un runtime backend compatibile oppure predisporre un backend esterno esplicitamente autorizzato e collaudato. Non esporre dati reali in ambiente di test.
 
-Il controllo email verificata + audience del token Google viene svolto dal server e i ruoli/sedi derivano unicamente da `GESTIONALE_OPERATORS_JSON`. Ogni lettura seleziona un calendario dalla mappa server e impone l'appartenenza dell'utente alla sede. La dashboard non espone codice di disdetta, descrizione libera, né password/token Google.
-
-I ruoli sono `admin`, `manager`, `operator`, `viewer`. L'admin è provisionato esclusivamente con `GESTIONALE_ADMIN_EMAIL`, non dalla lista operatori. **In questa versione tutti hanno solo lettura**; l'interfaccia per invitare/disabilitare operatori, modificare appuntamenti, generare notifiche push e gestire più sedi non è ancora stata sviluppata. I privilegi di gestione vanno implementati e testati lato server, non solo nella UI.
-
-## Prima di rendere live
-1. Verificare assenza di credenziali e dati personali nel repo e nel bundle pubblico.
-2. Testare token assente, scaduto, di altro client, account non presente, sede non autorizzata, calendario indisponibile.
-3. Configurare MFA degli account Google, revoca utenti in Netlify, monitoraggio accessi e tempi di conservazione.
-4. Verificare form e funzioni originali, dominio, email e refresh token.
-5. Valutare con attenzione privacy e separazione dei calendari: un calendario unico per più sedi NON garantisce l'isolamento per sede.
-6. Solo a test superati, rimuovere `ignore = "exit 0"` nel file `netlify.toml` e pubblicare una versione verificata.
-
-**Non acquistare crediti Netlify finché non è pronto il collaudo finale e la configurazione degli accessi.**
-
-## Blocco tecnico da risolvere prima del live
-Attualmente le funzioni pubbliche di prenotazione/disdetta usano `GOOGLE_CALENDAR_ID` e non assegnano la sede. **I calendari Molfetta e Bari non sono ancora integrati end-to-end**. Occorre stabilire il percorso di scelta sede sul sito e aggiornare i tre endpoint pubblici prima di accettare prenotazioni su due sedi. Al momento la app gestionale rifiuta configurazioni che riutilizzano lo stesso calendario per entrambe le sedi.
+## Regola di pubblicazione
+Il ramo principale mantiene il blocco di deploy `ignore = "exit 0"`. Il superamento della CI GitHub è necessario ma **non sufficiente**: le prove end-to-end e la verifica dell'hosting sono ancora indispensabili. Non eliminare il blocco prima del collaudo operativo.

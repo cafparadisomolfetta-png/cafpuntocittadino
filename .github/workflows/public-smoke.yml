@@ -1,0 +1,44 @@
+name: Diagnostica pubblica dominio (senza deploy)
+on:
+  push:
+    branches: ['release/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Controllo risposta pubblica e asset della nuova versione
+        shell: bash
+        run: |
+          set -euo pipefail
+          site="https://cafpuntocittadino.it"
+          code=$(curl --location --max-time 20 --silent --output /tmp/punto-home.html --write-out "%{http_code}" "$site/")
+          echo "Homepage HTTP: $code"
+          test "$code" = "200"
+          grep -qi '<html' /tmp/punto-home.html
+          failed=0
+          for asset in /site-enhancements.js /site-enhancements.css /gestionale/index.html /privacy.html /cookie-policy.html /caf.html /servizi-online.html /lavora-con-noi.html; do
+            response=$(curl --location --max-time 20 --silent --output /tmp/punto-asset --write-out "%{http_code}" "$site$asset")
+            echo "$asset HTTP: $response"
+            if [ "$response" != "200" ]; then failed=1; fi
+          done
+          # Read-only / rejected-input checks: never create bookings or upload files.
+          for spec in \
+            "/.netlify/functions/gestionale-session|200,503" \
+            "/.netlify/functions/pratiche|503" \
+            "/.netlify/functions/calendar-availability?date=invalid|400" \
+            "/.netlify/functions/segretaria-ai|405"; do
+            endpoint="${spec%%|*}"
+            allowed="${spec#*|}"
+            response=$(curl --location --max-time 20 --silent --output /tmp/punto-api --write-out "%{http_code}" "$site$endpoint")
+            echo "$endpoint HTTP: $response (allowed $allowed)"
+            if [[ ",$allowed," != *",$response,"* ]]; then failed=1; fi
+          done
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::Almeno una pagina o risorsa della versione nuova non è disponibile in produzione."
+            exit 1
+          fi
+          echo "Risultato: pagine e asset raggiungibili; nessuna prova eseguita sui dati personali o sulle API che modificano prenotazioni."

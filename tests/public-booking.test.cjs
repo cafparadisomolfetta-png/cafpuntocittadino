@@ -27,13 +27,24 @@ test('Calendar routing remains fail-closed for Bari',()=>{
   process.env.GOOGLE_CALENDAR_ID='calendar-molfetta';
   delete process.env.GESTIONALE_SITE_CALENDARS_JSON;
   assert.equal(calendarForSite('molfetta').calendarId,'calendar-molfetta');
-  assert.equal(calendarForSite('bari').status,503);
+  assert.equal(calendarForSite('bari').status,400);
   assert.equal(calendarForSite('other').status,400);
   process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'same',bari:'same'});
   assert.equal(calendarForSite('molfetta').status,503);
  }finally{
   if(oldId===undefined)delete process.env.GOOGLE_CALENDAR_ID;else process.env.GOOGLE_CALENDAR_ID=oldId;
   if(oldMap===undefined)delete process.env.GESTIONALE_SITE_CALENDARS_JSON;else process.env.GESTIONALE_SITE_CALENDARS_JSON=oldMap;
+ }
+});
+
+test('Valid Molfetta mapping is used instead of the legacy primary calendar',()=>{
+ const previous=process.env.GESTIONALE_SITE_CALENDARS_JSON;
+ try{
+  process.env.GESTIONALE_SITE_CALENDARS_JSON=JSON.stringify({molfetta:'calendar-molfetta-mapped'});
+  assert.deepEqual(calendarForSite('molfetta'),{site:'molfetta',calendarId:'calendar-molfetta-mapped'});
+ }finally{
+  if(previous===undefined)delete process.env.GESTIONALE_SITE_CALENDARS_JSON;
+  else process.env.GESTIONALE_SITE_CALENDARS_JSON=previous;
  }
 });
 
