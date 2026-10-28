@@ -3,7 +3,7 @@ services:
   sito-staging:
     build:
       context: .
-      dockerfile: Dockerfile.railway
+      dockerfile: Dockerfile.netcup
     image: punto-cittadino-staging:local
     restart: unless-stopped
     ports:
