@@ -84,6 +84,8 @@ jobs:
             sleep 0.3
           done
           grep -q '"bookingEnabled":false' /tmp/railway-health.json
+      - name: Verifica configurazione staging Netcup senza avviare servizi remoti
+        run: docker compose -f compose.netcup.staging.yaml config --quiet
       - name: Controlla file pubblicati senza effettuare deploy
         run: |
           test -f dist/index.html
